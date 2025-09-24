@@ -4,26 +4,26 @@ import * as SecureStore from 'expo-secure-store'
 import { AppState } from "react-native";
 import { jwtDecode } from "jwt-decode";
 import { API_URL } from "../../constants/ApiUri";
-
+//note to self: buat getAuthState, kalo invalid, log out nigga
 interface AuthProps {
     user?: User | null
-    authState?: { token: string | null; refreshToken: string | null; authenticated: boolean | null; }
-    onRegister?: (username: string, email: string, password: string, phone: string, role:string) => Promise<any>
+    authState?: { authenticated: boolean | null; }
+    onRegister?: (username: string, email: string, password: string, phone: string, role: string) => Promise<any>
     onLogin?: (email: string, password: string) => Promise<any>
     onLogout?: () => Promise<any>
-    onUserUpdate?:(user: User)=> Promise<any>
+    onUserUpdate?: (user: User) => Promise<any>
     onGetUserData?: () => Promise<any>
+    onGetUserToken?: () => Promise<any>
 }
 export interface User {
-    token?: string
     email?: string
-    pfp?: string 
+    pfp?: string
     phone?: string
     rating?: number
     userId?: string
     userName?: string
     role?: string
-    password?:string
+    password?: string
 }
 export const TOKEN_KEY = "access_token"
 const REFRESH_TOKEN_KEY = "refresh_token"
@@ -36,18 +36,14 @@ export const useAuth = () => {
 }
 export default function AuthProvider({ children }: any) {
     const [authState, setAuthState] = useState<{
-        token: string | null
-        refreshToken: string | null
         authenticated: boolean | null
     }>({
-        token: null,
-        refreshToken: null,
         authenticated: null
     })
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
-    
-    const register = async (username: string, email: string, password: string, phone: string, role:string) => {
+
+    const register = async (username: string, email: string, password: string, phone: string, role: string) => {
         try {
             const response = await axios.post(`${API_URL}/register-user`, {
                 UserName: username,
@@ -61,11 +57,11 @@ export default function AuthProvider({ children }: any) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
-    const updateUser = async (user:User)=>{
+    const updateUser = async (user: User) => {
         setUser(user)
         await SecureStore.setItemAsync(USER_DATA_KEY, JSON.stringify(user))
     }
-    
+
     const login = async (email: string, password: string) => {
         try {
             console.log(`${API_URL}/user-login`)
@@ -75,7 +71,7 @@ export default function AuthProvider({ children }: any) {
                     Password: password
                 }
             })
-            
+
             let token = result.data.token
             let refreshToken = result.data.refreshToken
             await SecureStore.setItemAsync(TOKEN_KEY, token)
@@ -84,8 +80,6 @@ export default function AuthProvider({ children }: any) {
             user.password = password
             await SecureStore.setItemAsync(USER_DATA_KEY, JSON.stringify(user))
             setAuthState({
-                token,
-                refreshToken,
                 authenticated: true,
             })
             setUser(user)
@@ -122,6 +116,8 @@ export default function AuthProvider({ children }: any) {
                         return
                     }
                     data = await getFromToken()
+                    await SecureStore.setItemAsync(TOKEN_KEY, token)
+                    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken)
                 }
                 return data
             } catch (e) {
@@ -140,16 +136,19 @@ export default function AuthProvider({ children }: any) {
             const response = await axios.post(`${API_URL}/refresh-token`, {
                 RefreshToken: refreshToken
             })
-            let token = response.data.token
+            const token = response.data.token
+            const refresh = response.data.refreshToken
             await SecureStore.setItemAsync(TOKEN_KEY, token)
-
+            await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh)
+            
+            setAuthState({ authenticated: true });
             return token;
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.msg || "An error occurred" }
         }
     }
     const logout = async () => {
-        setAuthState({ token: null, refreshToken: null, authenticated: false })
+        setAuthState({ authenticated: false })
         setUser(null)
         await SecureStore.deleteItemAsync(TOKEN_KEY)
         await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY)
@@ -181,12 +180,16 @@ export default function AuthProvider({ children }: any) {
                 logout()
                 return
             }
-
-            setAuthState({ token, refreshToken, authenticated: true });
+            setAuthState({ authenticated: true });
         } else {
             logout();
         }
     };
+    const getUserToken = async () => {
+        await checkAuthState()
+        const token = await SecureStore.getItemAsync(TOKEN_KEY);
+        return token
+    }
     useEffect(() => {
         checkAuthState()
         const loadUserData = async () => {
@@ -210,7 +213,8 @@ export default function AuthProvider({ children }: any) {
         onLogin: login,
         onLogout: logout,
         onUserUpdate: updateUser,
-        onGetUserData:getUserData,
+        onGetUserData: getUserData,
+        onGetUserToken: getUserToken,
         authState,
         user,
         loading

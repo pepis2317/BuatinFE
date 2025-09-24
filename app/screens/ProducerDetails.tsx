@@ -9,46 +9,61 @@ import { API_URL } from "../../constants/ApiUri";
 import { PostResponse } from "../../types/PostResponse";
 import { useTheme } from "../context/ThemeContext";
 import PostCard from "../../components/PostCard";
+import { ProducerResponse } from "../../types/ProducerResponse";
+import Colors from "../../constants/Colors";
 
 const FirstRoute = () => (
     <View style={{ flex: 1, backgroundColor: '#ff4081' }} />
 );
+type Cursor = {
+    lastId: string | null
+    lastCreatedAt: string | null
+}
 
-const SecondRoute = ({ ownerId, navigation }: { ownerId: string, navigation: any }) => {
+const PostsRoute = ({ producer, navigation }: { producer: ProducerResponse, navigation: any }) => {
     const [posts, setPosts] = useState<PostResponse[]>([])
-    const [page, setPage] = useState(1)
+    const [cursor, setCursor] = useState<Cursor>({ lastId: null, lastCreatedAt: null, });
+    const [hasMore, setHasMore] = useState(false)
     const [loading, setLoading] = useState(false)
     const [refresh, setRefresh] = useState(false)
-    const [total, setTotal] = useState(0)
     const { theme } = useTheme()
-    const handleFetch = useCallback(async (pageNum: number) => {
+    const handleFetch = useCallback(async (lastId: string | null, lastCreatedAt: string | null) => {
+        if (loading) return;
         setLoading(true);
-        const result = await fetchPosts(pageNum);
+        const result = await fetchPosts(lastId, lastCreatedAt);
         if (result.error) {
-            alert(result.msg);
+            alert(result.error)
         } else {
-            setPosts(prev => (pageNum === 1 ? result.posts : [...prev, ...result.posts]));
-            setTotal(result.total ?? 0);
+            setPosts(prev => {
+                if (!lastId && !lastCreatedAt) return result.posts;
+                const seen = new Set(prev.map(p => p.postId));
+                const merged = [...prev];
+                for (const p of result.posts) if (!seen.has(p.postId)) merged.push(p);
+                return merged;
+            });
+            setCursor({ lastId: result.lastId, lastCreatedAt: result.lastCreatedAt });
+            setHasMore(result.hasMore);
         }
         setLoading(false);
         setRefresh(false);
-    }, []);
+    }, [loading]);
     useEffect(() => {
-        handleFetch(page);
-    }, [page, handleFetch]);
-    const loadMore = () => {
-        if (!loading && posts.length < total) setPage(prev => prev + 1);
-    };
+        handleFetch(null, null);
+    }, []);
+    const loadMore = useCallback(() => {
+        if (!loading && hasMore) handleFetch(cursor.lastId, cursor.lastCreatedAt);
+    }, [loading, hasMore, cursor, handleFetch]);
     const onRefresh = useCallback(() => {
         setRefresh(true);
-        setTotal(0);
         setPosts([]);
-        setPage(1);
-        handleFetch(1);
+        handleFetch(null, null);
     }, [handleFetch]);
-    const fetchPosts = async (pageNum: number) => {
+    const fetchPosts = async (lastPostId: string | null, lastCreatedAt: string | null) => {
         try {
-            const queryString = `/get-posts?AuthorId=${ownerId}&pageSize=3&pageNumber=${pageNum}`;
+            let queryString = `/get-posts?AuthorId=${producer.owner.userId}&pageSize=3`;
+            if (lastPostId != null && lastCreatedAt != null) {
+                queryString = queryString + `&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`
+            }
             const response = await axios.get(`${API_URL}${queryString}`);
             return response.data;
         } catch (e) {
@@ -65,8 +80,10 @@ const SecondRoute = ({ ownerId, navigation }: { ownerId: string, navigation: any
                     renderItem={({ item, index }) => (
                         <PostCard post={item} onPress={() =>
                             navigation.navigate('PostDetails', {
-                                authorId: ownerId,
-                                initialPostId: item.postId
+                                posts: posts,
+                                selectedPostIndex: index,
+                                producer: producer,
+                                hasMorePosts: hasMore
                             })} />
                     )}
                     onEndReached={loadMore}
@@ -81,32 +98,35 @@ const SecondRoute = ({ ownerId, navigation }: { ownerId: string, navigation: any
                             <View style={{ marginTop: 64 }} />
                     }
                 >
-
                 </FlatList> : <></>}
         </View>
     )
 }
 const routes = [
-    { key: 'first', title: 'Details' },
-    { key: 'second', title: 'Posts' },
+    { key: 'Details', title: 'Details' },
+    { key: 'Posts', title: 'Posts' },
 ];
 type ProducerDetailProps = NativeStackScreenProps<RootStackParamList, "ProducerDetails">;
 export default function ProducerDetails({ navigation, route }: ProducerDetailProps) {
-    const { producer } = route.params;
-    const layout = useWindowDimensions();
+    const { producer } = route.params
+    const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
+    const { theme } = useTheme()
+    const backgroundColor = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
+    const selectedColor = theme == "dark" ? "white" : "black"
+    const unselectedColor = theme == "dark" ? Colors.offWhite : Colors.darkGray
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={producer.producerName} showBackButton />
             <TabView
-                style={{ flex: 1 }}
+                style={{ flex: 1}}
                 navigationState={{ index, routes }}
                 renderScene={({ route }) => {
                     switch (route.key) {
-                        case 'first':
+                        case 'Details':
                             return <FirstRoute />;
-                        case 'second':
-                            return <SecondRoute ownerId={producer.owner.userId} navigation={navigation} />;
+                        case 'Posts':
+                            return <PostsRoute navigation={navigation} producer={producer} />;
                         default:
                             return null;
                     }
@@ -116,9 +136,11 @@ export default function ProducerDetails({ navigation, route }: ProducerDetailPro
                 renderTabBar={(props) => (
                     <TabBar
                         {...props}
+                        activeColor={selectedColor}
+                        inactiveColor={unselectedColor}
                         scrollEnabled={false}
-                        indicatorStyle={{ backgroundColor: '#5CCFA3' }}
-                        style={{ backgroundColor: '#222831' }}
+                        indicatorStyle={{ backgroundColor: Colors.green }}
+                        style={{ backgroundColor: backgroundColor }}
                     />
                 )}
             />

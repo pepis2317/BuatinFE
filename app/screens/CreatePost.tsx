@@ -48,7 +48,7 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
     const handleCreatePostMetadata = async () => {
         try {
             const result = await axios.post(`${API_URL}/create-post-metadata`, {
-                authorId: producer.ownerId,
+                authorId: producer.owner.userId,
                 caption: caption
             })
             return { data: result.data };

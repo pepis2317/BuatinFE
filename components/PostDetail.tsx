@@ -1,7 +1,7 @@
 import axios from "axios";
 import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity, Touchable, Button } from "react-native";
 import { API_URL } from "../constants/ApiUri";
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useMemo, useRef, useState } from "react";
 import { PostResponse } from "../types/PostResponse";
 import PagerView from "react-native-pager-view";
 import { Heart, MessageCircle } from "lucide-react-native";
@@ -9,27 +9,29 @@ import { useTheme } from "../app/context/ThemeContext";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { ProducerResponse } from "../types/ProducerResponse";
-import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuth } from "../app/context/AuthContext";
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withTiming,
     withSequence,
-    runOnJS,
 } from "react-native-reanimated";
+import Colors from "../constants/Colors";
 
-export default function PostDetail({ post, authorId }: { post: PostResponse, authorId: string }) {
-    const { authState, user } = useAuth()
+export default function PostDetail({ post, producer, onCommentPressed }: { post: PostResponse, producer: ProducerResponse, onCommentPressed: () => void }) {
+    const { onGetUserToken, user } = useAuth()
+    const { theme } = useTheme()
     const [images, setImages] = useState<string[]>([])
-    const [author, setAuthor] = useState<ProducerResponse>()
     const [slideIndex, setSlideIndex] = useState(0)
     const [likes, setLikes] = useState(0)
     const [comments, setComments] = useState(0)
     const [expanded, setExpanded] = useState(false);
     const [likeId, setLikeId] = useState("")
-    const { theme } = useTheme()
     const textColor = theme === "dark" ? "white" : "black";
+    const backgroundColor = theme == "dark" ? Colors.darkGray : Colors.offWhite;
+    const heartOpacity = useSharedValue(0);
+    const heartScale = useSharedValue(0.5);
+    dayjs.extend(relativeTime)
     var fetchImages = async () => {
         try {
             const res = await axios.get(`${API_URL}/get-images?ContentId=${post.postId}`)
@@ -40,7 +42,7 @@ export default function PostDetail({ post, authorId }: { post: PostResponse, aut
     }
     var likePost = async () => {
         try {
-            const token = authState?.token
+            const token = await onGetUserToken!()
             const res = await axios.post(`${API_URL}/like-content`, {
                 contentId: post.postId
             }, {
@@ -70,7 +72,7 @@ export default function PostDetail({ post, authorId }: { post: PostResponse, aut
             triggerAnimation()
             var res = await likePost()
             if (!res.error) {
-                setLikeId(res)
+                setLikeId(res.likeId)
                 setLikes(likes + 1)
             }
         } else {
@@ -78,6 +80,8 @@ export default function PostDetail({ post, authorId }: { post: PostResponse, aut
             if (!res.error) {
                 setLikeId("")
                 setLikes(likes - 1)
+            }else{
+                console.log(res.msg)
             }
         }
     }
@@ -87,18 +91,6 @@ export default function PostDetail({ post, authorId }: { post: PostResponse, aut
                 params: {
                     authorId: user?.userId,
                     contentId: post.postId,
-                },
-            });
-            return res.data
-        } catch (e: any) {
-            return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
-        }
-    }
-    var fetchAuthor = async () => {
-        try {
-            const res = await axios.get(`${API_URL}/get-producer-by-owner-id`, {
-                params: {
-                    OwnerId: authorId,
                 },
             });
             return res.data
@@ -122,19 +114,9 @@ export default function PostDetail({ post, authorId }: { post: PostResponse, aut
                 setLikes(likes.likes)
             }
         }
-        const loadAuthor = async () => {
-            var author = await fetchAuthor()
-            if (!author.error) {
-                setAuthor(author)
-            }
-        }
         loadImages()
         loadLikes()
-        loadAuthor()
     }, [])
-    const heartOpacity = useSharedValue(0);
-    const heartScale = useSharedValue(0.5);
-
     const animatedStyle = useAnimatedStyle(() => {
         return {
             opacity: heartOpacity.value,
@@ -152,26 +134,18 @@ export default function PostDetail({ post, authorId }: { post: PostResponse, aut
             withTiming(1, { duration: 200 })
         );
     };
-
-    dayjs.extend(relativeTime)
-
     return (
-
         <View style={styles.postContainer}>
-            {author ?
-                <TouchableOpacity style={styles.authorContainer} onPress={() => console.log("pressed")}>
-                    <Image style={styles.authorImage} src={author.producerPicture}></Image>
-                    <Text style={[styles.text, theme === "dark" ? { color: "white" } : { color: "black" }]}>{author?.producerName}</Text>
-                </TouchableOpacity> :
-                <></>
-            }
+            <TouchableOpacity style={styles.authorContainer} onPress={() => console.log("pressed")}>
+                <Image style={[styles.authorImage, { backgroundColor: backgroundColor }]} src={producer.producerPicture}></Image>
+                <Text style={[styles.text, { color: textColor }]}>{producer.producerName}</Text>
+            </TouchableOpacity>
             <View style={styles.carouselContainer}>
-                <PagerView style={styles.carousel} onPageSelected={(e) => setSlideIndex(e.nativeEvent.position)}>
+                <PagerView style={[styles.carousel, { backgroundColor: backgroundColor }]} onPageSelected={(e) => setSlideIndex(e.nativeEvent.position)}>
                     {images.map((image, index) => (
                         <Image source={{ uri: image }} key={index} />
                     ))}
                 </PagerView>
-
                 {images.length > 1 ?
                     <View style={styles.counter}>
                         <Text style={{ color: "white" }}>{slideIndex + 1}/{images.length}</Text>
@@ -179,22 +153,21 @@ export default function PostDetail({ post, authorId }: { post: PostResponse, aut
                 <Animated.View style={[animatedStyle, styles.heart]} pointerEvents={"none"}>
                     <Heart size={100} color="white" fill={"white"} />
                 </Animated.View>
-
             </View>
             <View style={{ gap: 10, padding: 10 }}>
                 <View style={styles.reactionContainer}>
                     <TouchableOpacity style={styles.reaction} onPress={() => likeHandler()}>
-                        {likeId ? <Heart color={"rgb(239 68 68)"} fill={"rgb(239 68 68)"} size={26} /> : <Heart color={theme == "dark" ? "white" : "black"} size={26} />}
-                        <Text style={[styles.text, theme === "dark" ? { color: "white" } : { color: "black" }]}>{likes}</Text>
+                        {likeId ? <Heart color={Colors.red} fill={Colors.red} size={26} /> : <Heart color={textColor} size={26} />}
+                        <Text style={[styles.text, { color: textColor }]}>{likes}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.reaction}>
-                        <MessageCircle color={theme == "dark" ? "white" : "black"} size={26} />
-                        <Text style={[styles.text, theme === "dark" ? { color: "white" } : { color: "black" }]}>{comments}</Text>
+                    <TouchableOpacity style={styles.reaction} onPress={() => onCommentPressed()}>
+                        <MessageCircle color={textColor} size={26} />
+                        <Text style={[styles.text, { color: textColor }]}>{comments}</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
                     <Text style={[{ fontWeight: "bold", color: textColor }]}>
-                        {author?.producerName}{" "}
+                        {producer.producerName}{" "}
                     </Text>
                     <Text
                         style={{ color: textColor, flexShrink: 1 }}
@@ -232,25 +205,25 @@ const styles = StyleSheet.create({
     authorImage: {
         width: 32,
         height: 32,
-        backgroundColor: '#31363F',
         borderRadius: 50,
         overflow: 'hidden'
     },
     reactionContainer: {
         gap: 10,
-        flex: 1,
+
         flexDirection: 'row',
         justifyContent: 'flex-start'
     },
     carouselContainer: {
-        position: 'relative'
+        position: 'relative',
+        backgroundColor: 'red'
     },
     counter: {
         position: "absolute",
         top: 10,
         right: 10,
-        backgroundColor: "rgba(0,0,0,0.6)", // dark semi-transparent background
-        borderRadius: 20, // half of height/width if square
+        backgroundColor: "rgba(0,0,0,0.6)",
+        borderRadius: 20,
         padding: 6,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
@@ -268,15 +241,13 @@ const styles = StyleSheet.create({
         gap: 5
     },
     carousel: {
-        backgroundColor: '#31363F',
         width: "100%",
         aspectRatio: 1,
-        flex: 1,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     postContainer: {
-        width: "100%",
-        flex: 1
-    }
+        width: '100%',
+        minHeight: 600,          // 👈 fixed item height    // optional: clip anything that overflows
+    },
 });

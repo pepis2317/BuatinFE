@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
-import { FlatList, NativeScrollEvent, NativeSyntheticEvent, useWindowDimensions, View, Text, Dimensions, ListRenderItemInfo, FlatListProps, Button, ActivityIndicator } from "react-native";
+import { FlatList, View, ActivityIndicator, StyleSheet, Text } from "react-native";
 import TopBar from "../../components/TopBar";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PostDetail from "../../components/PostDetail";
@@ -8,146 +8,104 @@ import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
 import { useTheme } from "../context/ThemeContext";
 import { PostResponse } from "../../types/PostResponse";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import PostComments from "../../components/PostComments";
+import Colors from "../../constants/Colors";
 
 type PostDetailProps = NativeStackScreenProps<RootStackParamList, "PostDetails">;
 export default function PostDetails({ navigation, route }: PostDetailProps) {
     const { theme } = useTheme()
-    const { initialPostId, authorId } = route.params;
-    const [posts, setPosts] = useState<PostResponse[]>([]);
-    const [topId, setTopId] = useState(initialPostId)
-    const [bottomId, setBottomId] = useState(initialPostId)
-    const [loadingNewer, setLoadingNewer] = useState(false);
+    const { posts, selectedPostIndex, producer, hasMorePosts } = route.params;
+    const [loadedPosts, setLoadedPosts] = useState<PostResponse[]>(posts)
+    const [commentPostId, setCommentPostId] = useState("")
+    const [hasMore, setHasMore] = useState(hasMorePosts)
     const [loadingOlder, setLoadingOlder] = useState(false);
-    const [stopLoadingNewer, setStopLoadingNewer] = useState(false)
-    const [stopLoadingOlder, setStopLoadingOlder] = useState(false)
-    const loadingRef = useRef({ newer: false, older: false });
-    const seenIdsRef = useRef<Set<string>>(new Set());
-    const initialFetch = async () => {
-        try {
-            const res = await axios.get(`${API_URL}/get-post?PostId=${initialPostId}`)
-            return res.data
-        } catch (e: any) {
-            return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
-        }
-    }
-    useEffect(() => {
-        (async () => {
-            const res = await initialFetch();
-            if (!res?.error && res?.postId) {
-                if (!seenIdsRef.current.has(res.postId)) {
-                    seenIdsRef.current.add(res.postId);
-                    setPosts([res]);
-                    setTopId(res.postId);
-                    setBottomId(res.postId);
-                }
-            }
-        })();
+    const [cursor, setCursor] = useState<{ lastId: string; lastCreatedAt: string }>({
+        lastId: posts[posts.length - 1].postId,
+        lastCreatedAt: posts[posts.length - 1].createdAt,
+    });
+    const bottomSheetRef = useRef<BottomSheet>(null);
+    const handleSheetChanges = useCallback((index: number) => {
+        console.log('handleSheetChanges', index);
     }, []);
-    const fetchNewerPosts = useCallback(async () => {
+    const listRef = useRef<FlatList<PostResponse>>(null);
+    const ITEM_HEIGHT = 600;
+    const handleStyle = theme === "dark" ? "white" : "black"
+    const backgroundColor = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
+    const fetchPosts = async (lastPostId: string, lastCreatedAt: string) => {
         try {
-            const { data } = await axios.get(`${API_URL}/get-cursor-posts`, {
-                params: { AuthorId: authorId, GetNextPostId: topId },
-            });
-            return data;
-        } catch (e: any) {
-            return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
+            let queryString = `/get-posts?AuthorId=${producer.owner.userId}&pageSize=3&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`;
+            const response = await axios.get(`${API_URL}${queryString}`);
+            return response.data;
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
-    }, [authorId, topId]);
-
-    const fetchOlderPosts = useCallback(async () => {
-        try {
-            const { data } = await axios.get(`${API_URL}/get-cursor-posts`, {
-                params: { AuthorId: authorId, GetPrevPostId: bottomId },
-            });
-            return data;
-        } catch (e: any) {
-            return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
-        }
-    }, [authorId, bottomId]);
-    const addIfNewPrepend = (post: any) => {
-        const id = post?.postId;
-        if (!id || seenIdsRef.current.has(id)) return false;
-        seenIdsRef.current.add(id);
-        setPosts(prev => [post, ...prev]);
-        return true;
-    };
-    const addIfNewAppend = (post: any) => {
-        const id = post?.postId;
-        if (!id || seenIdsRef.current.has(id)) return false;
-        seenIdsRef.current.add(id);
-        setPosts(prev => [...prev, post]);
-        return true;
     };
 
-    const prepend = async () => {
-        if (stopLoadingNewer || loadingRef.current.newer) return;
-        loadingRef.current.newer = true;
-        setLoadingNewer(true);
-
-        const res = await fetchNewerPosts();
-
-        if (res?.error || !res?.postId) {
-            setStopLoadingNewer(true);
+    const handleFetch = useCallback(async (lastId: string, lastCreatedAt: string) => {
+        if (loadingOlder) return;
+        setLoadingOlder(true)
+        const result = await fetchPosts(lastId, lastCreatedAt)
+        if (result.error) {
+            alert(result.msg)
         } else {
-            const added = addIfNewPrepend(res);
-            if (added) setTopId(res.postId);
-            else setStopLoadingNewer(true);
+            setLoadedPosts(prev => {
+                if (!lastId && !lastCreatedAt) return result.posts;
+                const seen = new Set(prev.map(p => p.postId));
+                const merged = [...prev];
+                for (const p of result.posts) if (!seen.has(p.postId)) merged.push(p);
+                return merged;
+            });
+            setCursor({ lastId: result.lastId, lastCreatedAt: result.lastCreatedAt });
+            setHasMore(result.hasMore);
         }
-
-        setLoadingNewer(false);
-        loadingRef.current.newer = false;
-    };
-
-    const append = async () => {
-        if (stopLoadingOlder || loadingRef.current.older) return;
-        loadingRef.current.older = true;
-        setLoadingOlder(true);
-
-        const res = await fetchOlderPosts();
-
-        if (res?.error || !res?.postId) {
-            setStopLoadingOlder(true);
-        } else {
-            const added = addIfNewAppend(res);
-            if (added) setBottomId(res.postId);
-            else setStopLoadingOlder(true);
-        }
-
         setLoadingOlder(false);
-        loadingRef.current.older = false;
-    };
+    }, [loadingOlder])
+
+    const loadMore = useCallback(() => {
+        if (!loadingOlder && hasMore) {
+            handleFetch(cursor.lastId, cursor.lastCreatedAt);
+        }
+    }, [loadingOlder, hasMore, cursor, handleFetch]);
     return (
-        <View style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
             <TopBar title="Posts" showBackButton />
             <FlatList
+                ref={listRef}
+                data={loadedPosts}
                 showsVerticalScrollIndicator={false}
-                data={posts}
-                keyExtractor={(post) => post.postId}
-                renderItem={({ item }) => <PostDetail post={item} authorId={authorId}/>}
-                onEndReached={() => {
-                    if (!loadingOlder) {
-                        append()
-                    }
+                keyExtractor={(p) => p.postId}
+                renderItem={({ item }) => <PostDetail post={item} producer={producer} onCommentPressed={() => {
+                    navigation.navigate("Comments",{postId:item.postId})
+                }} />}
+                initialScrollIndex={selectedPostIndex}
+                getItemLayout={(d, i) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * i, index: i })}
+                onScrollToIndexFailed={(info) => {
+                    listRef.current?.scrollToOffset({ offset: info.averageItemLength * info.index, animated: false });
+                    setTimeout(() => listRef.current?.scrollToIndex({ index: info.index, animated: false }), 50);
                 }}
-                onStartReached={() => {
-                    if (!loadingNewer) {
-                        prepend()
-                    }
-                }}
-                onStartReachedThreshold={0.2}
-                onEndReachedThreshold={0.2}
+                onEndReachedThreshold={1}
+                onEndReached={loadMore}
                 maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
                 ListFooterComponent={
-                    loadingOlder && !stopLoadingOlder
-                        ? <ActivityIndicator size="large" style={{ height: 100, margin: 10, borderRadius: 5 }} color={theme === "dark" ? "white" : "black"} />
-                        : <></>
-                }
-                ListHeaderComponent={
-                    loadingNewer && !stopLoadingNewer
-                        ? <ActivityIndicator size="large" style={{ height: 100, margin: 10, borderRadius: 5 }} color={theme === "dark" ? "white" : "black"} />
-                        : <></>
+                    loadingOlder ?
+                        <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                        :
+                        <View style={{ marginTop: 64 }} />
                 }
             />
-        </View>
+        </GestureHandlerRootView>
     );
 }
+const styles = StyleSheet.create({
+    backgroundStyle: {
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10
+    },
+    contentContainer: {
+        flex: 1,
+        padding: 36,
+        alignItems: 'center',
+    },
+})

@@ -77,7 +77,7 @@ export default function UserHome() {
                 elevation:2
             }}>
                 <Text style={{ color: theme == "dark" ? 'white' : 'black', fontWeight: "bold", fontSize: 20 }}>
-                    Pre Cum
+                    Buatin
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                     <TouchableOpacity onPress={() => navigation.navigate("Settings")}>

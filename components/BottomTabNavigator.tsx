@@ -17,18 +17,17 @@ import { RootStackParamList } from '../constants/RootStackParams';
 import CreatePost from '../app/screens/CreatePost';
 import { Pressable } from 'react-native';
 import PostDetails from '../app/screens/PostDetails';
+import Colors from '../constants/Colors';
+import Comments from '../app/screens/Comments';
 const UserTab = createBottomTabNavigator()
-
-
 export function UserTabs() {
     const { theme } = useTheme()
-
-    const bgColor = theme == "dark" ? '#222831' : 'white'
+    const bgColor = theme == "dark" ? Colors.darkGray : 'white'
     const iconColor = theme != "dark" ? 'black' : 'white'
     const homeTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarHideOnKeyboard: true,
+        tabBarHideOnKeyboard: false,
         tabBarStyle: {
             paddingBottom: 8,
             paddingTop: 8,
@@ -41,7 +40,6 @@ export function UserTabs() {
     const profileTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarHideOnKeyboard: true,
         tabBarStyle: {
             paddingBottom: 8,
             paddingTop: 8,
@@ -52,7 +50,7 @@ export function UserTabs() {
         ),
     }
     return (
-        <UserTab.Navigator screenOptions={{ animation: "none", tabBarButton: (props) => <Pressable {...props} android_ripple={{ color: 'transparent' }}/> }}>
+        <UserTab.Navigator screenOptions={{ animation: "none", tabBarButton: (props) => <Pressable {...props} android_ripple={{ color: 'transparent' }} /> }}>
             <UserTab.Screen name="HomeTab" component={HomeStackScreen} options={homeTabOptions} />
             <UserTab.Screen name="ProfileTab" component={ProfileStackScreen} options={profileTabOptions} />
         </UserTab.Navigator>
@@ -62,12 +60,12 @@ export function UserTabs() {
 const ProducerTab = createBottomTabNavigator<RootStackParamList>();
 export function ProducerTabs() {
     const { theme, toggleTheme } = useTheme()
-    const bgColor = theme == "dark" ? '#31363F' : 'white'
-    const iconColor = theme != "dark" ? '#31363F' : 'white'
+    const bgColor = theme == "dark" ? Colors.darkGray : 'white'
+    const iconColor = theme != "dark" ? Colors.darkGray : 'white'
     const homeTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarHideOnKeyboard: true,
+        tabBarHideOnKeyboard: false,
         tabBarStyle: {
             paddingBottom: 8,
             paddingTop: 8,
@@ -80,7 +78,7 @@ export function ProducerTabs() {
     const profileTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarHideOnKeyboard: true,
+        tabBarHideOnKeyboard: false,
         tabBarStyle: {
             paddingBottom: 8,
             paddingTop: 8,
@@ -107,8 +105,9 @@ function HomeStackScreen() {
             <HomeStack.Screen name="SearchPage" component={SearchPage} options={{ headerShown: false }} />
             <HomeStack.Screen name="ProducerDetails" component={ProducerDetails} options={{ headerShown: false }} />
             <HomeStack.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
-            <HomeStack.Screen name="PostDetails" component={PostDetails} options={{headerShown:false, animation:'none'}}/>
-            <HomeStack.Screen name="Notifications" component={Notifications}  options={{ headerShown: false }}/>
+            <HomeStack.Screen name="PostDetails" component={PostDetails} options={{ headerShown: false, animation: 'none' }} />
+            <HomeStack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />
+            <HomeStack.Screen name="Comments" component={Comments} options={{ headerShown: false }} />
         </HomeStack.Navigator>
     )
 }

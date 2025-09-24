@@ -5,18 +5,21 @@ import { useTheme } from "../app/context/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../constants/RootStackParams";
+import Colors from "../constants/Colors";
 
 export default function ProducerCard({ producer }: { producer: ProducerResponse }) {
     const { theme } = useTheme()
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
+    const iconColor = theme == "dark" ?Colors.darkBorder:Colors.lightBorder
     return (
-        <TouchableOpacity style={theme == "dark" ? styles.producer : styles.lightProducer} onPress={() => navigation.navigate("ProducerDetails",{producer: producer})}>
+        <TouchableOpacity style={theme == "dark" ? styles.producer : styles.lightProducer} onPress={() => navigation.navigate("ProducerDetails", { producer: producer })}>
             <View style={{ width: "100%", padding: 5 }}>
                 {producer.banner ?
                     <Image src={producer.banner} style={styles.thumbnail} />
                     :
-                    <View style={styles.thumbnail} >
-                        <ImageIcon size={50} color={"#636C7C"} />
+                    <View style={[styles.thumbnail, { backgroundColor: placeholderColor }]} >
+                        <ImageIcon size={50} color={iconColor} />
                     </View>
                 }
                 <View style={styles.info}>
@@ -52,11 +55,10 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#31363F',
         overflow: 'hidden',
         height: 200,
         borderRadius: 5,
-       
+
     },
     darkTitle: {
         color: 'white',

@@ -2,9 +2,9 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ArrowLeft } from "lucide-react-native";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useState } from "react";
 import { useTheme } from "../app/context/ThemeContext";
 import { RootStackParamList } from "../constants/RootStackParams";
+import Colors from "../constants/Colors";
 
 export default function TopBar({ title, showBackButton }: { title: string, showBackButton: boolean }) {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -18,7 +18,6 @@ export default function TopBar({ title, showBackButton }: { title: string, showB
                     <ArrowLeft color={theme == "dark" ? "white" : "black"} />
                 </TouchableOpacity> : <></>
             }
-
         </View>
     )
 }
@@ -27,8 +26,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderBottomWidth: 1,
-        borderColor: '#31363F',
-        backgroundColor: '#222831',
+        borderColor: Colors.darkGray,
+        backgroundColor: Colors.darkBackground,
         padding: 10,
         gap: 10,
         height:50
@@ -37,6 +36,8 @@ const styles = StyleSheet.create({
     lightTopBar: {
         flexDirection: 'row',
         alignItems: 'center',
+        borderBottomWidth: 1,
+        borderColor: Colors.offWhite,
         backgroundColor: 'white',
         padding: 10,
         gap: 10,

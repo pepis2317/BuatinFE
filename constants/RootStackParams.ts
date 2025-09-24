@@ -14,12 +14,17 @@ export type RootStackParamList = {
     producer: ProducerResponse
   };
   PostDetails:{
-    authorId:string
-    initialPostId:string
+    producer:ProducerResponse,
+    hasMorePosts:boolean,
+    selectedPostIndex: number,
+    posts:PostResponse[]
   }
   Settings: undefined;
   Notifications: undefined,
   CreatePost:{
     producer: ProducerResponse
+  },
+  Comments:{
+    postId:string
   }
 };

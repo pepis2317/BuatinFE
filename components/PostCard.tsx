@@ -6,14 +6,17 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../constants/RootStackParams";
 import { PostResponse } from "../types/PostResponse";
+import Colors from "../constants/Colors";
 
-export default function PostCard({ post, onPress }: { post: PostResponse, onPress:()=>void }) {
+export default function PostCard({ post, onPress }: { post: PostResponse, onPress: () => void }) {
     const { theme } = useTheme()
     const { width } = Dimensions.get("window");
+    const placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
+    const iconColor = theme == "dark" ? Colors.darkBorder : Colors.lightBorder
     const numColumns = 3;
     const itemSize = width / numColumns;
     return (
-        <TouchableOpacity style={theme == "dark" ? [styles.post, { width: itemSize, height: itemSize }] : [styles.lightPost, { width: itemSize, height: itemSize }]} onPress={ ()=>onPress()} >
+        <TouchableOpacity style={theme == "dark" ? [styles.post, { width: itemSize, height: itemSize }] : [styles.lightPost, { width: itemSize, height: itemSize }]} onPress={() => onPress()} >
             <View style={{ width: "100%" }}>
                 {post.thumbnail ?
                     <View style={styles.thumbnail} >
@@ -22,8 +25,8 @@ export default function PostCard({ post, onPress }: { post: PostResponse, onPres
 
                     </View>
                     :
-                    <View style={styles.thumbnail} >
-                        <ImageIcon size={50} color={"#636C7C"} />
+                    <View style={[styles.thumbnail, { backgroundColor: placeholderColor }]} >
+                        <ImageIcon size={50} color={iconColor} />
                     </View>
                 }
             </View>
@@ -65,7 +68,6 @@ const styles = StyleSheet.create({
         height: "100%",
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#31363F',
         overflow: 'hidden',
         position: 'relative'
     },

@@ -1,6 +1,6 @@
-export type ProducerResponse={
-    producerId:string
-    producerName:string
+export type SellerResponse={
+    sellerId:string
+    sellerName:string
     owner:{
         userId:string,
         userName:string,
@@ -8,5 +8,5 @@ export type ProducerResponse={
     rating:number
     clients:number
     banner:string | null
-    producerPicture:string
+    sellerPicture:string
 }

@@ -1,5 +1,5 @@
 import { View, StyleSheet, TouchableOpacity, Text, Image } from "react-native";
-import { ProducerResponse } from "../types/ProducerResponse";
+import { SellerResponse } from "../types/SellerResponse";
 import { ImageIcon, Star } from "lucide-react-native";
 import { useTheme } from "../app/context/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
@@ -7,28 +7,28 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../constants/RootStackParams";
 import Colors from "../constants/Colors";
 
-export default function ProducerCard({ producer }: { producer: ProducerResponse }) {
+export default function SellerCard({ seller }: { seller: SellerResponse }) {
     const { theme } = useTheme()
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
     const iconColor = theme == "dark" ?Colors.darkBorder:Colors.lightBorder
     return (
-        <TouchableOpacity style={theme == "dark" ? styles.producer : styles.lightProducer} onPress={() => navigation.navigate("ProducerDetails", { producer: producer })}>
+        <TouchableOpacity style={theme == "dark" ? styles.seller : styles.lightSeller} onPress={() => navigation.navigate("SellerDetails", { seller: seller })}>
             <View style={{ width: "100%", padding: 5 }}>
-                {producer.banner ?
-                    <Image src={producer.banner} style={styles.thumbnail} />
+                {seller.banner ?
+                    <Image src={seller.banner} style={styles.thumbnail} />
                     :
                     <View style={[styles.thumbnail, { backgroundColor: placeholderColor }]} >
                         <ImageIcon size={50} color={iconColor} />
                     </View>
                 }
                 <View style={styles.info}>
-                    <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{producer.producerName}</Text>
+                    <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.sellerName}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Star fill={"gold"} size={16} />
-                        <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{producer.rating}</Text>
+                        <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.rating}</Text>
                     </View>
-                    <Text style={theme == "dark" ? styles.darkText : styles.lightText}>{producer.clients} Clients</Text>
+                    <Text style={theme == "dark" ? styles.darkText : styles.lightText}>{seller.clients} Clients</Text>
                     <Text style={theme == "dark" ? styles.darkText : styles.lightText}>address here</Text>
                 </View>
 
@@ -39,13 +39,13 @@ export default function ProducerCard({ producer }: { producer: ProducerResponse 
     )
 }
 const styles = StyleSheet.create({
-    producer: {
+    seller: {
         alignItems: "center",
         width: "50%",
         overflow: 'hidden',
         position: 'relative',
     },
-    lightProducer: {
+    lightSeller: {
         alignItems: "center",
         width: "50%",
         overflow: 'hidden',

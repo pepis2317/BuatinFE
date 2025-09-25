@@ -1,19 +1,19 @@
 import { ActivityIndicator, FlatList, View } from "react-native";
-import { ProducerResponse } from "../types/ProducerResponse";
-import ProducerCard from "./ProducerCard";
+import { SellerResponse } from "../types/SellerResponse";
+import SellerCard from "./SellerCard";
 import { useState } from "react";
 import { useTheme } from "../app/context/ThemeContext";
 
-export default function ProducersList({ producers, isLoading, onReachEnd }: { producers: ProducerResponse[], isLoading: boolean, onReachEnd: () => void }) {
+export default function SellersList({ sellers, isLoading, onReachEnd }: { sellers: SellerResponse[], isLoading: boolean, onReachEnd: () => void }) {
     const { theme } = useTheme()
     return (
         <FlatList
-            data={producers}
+            data={sellers}
             numColumns={2}
             contentContainerStyle={{ gap: 5 }}
-            keyExtractor={(producer) => producer.producerId}
+            keyExtractor={(seller) => seller.sellerId}
             renderItem={({ item }) => (
-                <ProducerCard producer={item} />
+                <SellerCard seller={item} />
             )}
             onEndReached={onReachEnd}
             onEndReachedThreshold={0.5}

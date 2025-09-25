@@ -8,7 +8,7 @@ import { Heart, MessageCircle } from "lucide-react-native";
 import { useTheme } from "../app/context/ThemeContext";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { ProducerResponse } from "../types/ProducerResponse";
+import { SellerResponse } from "../types/SellerResponse";
 import { useAuth } from "../app/context/AuthContext";
 import Animated, {
     useSharedValue,
@@ -18,7 +18,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Colors from "../constants/Colors";
 
-export default function PostDetail({ post, producer, onCommentPressed }: { post: PostResponse, producer: ProducerResponse, onCommentPressed: () => void }) {
+export default function PostDetail({ post, seller, onCommentPressed }: { post: PostResponse, seller: SellerResponse, onCommentPressed: () => void }) {
     const { onGetUserToken, user } = useAuth()
     const { theme } = useTheme()
     const [images, setImages] = useState<string[]>([])
@@ -137,8 +137,8 @@ export default function PostDetail({ post, producer, onCommentPressed }: { post:
     return (
         <View style={styles.postContainer}>
             <TouchableOpacity style={styles.authorContainer} onPress={() => console.log("pressed")}>
-                <Image style={[styles.authorImage, { backgroundColor: backgroundColor }]} src={producer.producerPicture}></Image>
-                <Text style={[styles.text, { color: textColor }]}>{producer.producerName}</Text>
+                <Image style={[styles.authorImage, { backgroundColor: backgroundColor }]} src={seller.sellerPicture}></Image>
+                <Text style={[styles.text, { color: textColor }]}>{seller.sellerName}</Text>
             </TouchableOpacity>
             <View style={styles.carouselContainer}>
                 <PagerView style={[styles.carousel, { backgroundColor: backgroundColor }]} onPageSelected={(e) => setSlideIndex(e.nativeEvent.position)}>
@@ -167,7 +167,7 @@ export default function PostDetail({ post, producer, onCommentPressed }: { post:
                 </View>
                 <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
                     <Text style={[{ fontWeight: "bold", color: textColor }]}>
-                        {producer.producerName}{" "}
+                        {seller.sellerName}{" "}
                     </Text>
                     <Text
                         style={{ color: textColor, flexShrink: 1 }}

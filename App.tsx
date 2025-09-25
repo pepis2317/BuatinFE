@@ -5,7 +5,7 @@ import AuthProvider, { useAuth } from './app/context/AuthContext';
 import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import Login from './app/screens/Login';
 import ThemeProvider, { useTheme } from './app/context/ThemeContext';
-import { ProducerTabs, UserTabs } from './components/BottomTabNavigator';
+import { SellerTabs, UserTabs } from './components/BottomTabNavigator';
 import { RootStackParamList } from './constants/RootStackParams';
 import Register from './app/screens/Register';
 
@@ -58,7 +58,7 @@ export function Layout() {
           user.role === "User" ? (
             <Stack.Screen name="UserTabs" component={UserTabs} options={{ headerShown: false }} />
           ) : (
-            <Stack.Screen name="ProducerTabs" component={ProducerTabs} options={{ headerShown: false }} />
+            <Stack.Screen name="SellerTabs" component={SellerTabs} options={{ headerShown: false }} />
           )
 
         ) : (

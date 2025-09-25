@@ -11,7 +11,7 @@ import TextInputComponent from "../../components/TextInputComponent";
 
 type CreatePostProps = NativeStackScreenProps<RootStackParamList, "CreatePost">
 export default function CreatePost({ navigation, route }: CreatePostProps) {
-    const { producer } = route.params
+    const { seller } = route.params
     const [images, setImages] = useState<string[]>([])
     const [caption, setCaption] = useState("")
     const [loading, setLoading] = useState("")
@@ -48,7 +48,7 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
     const handleCreatePostMetadata = async () => {
         try {
             const result = await axios.post(`${API_URL}/create-post-metadata`, {
-                authorId: producer.owner.userId,
+                authorId: seller.owner.userId,
                 caption: caption
             })
             return { data: result.data };

@@ -9,7 +9,7 @@ import { API_URL } from "../../constants/ApiUri";
 import { PostResponse } from "../../types/PostResponse";
 import { useTheme } from "../context/ThemeContext";
 import PostCard from "../../components/PostCard";
-import { ProducerResponse } from "../../types/ProducerResponse";
+import { SellerResponse } from "../../types/SellerResponse";
 import Colors from "../../constants/Colors";
 
 const FirstRoute = () => (
@@ -20,7 +20,7 @@ type Cursor = {
     lastCreatedAt: string | null
 }
 
-const PostsRoute = ({ producer, navigation }: { producer: ProducerResponse, navigation: any }) => {
+const PostsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation: any }) => {
     const [posts, setPosts] = useState<PostResponse[]>([])
     const [cursor, setCursor] = useState<Cursor>({ lastId: null, lastCreatedAt: null, });
     const [hasMore, setHasMore] = useState(false)
@@ -60,7 +60,7 @@ const PostsRoute = ({ producer, navigation }: { producer: ProducerResponse, navi
     }, [handleFetch]);
     const fetchPosts = async (lastPostId: string | null, lastCreatedAt: string | null) => {
         try {
-            let queryString = `/get-posts?AuthorId=${producer.owner.userId}&pageSize=3`;
+            let queryString = `/get-posts?AuthorId=${seller.owner.userId}&pageSize=3`;
             if (lastPostId != null && lastCreatedAt != null) {
                 queryString = queryString + `&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`
             }
@@ -82,7 +82,7 @@ const PostsRoute = ({ producer, navigation }: { producer: ProducerResponse, navi
                             navigation.navigate('PostDetails', {
                                 posts: posts,
                                 selectedPostIndex: index,
-                                producer: producer,
+                                seller: seller,
                                 hasMorePosts: hasMore
                             })} />
                     )}
@@ -106,9 +106,9 @@ const routes = [
     { key: 'Details', title: 'Details' },
     { key: 'Posts', title: 'Posts' },
 ];
-type ProducerDetailProps = NativeStackScreenProps<RootStackParamList, "ProducerDetails">;
-export default function ProducerDetails({ navigation, route }: ProducerDetailProps) {
-    const { producer } = route.params
+type SellerDetailProps = NativeStackScreenProps<RootStackParamList, "SellerDetails">;
+export default function SellerDetails({ navigation, route }: SellerDetailProps) {
+    const { seller } = route.params
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
     const { theme } = useTheme()
@@ -117,7 +117,7 @@ export default function ProducerDetails({ navigation, route }: ProducerDetailPro
     const unselectedColor = theme == "dark" ? Colors.offWhite : Colors.darkGray
     return (
         <View style={{ flex: 1 }}>
-            <TopBar title={producer.producerName} showBackButton />
+            <TopBar title={seller.sellerName} showBackButton />
             <TabView
                 style={{ flex: 1}}
                 navigationState={{ index, routes }}
@@ -126,7 +126,7 @@ export default function ProducerDetails({ navigation, route }: ProducerDetailPro
                         case 'Details':
                             return <FirstRoute />;
                         case 'Posts':
-                            return <PostsRoute navigation={navigation} producer={producer} />;
+                            return <PostsRoute navigation={navigation} seller={seller} />;
                         default:
                             return null;
                     }

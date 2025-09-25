@@ -1,5 +1,5 @@
 import { View, StyleSheet, TouchableOpacity, Text, Image, Dimensions } from "react-native";
-import { ProducerResponse } from "../types/ProducerResponse";
+import { SellerResponse } from "../types/SellerResponse";
 import { Copy, ImageIcon, Star } from "lucide-react-native";
 import { useTheme } from "../app/context/ThemeContext";
 import { useNavigation } from "@react-navigation/native";

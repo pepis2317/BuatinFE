@@ -4,10 +4,10 @@ import {
 } from '@react-navigation/bottom-tabs';
 import UserHome from '../app/screens/UserHome';
 import Profile from '../app/screens/Profile';
-import ProducerHome from '../app/screens/ProducerHome';
+import SellerHome from '../app/screens/SellerHome';
 import { House, User } from 'lucide-react-native';
 import { useTheme } from '../app/context/ThemeContext';
-import ProducerDetails from '../app/screens/ProducerDetails';
+import SellerDetails from '../app/screens/SellerDetails';
 import SearchPage from '../app/screens/SearchPage';
 import Settings from '../app/screens/Settings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -57,8 +57,8 @@ export function UserTabs() {
     );
 }
 
-const ProducerTab = createBottomTabNavigator<RootStackParamList>();
-export function ProducerTabs() {
+const SellerTab = createBottomTabNavigator<RootStackParamList>();
+export function SellerTabs() {
     const { theme, toggleTheme } = useTheme()
     const bgColor = theme == "dark" ? Colors.darkGray : 'white'
     const iconColor = theme != "dark" ? Colors.darkGray : 'white'
@@ -89,11 +89,11 @@ export function ProducerTabs() {
         ),
     }
     return (
-        <ProducerTab.Navigator>
-            <ProducerTab.Screen name="ProducerHome" component={ProducerHome} options={homeTabOptions} />
-            <ProducerTab.Screen name="CreatePost" component={CreatePost} options={homeTabOptions} />
-            <ProducerTab.Screen name="Profile" component={Profile} options={profileTabOptions} />
-        </ProducerTab.Navigator>
+        <SellerTab.Navigator>
+            <SellerTab.Screen name="SellerHome" component={SellerHome} options={homeTabOptions} />
+            <SellerTab.Screen name="CreatePost" component={CreatePost} options={homeTabOptions} />
+            <SellerTab.Screen name="Profile" component={Profile} options={profileTabOptions} />
+        </SellerTab.Navigator>
     );
 }
 
@@ -103,7 +103,7 @@ function HomeStackScreen() {
         <HomeStack.Navigator>
             <HomeStack.Screen name="UserHome" component={UserHome} options={{ headerShown: false }} />
             <HomeStack.Screen name="SearchPage" component={SearchPage} options={{ headerShown: false }} />
-            <HomeStack.Screen name="ProducerDetails" component={ProducerDetails} options={{ headerShown: false }} />
+            <HomeStack.Screen name="SellerDetails" component={SellerDetails} options={{ headerShown: false }} />
             <HomeStack.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
             <HomeStack.Screen name="PostDetails" component={PostDetails} options={{ headerShown: false, animation: 'none' }} />
             <HomeStack.Screen name="Notifications" component={Notifications} options={{ headerShown: false }} />

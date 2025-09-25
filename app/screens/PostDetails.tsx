@@ -16,7 +16,7 @@ import Colors from "../../constants/Colors";
 type PostDetailProps = NativeStackScreenProps<RootStackParamList, "PostDetails">;
 export default function PostDetails({ navigation, route }: PostDetailProps) {
     const { theme } = useTheme()
-    const { posts, selectedPostIndex, producer, hasMorePosts } = route.params;
+    const { posts, selectedPostIndex, seller, hasMorePosts } = route.params;
     const [loadedPosts, setLoadedPosts] = useState<PostResponse[]>(posts)
     const [commentPostId, setCommentPostId] = useState("")
     const [hasMore, setHasMore] = useState(hasMorePosts)
@@ -35,7 +35,7 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
     const backgroundColor = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
     const fetchPosts = async (lastPostId: string, lastCreatedAt: string) => {
         try {
-            let queryString = `/get-posts?AuthorId=${producer.owner.userId}&pageSize=3&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`;
+            let queryString = `/get-posts?AuthorId=${seller.owner.userId}&pageSize=3&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`;
             const response = await axios.get(`${API_URL}${queryString}`);
             return response.data;
         } catch (e) {
@@ -76,7 +76,7 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
                 data={loadedPosts}
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(p) => p.postId}
-                renderItem={({ item }) => <PostDetail post={item} producer={producer} onCommentPressed={() => {
+                renderItem={({ item }) => <PostDetail post={item} seller={seller} onCommentPressed={() => {
                     navigation.navigate("Comments",{postId:item.postId})
                 }} />}
                 initialScrollIndex={selectedPostIndex}

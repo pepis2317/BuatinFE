@@ -56,7 +56,7 @@ export default function Register() {
                         <Picker style={theme == "dark" ? { color: "white" } : { color: "black" }} dropdownIconColor={theme == "dark" ? "#636C7C" : ""} selectedValue={role} onValueChange={(val) => val == "none" ? setRole("User") : setRole(val)} >
                             <Picker.Item label="Select Role" value="none" />
                             <Picker.Item label="User" value="User" />
-                            <Picker.Item label="Producer" value="Producer" />
+                            <Picker.Item label="Seller" value="Seller" />
                         </Picker>
                     </View>
                     {errMessage ? <ErrorComponent errorsString={errMessage} /> : <></>}

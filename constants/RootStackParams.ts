@@ -1,20 +1,20 @@
 import { PostResponse } from "../types/PostResponse";
-import { ProducerResponse } from "../types/ProducerResponse";
+import { SellerResponse } from "../types/SellerResponse";
 
 export type RootStackParamList = {
   UserHome: undefined;
   Profile: undefined;
   Login: undefined;
   Register: undefined;
-  ProducerHome: undefined;
+  SellerHome: undefined;
   UserTabs: undefined;
-  ProducerTabs: undefined;
+  SellerTabs: undefined;
   SearchPage: undefined;
-  ProducerDetails: {
-    producer: ProducerResponse
+  SellerDetails: {
+    seller: SellerResponse
   };
   PostDetails:{
-    producer:ProducerResponse,
+    seller:SellerResponse,
     hasMorePosts:boolean,
     selectedPostIndex: number,
     posts:PostResponse[]
@@ -22,7 +22,7 @@ export type RootStackParamList = {
   Settings: undefined;
   Notifications: undefined,
   CreatePost:{
-    producer: ProducerResponse
+    seller: SellerResponse
   },
   Comments:{
     postId:string

@@ -7,7 +7,7 @@ import axios from "axios"
 import { SellerResponse } from "../../types/SellerResponse"
 import { useTheme } from "../context/ThemeContext"
 import SellerCard from "../../components/SellerCard"
-import { Bell, Search, Settings } from "lucide-react-native"
+import { Bell, Search, Settings, Wallet } from "lucide-react-native"
 import { API_URL } from "../../constants/ApiUri"
 import { RootStackParamList } from "../../constants/RootStackParams"
 import { USER_LOCATION_KEY } from "./Settings"
@@ -74,7 +74,7 @@ export default function UserHome() {
                 paddingRight: 15,
                 justifyContent: 'space-between',
                 backgroundColor: theme == "dark" ? "#222831" : "white",
-                elevation:2
+                elevation: 2
             }}>
                 <Text style={{ color: theme == "dark" ? 'white' : 'black', fontWeight: "bold", fontSize: 20 }}>
                     Buatin
@@ -83,8 +83,11 @@ export default function UserHome() {
                     <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
                         <Settings color={theme == "dark" ? "white" : "black"} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>navigation.navigate("Notifications")}>
-                        <Bell color={theme == "dark" ? "white" : "black"}  />
+                    <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
+                        <Bell color={theme == "dark" ? "white" : "black"} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate("Wallet")}>
+                        <Wallet color={theme == "dark" ? "white" : "black"} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => navigation.navigate("SearchPage")}>
                         <Search color={theme == "dark" ? "white" : "black"} />

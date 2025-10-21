@@ -11,10 +11,17 @@ import { useTheme } from "../context/ThemeContext";
 import PostCard from "../../components/PostCard";
 import { SellerResponse } from "../../types/SellerResponse";
 import Colors from "../../constants/Colors";
+import ColoredButton from "../../components/ColoredButton";
+import { useAuth } from "../context/AuthContext";
+import { OrderRequestResponse } from "../../types/OrderRequestResponse";
 
-const FirstRoute = () => (
-    <View style={{ flex: 1, backgroundColor: '#ff4081' }} />
-);
+const DetailsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation: any }) => {
+    return (
+        <View>
+            <ColoredButton title={"Create Order Request"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('OrderRequest', { sellerId: seller.sellerId })} />
+        </View>
+    )
+}
 type Cursor = {
     lastId: string | null
     lastCreatedAt: string | null
@@ -119,12 +126,12 @@ export default function SellerDetails({ navigation, route }: SellerDetailProps) 
         <View style={{ flex: 1 }}>
             <TopBar title={seller.sellerName} showBackButton />
             <TabView
-                style={{ flex: 1}}
+                style={{ flex: 1 }}
                 navigationState={{ index, routes }}
                 renderScene={({ route }) => {
                     switch (route.key) {
                         case 'Details':
-                            return <FirstRoute />;
+                            return <DetailsRoute navigation={navigation} seller={seller} />;
                         case 'Posts':
                             return <PostsRoute navigation={navigation} seller={seller} />;
                         default:

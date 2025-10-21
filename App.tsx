@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import {useColorScheme, View } from 'react-native';
+import { Platform, useColorScheme, View } from 'react-native';
 import AuthProvider, { useAuth } from './app/context/AuthContext';
 import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import Login from './app/screens/Login';
@@ -8,8 +8,8 @@ import ThemeProvider, { useTheme } from './app/context/ThemeContext';
 import { SellerTabs, UserTabs } from './components/BottomTabNavigator';
 import { RootStackParamList } from './constants/RootStackParams';
 import Register from './app/screens/Register';
-
-
+import { useEffect } from 'react';
+import * as NavigationBar from 'expo-navigation-bar';
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 export default function App() {
@@ -42,6 +42,20 @@ export function Layout() {
       background: 'white',
     },
   }
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+
+    const bg = theme === 'dark' ? '#121212' : '#ffffff';
+    const buttons = theme === 'dark' ? 'light' : 'dark';
+
+    // Set nav bar color + icon style
+    NavigationBar.setBackgroundColorAsync(bg);
+    NavigationBar.setButtonStyleAsync(buttons);
+
+    // Optional: prevent Android from auto-inverting for contrast
+    // NavigationBar.setVisibilityAsync('visible');
+    // NavigationBar.setBehaviorAsync('inset-swipe');
+  }, [theme]);
   const navigationTheme = theme === "dark" ? customDarkTheme : customLightTheme;
   return (
     <NavigationContainer theme={navigationTheme}>

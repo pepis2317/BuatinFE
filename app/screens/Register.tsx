@@ -11,6 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import ErrorComponent from "../../components/ErrorComponent";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import TopBar from "../../components/TopBar";
+import Colors from "../../constants/Colors";
 
 export default function Register() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -60,7 +61,7 @@ export default function Register() {
                         </Picker>
                     </View>
                     {errMessage ? <ErrorComponent errorsString={errMessage} /> : <></>}
-                    <ColoredButton title={"Register"} style={{ backgroundColor: "#5CCFA3" }} onPress={register} isLoading={loading} />
+                    <ColoredButton title={"Register"} style={{ backgroundColor: Colors.green }} onPress={register} isLoading={loading} />
                 </View>
             </ScrollView>
 

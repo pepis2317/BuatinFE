@@ -3,5 +3,7 @@ export type ProcessResponse={
     title:string;
     description:string;
     status:string;
-    sellerImage:string;
+    picture:string;
+    sellerId:string;
+    userId:string;
 }

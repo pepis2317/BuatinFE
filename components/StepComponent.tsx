@@ -3,15 +3,16 @@ import { StepResponse } from "../types/StepResponse";
 import ColoredButton from "./ColoredButton";
 import axios from "axios";
 import { API_URL } from "../constants/ApiUri";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ConfirmedModal from "./ConfirmedModal";
 import Colors from "../constants/Colors";
 import { useTheme } from "../app/context/ThemeContext";
 import { Pencil } from "lucide-react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function StepComponent({ step, navigation, editable }: { step: StepResponse, navigation: any, editable: boolean }) {
     const [loading, setLoading] = useState(false)
-    const [statusColor, setStatusColor] = useState(Colors.darkGray)
+    const [statusColor, setStatusColor] = useState(Colors.darkBorder)
     const [showDeclined, setShowDeclined] = useState(false)
     const [images, setImages] = useState<string[]>([])
     const { theme } = useTheme()
@@ -49,14 +50,17 @@ export default function StepComponent({ step, navigation, editable }: { step: St
             setImages(images)
         }
     }
-    useEffect(() => {
+    const loadData = ()=>{
         if (step.status == "Completed") {
             setStatusColor(Colors.green)
             loadImages()
         } else if (step.status == "Cancelled") {
             setStatusColor(Colors.peach)
         }
-    }, [])
+    }
+    useEffect(() => {
+        loadData()
+    }, [step])
     return (
         <View style={styles.container}>
             <ConfirmedModal visible={showDeclined} message={"Step has been declined"} onPress={() => setShowDeclined(false)} />
@@ -102,11 +106,6 @@ export default function StepComponent({ step, navigation, editable }: { step: St
                     </ScrollView>
                 </View>
                 : <></>}
-            {step.status == "Declined" ? <View>
-                <Text>
-                    ts shi has been declined foo
-                </Text>
-            </View> : <></>}
         </View>
     )
 }
@@ -143,6 +142,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         borderStyle: 'solid',
         borderColor: Colors.darkGray,
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
+        backgroundColor: Colors.darkGray
     }
 })

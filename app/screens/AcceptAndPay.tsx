@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import TopBar from "../../components/TopBar";
 import ConfirmedModal from "../../components/ConfirmedModal";
 import WebView from "react-native-webview";
+import PaymentModal from "../../components/PaymentModal";
 type AcceptAndPayProps = NativeStackScreenProps<RootStackParamList, "AcceptAndPay">;
 export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
     const { stepId } = route.params
@@ -44,8 +45,6 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
         const result = await walletPay()
         if (!result.error) {
             setShowPaid(true)
-        } else {
-            console.log(result)
         }
         setLoading(false)
     }
@@ -53,10 +52,7 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
         setLoading(true)
         const result = await snapPay()
         if (!result.error) {
-            console.log(result)
             setSnapUrl(result.redirectUrl)
-        } else {
-            console.log(result)
         }
         setLoading(false)
     }
@@ -73,7 +69,15 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
             <TopBar title={"Accept & Pay Step"} showBackButton />
             <ColoredButton title={"Pay using wallet"} onPress={() => handleWalletPay()} />
             <ColoredButton title={"Pay using Midtrans"} onPress={() => handleSnapPay()} />
-            
+            <PaymentModal showPayment={showPayment} snapUrl={snapUrl}
+                closePaymentModal={() => setShowPayment(false)}
+                onSuccess={() => {
+                    setShowPayment(false);
+                    setShowSnapPaid(true)
+                }} onFailed={() => {
+                    setShowPayment(false);
+                    setShowSnapFailed(true)
+                }} onLoadEnd={() => setLoading(false)} />
         </View>
     )
 }

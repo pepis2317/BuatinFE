@@ -4,12 +4,13 @@ import { ScrollView, Text, View, Image } from "react-native";
 import TopBar from "../../components/TopBar";
 import TextInputComponent from "../../components/TextInputComponent";
 import { useTheme } from "../context/ThemeContext";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import ColoredButton from "../../components/ColoredButton";
 import Colors from "../../constants/Colors";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
+import { useFocusEffect } from "@react-navigation/native";
 
 type OrderRequestDetailsProps = NativeStackScreenProps<RootStackParamList, "OrderRequestDetails">
 export default function OrderRequestDetails({ navigation, route }: OrderRequestDetailsProps) {

@@ -12,20 +12,34 @@ export type RootStackParamList = {
   SellerTabs: undefined;
   SearchPage: undefined;
   Processes: undefined;
-  ReviewUser:{
-    userId:string
+  Shippable: undefined;
+  CreateShipment: {
+    processId: string;
+  };
+  Shipments: undefined;
+  SellerShipments: undefined;
+  ShipmentsTab: undefined;
+  SellerShipmentsTab: undefined;
+  ShipmentDetails: {
+    shipmentId: string
   }
-  ReviewSeller:{
-    sellerId:string
+  SellerShipmentDetails: {
+    shipmentId: string
   }
-  Wallet:undefined;
-  Deposit:undefined;
-  Withdraw:undefined;
-  CreateRefundRequest:{
-    processId:string;
+  ReviewUser: {
+    userId: string
   }
-  CreateProcess:{
-    requestId:string;
+  ReviewSeller: {
+    sellerId: string
+  }
+  Wallet: undefined;
+  Deposit: undefined;
+  Withdraw: undefined;
+  CreateRefundRequest: {
+    processId: string;
+  }
+  CreateProcess: {
+    requestId: string;
   }
   AcceptAndPay: {
     stepId: string

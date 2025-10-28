@@ -11,7 +11,7 @@ import Colors from "../constants/Colors";
 import { OrderRequestResponse } from "../types/OrderRequestResponse";
 export default function OrderRequestComponent({ request, navigation, respondable }: { request: OrderRequestResponse, navigation: any, respondable: boolean }) {
     const { theme } = useTheme()
-    const [statusColor, setStatusColor] = useState(Colors.darkGray)
+    const [statusColor, setStatusColor] = useState(Colors.darkBorder)
     var textColor = theme == "dark" ? "white" : "black"
     var placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
     dayjs.extend(relativeTime)

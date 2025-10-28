@@ -25,14 +25,8 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
         lastId: posts[posts.length - 1].postId,
         lastCreatedAt: posts[posts.length - 1].createdAt,
     });
-    const bottomSheetRef = useRef<BottomSheet>(null);
-    const handleSheetChanges = useCallback((index: number) => {
-        console.log('handleSheetChanges', index);
-    }, []);
     const listRef = useRef<FlatList<PostResponse>>(null);
     const ITEM_HEIGHT = 600;
-    const handleStyle = theme === "dark" ? "white" : "black"
-    const backgroundColor = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
     const fetchPosts = async (lastPostId: string, lastCreatedAt: string) => {
         try {
             let queryString = `/get-posts?AuthorId=${seller.owner.userId}&pageSize=3&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`;

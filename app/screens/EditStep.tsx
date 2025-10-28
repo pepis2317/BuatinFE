@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from "react-native";
 import TopBar from "../../components/TopBar";
 import { useEffect, useState } from "react";
 import { StepResponse } from "../../types/StepResponse";
@@ -13,6 +13,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from "dayjs";
 import ConfirmedModal from "../../components/ConfirmedModal";
 import * as ImagePicker from "expo-image-picker";
+import { PlusSquare, X } from "lucide-react-native";
 
 type EditStepProps = NativeStackScreenProps<RootStackParamList, "EditStep">;
 export default function EditStep({ navigation, route }: EditStepProps) {
@@ -210,7 +211,37 @@ export default function EditStep({ navigation, route }: EditStepProps) {
                         />
                         : <></>}
                     <ColoredButton style={{ backgroundColor: Colors.green }} title={"Save Changes"} onPress={() => handleUpdate()} isLoading={loading} />
-                    <ColoredButton style={{ backgroundColor: Colors.green }} title={"Complete Step"} onPress={() => handleComplete()} isLoading={loading} disabled={images.length==0}/>
+                    {step.status == "Working" ?
+                        <View>
+                            <View style={styles.imagesContainer}>
+                                <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
+                                    <View style={styles.addBorder}>
+                                        <PlusSquare color={"#5CCFA3"} size={32} />
+                                    </View>
+                                </TouchableOpacity>
+                                <ScrollView horizontal>
+                                    {images.map((uri, index) => (
+                                        <View key={index} >
+                                            <Image
+                                                source={{ uri }}
+                                                style={{ width: 150, height: 150 }}
+                                            />
+                                            <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
+                                                <X size={20} color={"white"} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    ))}
+                                </ScrollView>
+                            </View>
+                            {images.length > 0 ?
+                                <ColoredButton style={{ backgroundColor: Colors.green }} title={"Complete Step"} onPress={() => handleComplete()} isLoading={loading} disabled={false} />
+                                :
+                                <ColoredButton style={{ backgroundColor: Colors.darkGray }} title={"Complete Step"} onPress={() => handleComplete()} isLoading={loading} disabled={true} />
+                            }
+
+                        </View>
+                        : <></>}
+
                     <ColoredButton style={{ backgroundColor: Colors.red }} title={"Cancel Step"} onPress={() => handleCancel()} isLoading={loading} />
                 </View>
                 : <></>}
@@ -218,3 +249,48 @@ export default function EditStep({ navigation, route }: EditStepProps) {
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    imagesContainer: {
+        height: 150,
+        flexDirection: 'row',
+        borderStyle: 'solid',
+        borderColor: '#31363F',
+        borderBottomWidth: 1
+    },
+    addBorder: {
+        width: "100%",
+        height: "100%",
+        justifyContent: 'center',
+        borderStyle: 'dashed',
+        borderColor: '#5CCFA3',
+        borderRadius: 5,
+        borderWidth: 1,
+        alignItems: 'center',
+
+    },
+    addImageButton: {
+        padding: 15,
+        height: 150,
+        width: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        borderStyle: 'solid',
+        borderColor: '#31363F',
+        borderRightWidth: 1
+    },
+
+    removeImageButton: {
+        position: 'absolute',
+        width: 24,
+        height: 24,
+        right: 5,
+        top: 5,
+        backgroundColor: '#31363F',
+        borderRadius: 100,
+        justifyContent: 'center',
+        alignItems: 'center'
+
+    }
+})

@@ -52,7 +52,7 @@ export default function CreateProcess({ navigation, route }: CreateProcessProps)
     }
     return (
         <View>
-            <ConfirmedModal visible={showSuccessModal} message={"Process has been created for this request"} onPress={()=>navigation.goBack()}/>
+            <ConfirmedModal visible={showSuccessModal} message={"Process has been created for this request"} onPress={()=>navigation.pop(2)}/>
             <TopBar title="Create Process" showBackButton />
             <TextInputComponent placeholder="Title" onChangeText={setTitle} />
             <TextInputComponent placeholder="Description" onChangeText={setDescription} />

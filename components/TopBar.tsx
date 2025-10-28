@@ -14,7 +14,7 @@ export default function TopBar({ title, showBackButton }: { title: string, showB
 
             <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{title}</Text>
             {showBackButton ?
-                <TouchableOpacity onPress={() => navigation.goBack()}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <ArrowLeft color={theme == "dark" ? "white" : "black"} />
                 </TouchableOpacity> : <></>
             }
@@ -46,15 +46,17 @@ const styles = StyleSheet.create({
     },
     darkTitle: {
         color: "white",
-        position: 'absolute',
         fontWeight: 'bold',
         width: "100%",
         textAlign: 'center'
     },
     lightTitle: {
-        position: 'absolute',
         fontWeight: 'bold',
         width: "100%",
         textAlign: 'center'
     },
+    backButton:{
+        position:'absolute',
+        left:20
+    }
 })

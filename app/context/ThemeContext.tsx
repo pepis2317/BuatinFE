@@ -20,7 +20,6 @@ export default function ThemeProvider({ children }: any) {
                 setTheme(savedTheme);
             } else {
                 const systemTheme = Appearance.getColorScheme();
-
                 setTheme(systemTheme || "light");
             }
         };

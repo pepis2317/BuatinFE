@@ -13,6 +13,7 @@ import Colors from "../../constants/Colors";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 type AddStepProps = NativeStackScreenProps<RootStackParamList, "AddStep">;
+
 export default function AddStep({ navigation, route }: AddStepProps) {
     const { processId, previousStepId } = route.params
     const [loading, setLoading] = useState(false)

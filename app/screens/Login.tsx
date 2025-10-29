@@ -9,7 +9,6 @@ import ErrorComponent from "../../components/ErrorComponent";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import TextInputComponent from "../../components/TextInputComponent";
 
-
 export default function Login() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'Login'>>();
     const { theme } = useTheme()
@@ -45,6 +44,7 @@ export default function Login() {
         </View>
     )
 }
+
 const styles = StyleSheet.create({
     formContainer: {
         padding: 10,

@@ -13,7 +13,8 @@
       "backgroundColor": "#222831"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.BuatinFE"
     },
     "android": {
       "adaptiveIcon": {

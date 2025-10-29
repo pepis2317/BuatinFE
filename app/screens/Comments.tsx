@@ -11,6 +11,7 @@ import { API_URL } from "../../constants/ApiUri";
 import axios from "axios";
 import { Send } from "lucide-react-native";
 import Comment from "../../components/Comment";
+
 const test: CommentResponse = {
     authorId: "as",
     authorName: "bs",
@@ -21,7 +22,9 @@ const test: CommentResponse = {
     replies: 5,
     commentId: "asd"
 }
+
 type CommentsDetailProps = NativeStackScreenProps<RootStackParamList, "Comments">;
+
 export default function Comments({ navigation, route }: CommentsDetailProps) {
     const { postId } = route.params
     const { theme } = useTheme()

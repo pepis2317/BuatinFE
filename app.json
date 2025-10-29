@@ -23,7 +23,8 @@
       },
       "windowSoftInputMode": "adjustResize",
       "backgroundColor": "#222831",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.BuatinFE"
     },
     "web": {
       "favicon": "./assets/favicon.png"

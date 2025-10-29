@@ -10,15 +10,19 @@ import { RootStackParamList } from './constants/RootStackParams';
 import Register from './app/screens/Register';
 import { useEffect } from 'react';
 import * as NavigationBar from 'expo-navigation-bar';
+import { GluestackUIProvider } from '@gluestack-ui/themed';
+import { config } from './gluestack-ui.config';
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 export default function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <Layout />
-      </ThemeProvider>
-    </AuthProvider>
+    <GluestackUIProvider config={config}>
+      <AuthProvider>
+        <ThemeProvider>
+          <Layout />
+        </ThemeProvider>
+      </AuthProvider>
+    </GluestackUIProvider>
   );
 }
 export function Layout() {

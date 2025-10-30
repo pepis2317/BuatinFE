@@ -10,7 +10,7 @@ export const config = createConfig({
       textLight: "#31363F",
       error: "#EF4444",
     },
-    radii: { sm: 6, md: 12, lg: 20 },
+    radius: { sm: 6, md: 12, lg: 20 },
     spacing: { sm: 8, md: 16, lg: 24 },
   },
   components: {
@@ -37,3 +37,5 @@ export const config = createConfig({
     },
   },
 } as any);
+
+export type Config = typeof config;

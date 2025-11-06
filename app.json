@@ -5,12 +5,14 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+
+    "userInterfaceStyle": "automatic",            
+
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#222831"
+      "backgroundColor": "#222831"                
     },
     "ios": {
       "supportsTablet": true
@@ -22,10 +24,26 @@
       },
       "windowSoftInputMode": "adjustResize",
       "backgroundColor": "#222831",
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.pepis2317.BuatinFE",
+      "googleServicesFile": "./google-services.json"
+    },
+    "androidNavigationBar": {                      
+      "backgroundColor": "#121212",
+      "barStyle": "light-content"
+    },
+    "androidStatusBar": {                          
+      "backgroundColor": "#121212",
+      "barStyle": "light-content",
+      "translucent": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "145b5d90-87a8-49df-8170-843335d1baed"
+      }
     }
   }
 }

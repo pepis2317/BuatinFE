@@ -12,7 +12,6 @@ import ErrorComponent from "../../components/ErrorComponent";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import TopBar from "../../components/TopBar";
 import Colors from "../../constants/Colors";
-
 export default function Register() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [email, setEmail] = useState("")
@@ -41,7 +40,7 @@ export default function Register() {
     }
     return (
         <View>
-            <TopBar title={"Register"} showBackButton={true}/>
+            <TopBar title={"Register"} showBackButton={true} />
             <ScrollView>
                 <View style={styles.formContainer}>
                     <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold" }}>User Name</Text>

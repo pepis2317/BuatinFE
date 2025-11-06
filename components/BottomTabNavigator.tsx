@@ -5,7 +5,7 @@ import {
 import UserHome from '../app/screens/UserHome';
 import Profile from '../app/screens/Profile';
 import SellerHome from '../app/screens/SellerHome';
-import { Anvil, House, Truck, User } from 'lucide-react-native';
+import { Anvil, House, MessageCircle, Truck, User } from 'lucide-react-native';
 import { useTheme } from '../app/context/ThemeContext';
 import SellerDetails from '../app/screens/SellerDetails';
 import SearchPage from '../app/screens/SearchPage';
@@ -39,6 +39,8 @@ import CreateShipment from '../app/screens/CreateShipment';
 import SellerShipments from '../app/screens/SellerShipments';
 import SellerShipmentDetails from '../app/screens/SellerShipmentDetails';
 import Shippable from '../app/screens/Shippable';
+import Conversations from '../app/screens/Conversations';
+import Chat from '../app/screens/Chat';
 const UserTab = createBottomTabNavigator<RootStackParamList>()
 export function UserTabs() {
     const { theme } = useTheme()
@@ -94,15 +96,29 @@ export function UserTabs() {
             <Truck color={iconColor} />
         ),
     }
+    const ChatTabOptions: BottomTabNavigationOptions = {
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+            paddingBottom: 8,
+            paddingTop: 8,
+            backgroundColor: bgColor
+        },
+        tabBarIcon: () => (
+            <MessageCircle color={iconColor} />
+        ),
+    }
     return (
         <UserTab.Navigator screenOptions={{ animation: "none", tabBarButton: (props) => <Pressable {...(props as any)} android_ripple={{ color: 'transparent' }} /> }}>
             <UserTab.Screen name="HomeTab" component={HomeStackScreen} options={homeTabOptions} />
             <UserTab.Screen name="ProcessesTab" component={ProcessesStackScreen} options={processesTabOptions} />
             <UserTab.Screen name="ShipmentsTab" component={ShipmentsStackScreen} options={ShipmentsTabOptions} />
+            <UserTab.Screen name="ChatTab" component={ChatStackScreen} options={ChatTabOptions} />
             <UserTab.Screen name="ProfileTab" component={ProfileStackScreen} options={profileTabOptions} />
         </UserTab.Navigator>
     );
 }
+
 
 const SellerTab = createBottomTabNavigator<RootStackParamList>();
 export function SellerTabs() {
@@ -160,16 +176,39 @@ export function SellerTabs() {
             <Truck color={iconColor} />
         ),
     }
+    const ChatTabOptions: BottomTabNavigationOptions = {
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+            paddingBottom: 8,
+            paddingTop: 8,
+            backgroundColor: bgColor
+        },
+        tabBarIcon: () => (
+            <MessageCircle color={iconColor} />
+        ),
+    }
     return (
         <SellerTab.Navigator>
             <SellerTab.Screen name="SellerHome" component={SellerHome} options={homeTabOptions} />
+            <SellerTab.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
             <SellerTab.Screen name="Processes" component={ProcessesStackScreen} options={processesTabOptions} />
             <SellerTab.Screen name="SellerProcessesTab" component={SellerProcessesStackScreen} options={processesTabOptions} />
             <SellerTab.Screen name="ShipmentsTab" component={ShipmentsStackScreen} options={ShipmentsTabOptions} />
             <SellerTab.Screen name="SellerShipmentsTab" component={SellerShipmentsStackScreen} options={ShipmentsTabOptions} />
+            <UserTab.Screen name="ChatTab" component={ChatStackScreen} options={ChatTabOptions} />
             <SellerTab.Screen name="Profile" component={Profile} options={profileTabOptions} />
         </SellerTab.Navigator>
     );
+}
+const ChatStack = createNativeStackNavigator<RootStackParamList>()
+function ChatStackScreen(){
+    return(
+        <ChatStack.Navigator>
+            <ChatStack.Screen name="Conversations" component={Conversations} options={{headerShown: false}}/>
+            <ChatStack.Screen name="Chat" component={Chat} options={{headerShown: false}}/>
+        </ChatStack.Navigator>
+    )
 }
 const ShipmentsStack = createNativeStackNavigator<RootStackParamList>()
 function ShipmentsStackScreen() {

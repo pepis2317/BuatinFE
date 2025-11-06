@@ -4,7 +4,7 @@ import * as SecureStore from 'expo-secure-store'
 import { AppState } from "react-native";
 import { jwtDecode } from "jwt-decode";
 import { API_URL } from "../../constants/ApiUri";
-//note to self: buat getAuthState, kalo invalid, log out nigga
+//note to self: buat getAuthState, kalo invalid, log out 
 interface AuthProps {
     user?: User | null
     authState?: { authenticated: boolean | null; }
@@ -50,7 +50,7 @@ export default function AuthProvider({ children }: any) {
                 Password: password,
                 Email: email,
                 Phone: phone,
-                Role: role
+                Role: role,
             })
             return response.data
         } catch (e) {
@@ -64,13 +64,10 @@ export default function AuthProvider({ children }: any) {
 
     const login = async (email: string, password: string) => {
         try {
-            console.log(`${API_URL}/user-login`)
-            const result = await axios.post(`${API_URL}/user-login`, null, {
-                params: {
-                    Email: email,
-                    Password: password
-                }
-            })
+            const result = await axios.post(`${API_URL}/user-login`, {
+                Email: email,
+                Password: password,
+            });
 
             let token = result.data.token
             let refreshToken = result.data.refreshToken
@@ -140,7 +137,7 @@ export default function AuthProvider({ children }: any) {
             const refresh = response.data.refreshToken
             await SecureStore.setItemAsync(TOKEN_KEY, token)
             await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh)
-            
+
             setAuthState({ authenticated: true });
             return token;
         } catch (e) {

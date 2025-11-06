@@ -9,6 +9,7 @@ export type RootStackParamList = {
   Register: undefined;
   SellerHome: undefined;
   UserTabs: undefined;
+  ChatTab: undefined;
   SellerTabs: undefined;
   SearchPage: undefined;
   Processes: undefined;
@@ -16,6 +17,11 @@ export type RootStackParamList = {
   CreateShipment: {
     processId: string;
   };
+  ChatStack: undefined;
+  Conversations: undefined;
+  Chat: {
+    conversationId: string;
+  }
   Shipments: undefined;
   SellerShipments: undefined;
   ShipmentsTab: undefined;

@@ -1,12 +1,62 @@
-import { Modal, View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { useRef } from "react";
+import { Modal, View, StyleSheet, TouchableOpacity, Text, ActivityIndicator, Platform } from "react-native";
 import WebView from "react-native-webview";
 
-export default function PatmentModal({ showPayment, snapUrl, closePaymentModal, onSuccess, onFailed, onLoadEnd }: { showPayment: boolean, snapUrl: string, closePaymentModal: () => void, onSuccess: () => void, onFailed: () => void, onLoadEnd: () => void }) {
+export default function PaymentModal({
+    showPayment,
+    snapUrl,
+    closePaymentModal,
+    onSuccess,
+    onFailed,
+    onLoadEnd,
+}: {
+    showPayment: boolean;
+    snapUrl: string;
+    closePaymentModal: () => void;
+    onSuccess: () => void;
+    onFailed: () => void;
+    onLoadEnd: () => void;
+}) {
+    const handledRef = useRef(false); // prevents double-calls
+
+    const handleRoute = (url: string) => {
+        if (handledRef.current) return false;
+
+        // Adjust these checks to your actual success/cancel return URLs
+        const lower = url.toLowerCase();
+
+        const isSuccess =
+            lower.includes("success") ||
+            lower.includes("transaction_status=settlement") ||
+            lower.includes("status_code=200");
+
+        const isCancel =
+            lower.includes("cancel") ||
+            lower.includes("deny") ||
+            lower.includes("status_code=202");
+
+        if (isSuccess) {
+            handledRef.current = true;
+            onSuccess();           // <-- actually call it
+            return false;          // stop navigating away
+        }
+
+        if (isCancel) {
+            handledRef.current = true;
+            onFailed();            // <-- actually call it
+            return false;
+        }
+
+        return true;             // allow normal navigation
+    };
+
     return (
         <Modal
             visible={showPayment}
             animationType="slide"
             transparent={true}
+            statusBarTranslucent={true}
+            backdropColor={'red'}
             onRequestClose={closePaymentModal}
         >
             <View style={styles.modalContainer}>
@@ -17,31 +67,30 @@ export default function PatmentModal({ showPayment, snapUrl, closePaymentModal, 
                             <Text style={styles.closeText}>✕ Close</Text>
                         </TouchableOpacity>
                         <Text style={styles.title}>Payment</Text>
-                        <View style={{ width: 60 }} /> {/* spacing */}
+                        <View style={{ width: 60 }} />
                     </View>
 
                     {/* WebView */}
                     <WebView
                         source={{ uri: snapUrl }}
+                        startInLoadingState
                         onLoadEnd={onLoadEnd}
-                        startInLoadingState={true}
-                        onNavigationStateChange={(state) => {
-                            if (state.url.includes("success")) {
-                                onSuccess
-                                // setShowPayment(false);
-                                // setShowSnapPaid(true)
-                                // handle success
-                            } else if (state.url.includes("cancel")) {
-                                onFailed
-                                // setShowPayment(false);
-                                // setShowSnapFailed(true)
-                            }
-                        }}
+                        originWhitelist={["*"]}
+                        // Intercept before navigation; works on both iOS/Android
+                        onShouldStartLoadWithRequest={(req) => handleRoute(req.url)}
+                        // Fallback if you still want to watch state changes
+                        onNavigationStateChange={(state) => handleRoute(state.url)}
+                        renderLoading={() => (
+                            <View style={{ padding: 16, alignItems: "center" }}>
+                                <ActivityIndicator />
+                                <Text>Loading payment…</Text>
+                            </View>
+                        )}
                     />
                 </View>
             </View>
         </Modal>
-    )
+    );
 }
 const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: "center", alignItems: "center" },

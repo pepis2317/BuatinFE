@@ -1,5 +1,5 @@
 import { View, Text, Button, Image, TextInput, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import {useAuth, User } from "../context/AuthContext";
+import { useAuth, User } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker"
 import axios from "axios";
@@ -14,9 +14,11 @@ import * as Burnt from "burnt"
 import TopBar from "../../components/TopBar";
 import { API_URL } from "../../constants/ApiUri";
 import { RootStackParamList } from "../../constants/RootStackParams";
+import { useSignalR } from "../context/SignalRContext";
 
 export default function Profile() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const { stop } = useSignalR();
     const { user, onGetUserData, onUserUpdate, onLogout } = useAuth()
     const [email, setEmail] = useState<string | undefined>("")
     const [password, setPassword] = useState<string | undefined>("")
@@ -116,6 +118,10 @@ export default function Profile() {
             }
         }
     }
+    const handleLogOut = async () => {
+        await stop()
+        onLogout!()
+    }
     return (
         <View>
             <TopBar title={"Profile"} showBackButton={false} />
@@ -140,7 +146,7 @@ export default function Profile() {
                         <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%" }}>Phone</Text>
                         <PhoneInputComponent onPhoneChange={setPhone} defaultValue={user.phone ? user.phone : ""} />
                         <ColoredButton title={"Save Changes"} style={{ backgroundColor: "#5CCFA3", width: "100%" }} onPress={handleUpload} />
-                        <ColoredButton title={"Log Out"} style={{ backgroundColor: "#F56565", width: "100%" }} onPress={() => onLogout!()} />
+                        <ColoredButton title={"Log Out"} style={{ backgroundColor: "#F56565", width: "100%" }} onPress={() => handleLogOut() } />
                     </View>
                 </ScrollView>
 
@@ -163,7 +169,7 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         padding: 10,
-        paddingTop:25,
+        paddingTop: 25,
         gap: 10,
         alignItems: 'center',
         width: "100%"

@@ -8,18 +8,19 @@ import { useTheme } from "../context/ThemeContext";
 import ErrorComponent from "../../components/ErrorComponent";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import TextInputComponent from "../../components/TextInputComponent";
-
+import { useSignalR } from "../context/SignalRContext";
 
 export default function Login() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'Login'>>();
     const { theme } = useTheme()
     const [email, setEmail] = useState("")
+    const { isConnected, start } = useSignalR()
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const [errMessage, setErrMessage] = useState("")
     const { onLogin } = useAuth()
     const login = async () => {
-        if(!email||!password){
+        if (!email || !password) {
             setErrMessage("All forms must be filled")
             return
         }
@@ -28,6 +29,9 @@ export default function Login() {
         if (result.error) {
             setErrMessage(result.msg)
             setLoading(false)
+        }
+        if (!isConnected) {
+            await start()
         }
     }
     return (

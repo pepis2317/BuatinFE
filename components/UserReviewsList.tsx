@@ -1,28 +1,30 @@
-import { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
-import { ConversationResponse } from "../types/ConversationResponse";
-import { useTheme } from "../app/context/ThemeContext";
-import axios from "axios";
-import { API_URL } from "../constants/ApiUri";
-import { useAuth } from "../app/context/AuthContext";
-import { useFocusEffect } from "@react-navigation/native";
-import ConversationComponent from "./ConversationComponent";
 
-export default function ConversationsList({ navigation }: { navigation: any }) {
+import { useCallback, useRef, useState } from "react"
+import { useTheme } from "../app/context/ThemeContext"
+import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native"
+import { ReviewResponse } from "../types/ReviewResponse"
+import { API_URL } from "../constants/ApiUri"
+import axios from "axios"
+import { useFocusEffect } from "@react-navigation/native"
+import ReviewComponent from "./ReviewComponent"
+import { useAuth } from "../app/context/AuthContext"
+
+export default function UserReviewsList({userId, navigation}:{userId:string, navigation:any}) {
+    const {onGetUserToken} = useAuth()
+    const [reviews, setReviews] = useState<ReviewResponse[]>([])
+    const [total, setTotal] = useState(0)
+    const { theme } = useTheme()
+    const [refresh, setRefresh] = useState(false)
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
     const refreshRef = useRef(false)
-    const { theme } = useTheme()
-    const { onGetUserToken } = useAuth()
-    const [conversations, setConversations] = useState<ConversationResponse[]>([])
-    const [total, setTotal] = useState(0)
-    const [refresh, setRefresh] = useState(false)
-    const fetchConvos = async (pageNumber: number) => {
+    const fetchUserReviews = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            const response = await axios.get(`${API_URL}/chat/get-conversations?pageSize=3&pageNumber=${pageNumber}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
+            var url = `${API_URL}/get-user-reviews?pageSize=3&pageNumber=${pageNumber}&userId=${userId}`
+            const response = await axios.get(url,{
+                headers:{
+                    Authorization:`Bearer ${token}`
                 }
             })
             return response.data
@@ -33,19 +35,19 @@ export default function ConversationsList({ navigation }: { navigation: any }) {
     const handleFetch = async (page = pageRef.current, replace: boolean) => {
         if (loadingRef.current) return;
         loadingRef.current = true;
-        const result = await fetchConvos(page);
+        const result = await fetchUserReviews(page);
         if (!result.error) {
             if (replace) {
-                setConversations(result.conversations)
+                setReviews(result.reviews)
             } else {
-                setConversations(prev => [...prev, ...result.conversations])
+                setReviews(prev => [...prev, ...result.reviews])
             }
             setTotal(result.total);
         }
         loadingRef.current = false;
     }
     const loadMore = async () => {
-        if (!loadingRef.current && conversations.length < total) {
+        if (!loadingRef.current && reviews.length < total) {
             loadingRef.current = true;
             pageRef.current += 1;
             await handleFetch(pageRef.current, false);
@@ -56,28 +58,24 @@ export default function ConversationsList({ navigation }: { navigation: any }) {
         refreshRef.current = true
         setRefresh(true)
         try {
-            reset()
+            pageRef.current = 1
+            await handleFetch(1, true)
         } finally {
             setRefresh(false);
             refreshRef.current = false;
         }
     }, [handleFetch])
-    const reset = async () => {
-        pageRef.current = 1
-        await handleFetch(1, true)
-    }
     useFocusEffect(
         useCallback(() => {
-            reset()
+            handleRefresh()
         }, [])
     );
     return (
         <FlatList
-            data={conversations}
-            keyExtractor={(item) => item.conversationId}
-            renderItem={({ item }: { item: ConversationResponse }) => <ConversationComponent conversation={item} navigation={navigation} />}
+            data={reviews}
+            keyExtractor={(item) => item.reviewId}
+            renderItem={({ item }: { item: ReviewResponse }) => <ReviewComponent review={item} navigation={navigation} isSeller={false} />}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingBottom: 8 }}
             onEndReached={loadMore}
             onEndReachedThreshold={0.2}
             refreshControl={

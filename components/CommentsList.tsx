@@ -1,24 +1,43 @@
 import { useCallback, useRef, useState } from "react";
-import { View, FlatList, RefreshControl, ActivityIndicator } from "react-native";
-import { StepResponse } from "../types/StepResponse";
-import StepComponent from "./StepComponent";
-import axios from "axios";
+import { useAuth } from "../app/context/AuthContext";
+import { CommentResponse } from "../types/CommentResponse";
+import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
+import Comment from "./Comment"
 import { API_URL } from "../constants/ApiUri";
+import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../app/context/ThemeContext";
-
-export default function StepsList({ processId, navigation, editable, renderHeader }: { processId: string, navigation: any, editable: boolean, renderHeader: () => any }) {
+type Props = {
+  contentId: string;
+  comments: CommentResponse[];
+  setComments: React.Dispatch<React.SetStateAction<CommentResponse[]>>;
+  navigation:any
+};
+export default function CommentsList({
+  contentId,
+  comments,
+  setComments,
+  navigation
+}: Props) {
+    const { onGetUserToken } = useAuth()
+    const { theme } = useTheme()
+    const [total, setTotal] = useState(0)
+    const [refresh, setRefresh] = useState(false)
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
     const refreshRef = useRef(false)
-    const { theme } = useTheme()
-    const [steps, setSteps] = useState<StepResponse[]>([])
-    const [total, setTotal] = useState(0)
-    const [refresh, setRefresh] = useState(false)
-    const [refreshTick, setRefreshTick] = useState(0);
-    const fetchSteps = async (pageNumber: number) => {
+    const fetchComments = async (pageNumber: number) => {
         try {
-            const response = await axios.get(`${API_URL}/get-steps?processId=${processId}&pageSize=3&pageNumber=${pageNumber}`)
+            const token = await onGetUserToken!()
+            var url = `${API_URL}/get-comments?pageSize=3&pageNumber=${pageNumber}`
+            const response = await axios.get(url, {
+                params: {
+                    contentId: contentId
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             return response.data
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
@@ -27,17 +46,24 @@ export default function StepsList({ processId, navigation, editable, renderHeade
     const handleFetch = async (page = pageRef.current, replace: boolean) => {
         if (loadingRef.current) return;
         loadingRef.current = true;
-        const result = await fetchSteps(page);
+        const result = await fetchComments(page);
         if (!result.error) {
             if (replace) {
-                setSteps(result.steps)
+                setComments(result.comments)
             } else {
-                setSteps(prev => [...prev, ...result.steps])
+                setComments(prev => [...prev, ...result.comments])
             }
             setTotal(result.total);
         }
         loadingRef.current = false;
-    };
+    }
+    const loadMore = async () => {
+        if (!loadingRef.current && comments.length < total) {
+            loadingRef.current = true;
+            pageRef.current += 1;
+            await handleFetch(pageRef.current, false);
+        }
+    }
     const handleRefresh = useCallback(async () => {
         if (refreshRef.current) return
         refreshRef.current = true
@@ -47,16 +73,8 @@ export default function StepsList({ processId, navigation, editable, renderHeade
         } finally {
             setRefresh(false);
             refreshRef.current = false;
-            setRefreshTick(t => t + 1);
         }
     }, [handleFetch])
-    const loadMore = async () => {
-        if (!loadingRef.current && steps.length < total) {
-            loadingRef.current = true;
-            pageRef.current += 1;
-            await handleFetch(pageRef.current, false);
-        }
-    };
     const reset = async () => {
         pageRef.current = 1
         await handleFetch(1, true)
@@ -68,10 +86,9 @@ export default function StepsList({ processId, navigation, editable, renderHeade
     );
     return (
         <FlatList
-            ListHeaderComponent={renderHeader}
-            data={steps}
-            keyExtractor={(item) => `${item.stepId}:${refreshTick}`}
-            renderItem={({ item }: { item: StepResponse }) => <StepComponent step={item} navigation={navigation} editable={editable} />}
+            data={comments}
+            keyExtractor={(item) => item.commentId}
+            renderItem={({ item }: { item: CommentResponse }) => <Comment comment={item} navigation={navigation}/>}
             keyboardShouldPersistTaps="handled"
             onEndReached={loadMore}
             onEndReachedThreshold={0.2}

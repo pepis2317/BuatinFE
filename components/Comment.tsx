@@ -4,119 +4,102 @@ import { CommentResponse } from "../types/CommentResponse";
 import { View, Image, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { useTheme } from "../app/context/ThemeContext";
-import { Heart } from "lucide-react-native";
+import { EllipsisVertical, Heart, Pencil } from "lucide-react-native";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import Colors from "../constants/Colors";
-function Reply({ comment }: { comment: CommentResponse }) {
-    const [likes, setLikes] = useState(0)
-    const { theme } = useTheme()
-    var textColor = theme == "dark" ? "white" : "black"
-    var placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
-    return (
-        <View style={[styles.container, { paddingTop: 10, paddingRight: 15, }]}>
-            <View style={styles.left}>
-                <Image style={[styles.pfp, { backgroundColor: placeholderColor }]} />
-                <View style={styles.leftContent}>
-                    <View style={styles.nameRow}>
-                        <Text style={{ color: textColor, fontWeight: "bold" }}>
-                            {comment.authorName}{" "}
-                        </Text>
-                        <Text style={{ color: "gray" }}>1 day ago</Text>
-                    </View>
-
-                    <Text style={[styles.comment, { color: textColor }]}>{comment.comment}</Text>
-                </View>
-            </View>
-
-            <View style={styles.right}>
-                <TouchableOpacity>
-                    <Heart size={20} color={textColor} />
-                </TouchableOpacity>
-                <Text style={{ color: textColor }}>{likes}</Text>
-            </View>
-        </View>
-    )
+import { useAuth } from "../app/context/AuthContext";
+import Popover, { Rect } from "react-native-popover-view";
+import PfpComponent from "./PfpComponent";
+type Anchor = {
+    x: number, y: number
 }
-export default function Comment({ comment }: { comment: CommentResponse }) {
-    const [replies, setReplies] = useState<CommentResponse[]>([])
-    const [showReply, setShowReply] = useState(false)
-    const [likes, setLikes] = useState(0)
+export default function Comment({ comment, navigation }: { comment: CommentResponse, navigation: any }) {
+    const { onGetUserToken, user } = useAuth()
+    const [likes, setLikes] = useState(comment.likes)
+    const [liked, setLiked] = useState(comment.liked)
+    const [anchor, setAnchor] = useState<Anchor | null>(null);
     const { theme } = useTheme()
     var textColor = theme == "dark" ? "white" : "black"
-    var placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
-    dayjs.extend(relativeTime)
-    var fetchLikes = async () => {
+    var likePost = async () => {
         try {
-            const res = await axios.get(`${API_URL}/get-likes`, {
-                params: {
-                    authorId: comment.authorId,
-                    contentId: comment.commentId,
-                },
-            });
+            const token = await onGetUserToken!()
+            const res = await axios.post(`${API_URL}/like-content`, {
+                contentId: comment.commentId
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             return res.data
         } catch (e: any) {
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
-    var fetchReplies = async () => {
+    var unlikePost = async () => {
         try {
-            const res = await axios.get(`${API_URL}/get-likes`, {
-                params: {
-                    authorId: comment.authorId,
-                    contentId: comment.commentId,
+            const token = await onGetUserToken!()
+            const res = await axios.delete(`${API_URL}/unlike-content`, {
+                data: {
+                    contentId: comment.commentId
                 },
-            });
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             return res.data
         } catch (e: any) {
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
-    const handleViewReplies = async () => {
-
+    var likeHandler = async () => {
+        if (!liked) {
+            var res = await likePost()
+            if (!res.error) {
+                setLiked(true)
+                setLikes(likes + 1)
+            }
+        } else {
+            var res = await unlikePost()
+            if (!res.error) {
+                setLiked(false)
+                setLikes(likes - 1)
+            }
+        }
     }
-
     return (
         <View>
             <View style={[styles.container, { padding: 10, paddingHorizontal: 15, }]}>
                 <View style={styles.left}>
-                    <Image style={[styles.pfp, { backgroundColor: placeholderColor }]} />
+                    <PfpComponent width={40} pfp={comment.authorPfp} userId={comment.authorId} navigation={navigation} />
                     <View style={styles.leftContent}>
                         <View style={styles.nameRow}>
-                            <Text style={{ color: textColor, fontWeight: "bold" }}>
-                                {comment.authorName}{" "}
-                            </Text>
-                            <Text style={{ color: "gray" }}>1 day ago</Text>
+                            <TouchableOpacity onPress={()=>navigation.navigate('UserDetails',{userId:comment.authorId})}>
+                                <Text style={{ color: textColor, fontWeight: "bold" }}>
+                                    {comment.authorName}
+                                </Text>
+                            </TouchableOpacity>
+
+                            <Text style={{ color: "gray", fontSize: 12 }}>{comment.updatedAt ? "(Edited) " + new Date(comment.updatedAt).toDateString() : new Date(comment.createdAt).toDateString()}</Text>
                         </View>
-
                         <Text style={[styles.comment, { color: textColor }]}>{comment.comment}</Text>
-
-                        <TouchableOpacity>
-                            <Text style={{ color: "gray" }}>Reply</Text>
-                        </TouchableOpacity>
-
                     </View>
-
                 </View>
 
                 <View style={styles.right}>
-                    <TouchableOpacity>
-                        <Heart size={20} color={textColor} />
-                    </TouchableOpacity>
-                    <Text style={{ color: textColor }}>{likes}</Text>
+                    <View style={{ alignItems: 'center' }}>
+                        <TouchableOpacity onPress={() => likeHandler()}>
+                            {liked ? <Heart color={Colors.red} fill={Colors.red} size={20} /> : <Heart color={textColor} size={20} />}
+                        </TouchableOpacity>
+                        <Text style={{ color: textColor }}>{likes}</Text>
+                    </View>
+                    {comment.authorId == user?.userId ?
+                        <TouchableOpacity onPress={() => navigation.navigate("EditComment", { comment: comment })}>
+                            <Pencil size={20} color={textColor} />
+                        </TouchableOpacity>
+                        : <></>}
                 </View>
             </View>
-            <View style={{ marginLeft: 75 }}>
-                {comment.replies > 0 ?
-                    <TouchableOpacity onPress={() => setShowReply(!showReply)}>
-                        <Text style={{ color: "gray" }}>{!showReply ? "View" : "Hide"} {comment.replies} Replies</Text>
-                    </TouchableOpacity>
-                    : <></>}
-                {showReply ?
-                    <Reply comment={comment} />
-                    : <></>}
-            </View>
-
         </View>
 
     )
@@ -141,15 +124,16 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         gap: 5,
         flexWrap: "wrap",
+        alignItems: 'center'
     },
     comment: {
         flexShrink: 1,
         flexWrap: "wrap",
     },
     right: {
-        alignItems: "center",
-        alignSelf: "flex-start",
+        flexDirection: 'row',
         marginLeft: 12,
+        gap: 5
     },
     pfp: {
         width: 50,

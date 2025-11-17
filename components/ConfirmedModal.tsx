@@ -2,6 +2,7 @@ import { Modal, View, Text, StyleSheet, Dimensions } from "react-native";
 import ColoredButton from "./ColoredButton";
 import Colors from "../constants/Colors";
 import { useTheme } from "../app/context/ThemeContext";
+import { StatusBar } from "expo-status-bar";
 
 export default function ConfirmedModal({ visible, message, onPress }: { visible: boolean, message: string, onPress: () => void }) {
     const { theme } = useTheme()

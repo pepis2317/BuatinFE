@@ -4,7 +4,7 @@ import { API_URL } from "../constants/ApiUri";
 import React, { use, useEffect, useMemo, useRef, useState } from "react";
 import { PostResponse } from "../types/PostResponse";
 import PagerView from "react-native-pager-view";
-import { Heart, MessageCircle } from "lucide-react-native";
+import { EllipsisVertical, Heart, MessageCircle, Pencil } from "lucide-react-native";
 import { useTheme } from "../app/context/ThemeContext";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -18,15 +18,14 @@ import Animated, {
 } from "react-native-reanimated";
 import Colors from "../constants/Colors";
 
-export default function PostDetail({ post, seller, onCommentPressed }: { post: PostResponse, seller: SellerResponse, onCommentPressed: () => void }) {
+export default function PostDetail({ post, seller, onCommentPressed, navigation }: { post: PostResponse, seller: SellerResponse, onCommentPressed: () => void, navigation: any }) {
     const { onGetUserToken, user } = useAuth()
     const { theme } = useTheme()
     const [images, setImages] = useState<string[]>([])
     const [slideIndex, setSlideIndex] = useState(0)
-    const [likes, setLikes] = useState(0)
-    const [comments, setComments] = useState(0)
+    const [likes, setLikes] = useState<number>(post.likes)
+    const [liked, setLiked] = useState<boolean>(post.liked)
     const [expanded, setExpanded] = useState(false);
-    const [likeId, setLikeId] = useState("")
     const textColor = theme === "dark" ? "white" : "black";
     const backgroundColor = theme == "dark" ? Colors.darkGray : Colors.offWhite;
     const heartOpacity = useSharedValue(0);
@@ -57,9 +56,13 @@ export default function PostDetail({ post, seller, onCommentPressed }: { post: P
     }
     var unlikePost = async () => {
         try {
+            const token = await onGetUserToken!()
             const res = await axios.delete(`${API_URL}/unlike-content`, {
                 data: {
-                    likeId: likeId
+                    contentId: post.postId
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
             })
             return res.data
@@ -68,34 +71,19 @@ export default function PostDetail({ post, seller, onCommentPressed }: { post: P
         }
     }
     var likeHandler = async () => {
-        if (likeId == "") {
+        if (!liked) {
             triggerAnimation()
             var res = await likePost()
             if (!res.error) {
-                setLikeId(res.likeId)
+                setLiked(true)
                 setLikes(likes + 1)
             }
         } else {
             var res = await unlikePost()
             if (!res.error) {
-                setLikeId("")
+                setLiked(false)
                 setLikes(likes - 1)
-            }else{
-                console.log(res.msg)
             }
-        }
-    }
-    var fetchLikes = async () => {
-        try {
-            const res = await axios.get(`${API_URL}/get-likes`, {
-                params: {
-                    authorId: user?.userId,
-                    contentId: post.postId,
-                },
-            });
-            return res.data
-        } catch (e: any) {
-            return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
     useEffect(() => {
@@ -105,17 +93,7 @@ export default function PostDetail({ post, seller, onCommentPressed }: { post: P
                 setImages(images)
             }
         }
-        const loadLikes = async () => {
-            var likes = await fetchLikes()
-            if (!likes.error) {
-                if (likes.myLikeId) {
-                    setLikeId(likes.myLikeId)
-                }
-                setLikes(likes.likes)
-            }
-        }
         loadImages()
-        loadLikes()
     }, [])
     const animatedStyle = useAnimatedStyle(() => {
         return {
@@ -134,12 +112,21 @@ export default function PostDetail({ post, seller, onCommentPressed }: { post: P
             withTiming(1, { duration: 200 })
         );
     };
+
     return (
         <View style={styles.postContainer}>
-            <TouchableOpacity style={styles.authorContainer} onPress={() => console.log("pressed")}>
-                <Image style={[styles.authorImage, { backgroundColor: backgroundColor }]} src={seller.sellerPicture}></Image>
-                <Text style={[styles.text, { color: textColor }]}>{seller.sellerName}</Text>
-            </TouchableOpacity>
+            <View style={styles.authorContainer}>
+                <View style={{flexDirection:'row', alignItems:'center', gap:10}}>
+                    <Image style={[styles.authorImage, { backgroundColor: backgroundColor }]} src={seller.sellerPicture}></Image>
+                    <Text style={[styles.text, { color: textColor }]}>{seller.sellerName}</Text>
+                </View>
+
+                {seller.owner.userId == user?.userId ?
+                    <TouchableOpacity onPress={()=>navigation.navigate('EditPost', {post:post})}>
+                        <Pencil size={20} color={textColor} />
+                    </TouchableOpacity>
+                    : <></>}
+            </View>
             <View style={styles.carouselContainer}>
                 <PagerView style={[styles.carousel, { backgroundColor: backgroundColor }]} onPageSelected={(e) => setSlideIndex(e.nativeEvent.position)}>
                     {images.map((image, index) => (
@@ -154,15 +141,15 @@ export default function PostDetail({ post, seller, onCommentPressed }: { post: P
                     <Heart size={100} color="white" fill={"white"} />
                 </Animated.View>
             </View>
-            <View style={{ gap: 10, padding: 10 }}>
+            <View style={{ gap: 10, padding: 10, paddingHorizontal:20 }}>
                 <View style={styles.reactionContainer}>
                     <TouchableOpacity style={styles.reaction} onPress={() => likeHandler()}>
-                        {likeId ? <Heart color={Colors.red} fill={Colors.red} size={26} /> : <Heart color={textColor} size={26} />}
+                        {liked ? <Heart color={Colors.red} fill={Colors.red} size={26} /> : <Heart color={textColor} size={26} />}
                         <Text style={[styles.text, { color: textColor }]}>{likes}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.reaction} onPress={() => onCommentPressed()}>
                         <MessageCircle color={textColor} size={26} />
-                        <Text style={[styles.text, { color: textColor }]}>{comments}</Text>
+                        <Text style={[styles.text, { color: textColor }]}>{post.comments}</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
@@ -183,7 +170,7 @@ export default function PostDetail({ post, seller, onCommentPressed }: { post: P
                         </TouchableOpacity>
                     )}
                 </View>
-                <Text style={{ color: "gray" }}>{dayjs(post.createdAt).fromNow()}</Text>
+                <Text style={{ color: "gray" }}>{post.updatedAt ? "(Edited) " + new Date(post.updatedAt).toDateString() : new Date(post.createdAt).toDateString()}</Text>
             </View>
         </View>
     );
@@ -197,9 +184,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     authorContainer: {
-        padding: 10,
+        padding: 20,
+        paddingVertical:10,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent:'space-between',
         gap: 10
     },
     authorImage: {

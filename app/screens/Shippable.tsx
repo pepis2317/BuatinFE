@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext"
 import { useTheme } from "../context/ThemeContext"
 import ProcessComponent from "../../components/ProcessComponent"
 import ShippableComponent from "../../components/ShippableComponent"
+import TopBar from "../../components/TopBar"
 
 type ShippableProps = NativeStackScreenProps<RootStackParamList, "Shippable">
 export default function Shippable({ navigation, route }: ShippableProps) {
@@ -73,23 +74,27 @@ export default function Shippable({ navigation, route }: ShippableProps) {
         }, [])
     );
     return (
-        <FlatList
-            data={processes}
-            keyExtractor={(item: ProcessResponse) => item.processId}
-            renderItem={({ item }: { item: ProcessResponse }) => <ShippableComponent process={item} navigation={navigation} />}
-            contentContainerStyle={{ paddingBottom: 8 }}
-            keyboardShouldPersistTaps="handled"
-            onEndReached={loadMore}
-            onEndReachedThreshold={0.5}
-            refreshControl={
-                <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
-            }
-            ListFooterComponent={
-                loading ?
-                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
-                    :
-                    <View style={{ marginTop: 64 }} />
-            }
-        />
+        <>
+        <TopBar title={"Shippable Processes"} showBackButton/>
+            <FlatList
+                data={processes}
+                keyExtractor={(item: ProcessResponse) => item.processId}
+                renderItem={({ item }: { item: ProcessResponse }) => <ShippableComponent process={item} navigation={navigation} />}
+                contentContainerStyle={{ paddingBottom: 8 }}
+                keyboardShouldPersistTaps="handled"
+                onEndReached={loadMore}
+                onEndReachedThreshold={0.5}
+                refreshControl={
+                    <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
+                }
+                ListFooterComponent={
+                    loading ?
+                        <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                        :
+                        <View style={{ marginTop: 64 }} />
+                }
+            />
+        </>
+
     )
 }

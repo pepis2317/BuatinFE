@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
+import { ActivityIndicator, FlatList, RefreshControl, View, Text } from "react-native";
 import { useAuth } from "../app/context/AuthContext";
 import { useCallback, useRef, useState } from "react";
 import { useTheme } from "../app/context/ThemeContext";
@@ -61,18 +61,29 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
         refreshRef.current = true
         setRefresh(true)
         try {
-            pageRef.current = 1
-            await handleFetch(1, true)
+            reset()
         } finally {
             setRefresh(false);
             refreshRef.current = false;
         }
     }, [handleFetch])
+    const reset = async () => {
+        pageRef.current = 1
+        await handleFetch(1, true)
+    }
     useFocusEffect(
         useCallback(() => {
-            handleRefresh()
+            reset()
         }, [])
     );
+    if (shipments.length == 0 && !loadingRef.current) {
+        return (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+                <Text style={{ color: 'gray' }}>No Incoming Shipments Yet</Text>
+            </View>
+        )
+    }
+
     return (
         <FlatList
             data={shipments}

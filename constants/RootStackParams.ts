@@ -1,5 +1,7 @@
+import { CommentResponse } from "../types/CommentResponse";
 import { OrderRequestResponse } from "../types/OrderRequestResponse";
 import { PostResponse } from "../types/PostResponse";
+import { ReviewResponse } from "../types/ReviewResponse";
 import { SellerResponse } from "../types/SellerResponse";
 
 export type RootStackParamList = {
@@ -14,6 +16,24 @@ export type RootStackParamList = {
   SearchPage: undefined;
   Processes: undefined;
   Shippable: undefined;
+  SellerOutgoingProcesses: undefined;
+  SellerIncomingShipments: undefined;
+  SellerReviews: {
+    sellerId: string
+  }
+  EditReview: {
+    review:ReviewResponse,
+    isSeller:boolean
+  }
+  EditPost: {
+    post:PostResponse
+  }
+  EditComment: {
+    comment:CommentResponse
+  }
+  UserReviews: {
+    userId: string
+  }
   CreateShipment: {
     processId: string;
   };
@@ -26,6 +46,7 @@ export type RootStackParamList = {
   SellerShipments: undefined;
   ShipmentsTab: undefined;
   SellerShipmentsTab: undefined;
+  SellerStack: undefined;
   ShipmentDetails: {
     shipmentId: string
   }
@@ -67,9 +88,13 @@ export type RootStackParamList = {
   },
   EditStep: {
     stepId: string
+  },
+  UserDetails: {
+    userId: string
   }
+  EditSeller: undefined
   SellerDetails: {
-    seller: SellerResponse
+    sellerId: string | null
   };
   PostDetails: {
     seller: SellerResponse,
@@ -79,9 +104,7 @@ export type RootStackParamList = {
   }
   Settings: undefined;
   Notifications: undefined,
-  CreatePost: {
-    seller: SellerResponse
-  },
+  CreatePost: undefined,
   Comments: {
     postId: string
   },

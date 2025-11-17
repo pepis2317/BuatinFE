@@ -41,6 +41,16 @@ import SellerShipmentDetails from '../app/screens/SellerShipmentDetails';
 import Shippable from '../app/screens/Shippable';
 import Conversations from '../app/screens/Conversations';
 import Chat from '../app/screens/Chat';
+import EditSeller from '../app/screens/EditSeller';
+import CreatePost from '../app/screens/CreatePost';
+import SellerReviews from '../app/screens/SellerReviews';
+import EditReview from '../app/screens/EditReview';
+import EditComment from '../app/screens/EditComment';
+import EditPost from '../app/screens/EditPost';
+import UserDetails from '../app/screens/UserDetails';
+import UserReviews from '../app/screens/UserReviews';
+import SellerOutgoingProcesses from '../app/screens/SellerOutgoingProcesses';
+import SellerIncomingShipments from '../app/screens/SellerIncomingShipments';
 const UserTab = createBottomTabNavigator<RootStackParamList>()
 export function UserTabs() {
     const { theme } = useTheme()
@@ -190,23 +200,20 @@ export function SellerTabs() {
     }
     return (
         <SellerTab.Navigator>
-            <SellerTab.Screen name="SellerHome" component={SellerHome} options={homeTabOptions} />
-            <SellerTab.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
-            <SellerTab.Screen name="Processes" component={ProcessesStackScreen} options={processesTabOptions} />
+            <SellerTab.Screen name="HomeTab" component={HomeStackScreen} options={homeTabOptions} />
             <SellerTab.Screen name="SellerProcessesTab" component={SellerProcessesStackScreen} options={processesTabOptions} />
-            <SellerTab.Screen name="ShipmentsTab" component={ShipmentsStackScreen} options={ShipmentsTabOptions} />
             <SellerTab.Screen name="SellerShipmentsTab" component={SellerShipmentsStackScreen} options={ShipmentsTabOptions} />
-            <UserTab.Screen name="ChatTab" component={ChatStackScreen} options={ChatTabOptions} />
+            <SellerTab.Screen name="ChatTab" component={ChatStackScreen} options={ChatTabOptions} />
             <SellerTab.Screen name="Profile" component={Profile} options={profileTabOptions} />
         </SellerTab.Navigator>
     );
 }
 const ChatStack = createNativeStackNavigator<RootStackParamList>()
-function ChatStackScreen(){
-    return(
+function ChatStackScreen() {
+    return (
         <ChatStack.Navigator>
-            <ChatStack.Screen name="Conversations" component={Conversations} options={{headerShown: false}}/>
-            <ChatStack.Screen name="Chat" component={Chat} options={{headerShown: false}}/>
+            <ChatStack.Screen name="Conversations" component={Conversations} options={{ headerShown: false }} />
+            <ChatStack.Screen name="Chat" component={Chat} options={{ headerShown: false }} />
         </ChatStack.Navigator>
     )
 }
@@ -225,6 +232,7 @@ function SellerShipmentsStackScreen() {
     return (
         <SellerShipmentsStack.Navigator>
             <SellerShipmentsStack.Screen name="SellerShipments" component={SellerShipments} options={{ headerShown: false }} />
+            <SellerShipmentsStack.Screen name="SellerIncomingShipments" component={SellerIncomingShipments} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="Shippable" component={Shippable} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="CreateShipment" component={CreateShipment} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="SellerShipmentDetails" component={SellerShipmentDetails} options={{ headerShown: false }} />
@@ -247,6 +255,16 @@ function HomeStackScreen() {
             <HomeStack.Screen name="Wallet" component={Wallet} options={{ headerShown: false }} />
             <HomeStack.Screen name="Deposit" component={Deposit} options={{ headerShown: false }} />
             <HomeStack.Screen name="Withdraw" component={Withdraw} options={{ headerShown: false }} />
+            <HomeStack.Screen name="EditSeller" component={EditSeller} options={{ headerShown: false }} />
+            <HomeStack.Screen name="CreatePost" component={CreatePost} options={{ headerShown: false }} />
+            <HomeStack.Screen name="SellerReviews" component={SellerReviews} options={{ headerShown: false }}/>
+            <HomeStack.Screen name="EditReview" component={EditReview} options={{ headerShown: false }}/>
+            <HomeStack.Screen name="ReviewSeller" component={ReviewSeller} options={{ headerShown: false }} />
+            <HomeStack.Screen name="EditComment" component={EditComment} options={{headerShown: false}}/>
+            <HomeStack.Screen name="EditPost" component={EditPost} options={{headerShown: false}}/>
+            <HomeStack.Screen name="UserDetails" component={UserDetails} options={{headerShown: false}}/>
+            <HomeStack.Screen name="UserReviews" component={UserReviews} options={{headerShown: false}}/>
+            <HomeStack.Screen name="ReviewUser" component={ReviewUser} options={{headerShown: false}}/>
         </HomeStack.Navigator>
     )
 }
@@ -268,6 +286,7 @@ function SellerProcessesStackScreen() {
     return (
         <SellerProcessesStack.Navigator>
             <SellerProcessesStack.Screen name="SellerProcesses" component={SellerProcesses} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="SellerOutgoingProcesses" component={SellerOutgoingProcesses} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="OrderRequestDetails" component={OrderRequestDetails} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="CreateProcess" component={CreateProcess} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="SellerProcessDetails" component={SellerProcessDetails} options={{ headerShown: false }} />

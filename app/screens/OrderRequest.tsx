@@ -99,12 +99,10 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
     }
 
     return (
-        <ScrollView>
+        <View style={{ flex: 1 }}>
             <TopBar title="Create Order Request" showBackButton />
             <ConfirmedModal visible={modalVisible} message={"Request has been created"} onPress={() => navigation.goBack()} />
-            <Text>{sellerId}</Text>
-            <TextInputComponent placeholder="Title" onChangeText={setTitle} />
-            <TextInputComponent placeholder="Message" onChangeText={setMessage} />
+            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Images</Text>
             <View style={styles.imagesContainer}>
                 <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
                     <View style={styles.addBorder}>
@@ -125,8 +123,14 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
                     ))}
                 </ScrollView>
             </View>
-            <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green }} disabled={title == "" || message == ""} />
-        </ScrollView>
+            <ScrollView style={{ flex: 1, padding: 20 }}>
+                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Title</Text>
+                <TextInputComponent placeholder="Title" onChangeText={setTitle} />
+                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10, marginTop: 10 }}>Message</Text>
+                <TextInputComponent placeholder="Message" onChangeText={setMessage} />
+                <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green, marginTop: 10 }} disabled={title == "" || message == ""} />
+            </ScrollView>
+        </View>
     )
 }
 const styles = StyleSheet.create({

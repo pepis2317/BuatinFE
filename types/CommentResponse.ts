@@ -6,5 +6,7 @@ export type CommentResponse={
     createdAt:string
     updatedAt:string
     replies:number
+    likes:number
+    liked:boolean
     commentId:string
 }

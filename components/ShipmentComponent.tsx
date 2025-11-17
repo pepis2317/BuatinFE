@@ -3,10 +3,13 @@ import { ShipmentResponse } from "../types/ShipmentResponse";
 import { useTheme } from "../app/context/ThemeContext";
 import Colors from "../constants/Colors";
 import { useAuth } from "../app/context/AuthContext";
+import { Box, Truck } from "lucide-react-native";
 
 export default function ShipmentComponent({ shipment, navigation }: { shipment: ShipmentResponse, navigation: any }) {
     const { theme } = useTheme()
     var textColor = theme == "dark" ? "white" : "black"
+    var bg = theme == "dark"? Colors.darkGray:Colors.offWhite
+    var border = theme == "dark"? Colors.darkBorder:Colors.lightBorder
     const {user} = useAuth()
     const handleNavigation = () => {
         if(user?.role == "User"){
@@ -18,13 +21,16 @@ export default function ShipmentComponent({ shipment, navigation }: { shipment: 
     return (
         <TouchableOpacity style={[styles.container]} onPress={() => handleNavigation()}>
             <View style={styles.left}>
+                <View style={{backgroundColor:bg, aspectRatio:1,padding:10, borderRadius:100, borderWidth:1, borderColor:border}}>
+                    <Box color={textColor}/>
+                </View>
                 <View style={styles.leftContent}>
                     <View style={styles.nameRow}>
                         <Text style={{ color: textColor, fontWeight: "bold" }}>
                             {shipment.name}
                         </Text>
                     </View>
-                    <Text style={[styles.comment, { color: textColor }]}>{shipment.status}</Text>
+                    <Text style={[styles.comment, { color: textColor, fontSize:12 }]}>{shipment.status}</Text>
                 </View>
             </View>
         </TouchableOpacity>

@@ -39,7 +39,6 @@ export default function ChatComponent({ item, handleLongPress }: { item: Message
     }
     useEffect(()=>{
         if(item.hasAttachments){
-            console.log("Yea", item.messageId)
             handleFetchAttachments()
         }
     },[])

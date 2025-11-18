@@ -60,10 +60,7 @@ export function Layout() {
     },
   }
   useEffect(() => {
-    const buttons = theme === 'dark' ? 'light' : 'dark';
     const rootBg = theme === 'dark' ? '#121212' : '#ffffff';
-
-    SystemUI.setBackgroundColorAsync(rootBg);
     if (Platform.OS === 'android') {
       const buttons = theme === 'dark' ? 'light' : 'dark';
       NavigationBar.setBackgroundColorAsync(rootBg);
@@ -72,34 +69,36 @@ export function Layout() {
   }, [theme]);
   const navigationTheme = theme === "dark" ? customDarkTheme : customLightTheme;
   return (
-    <NavigationContainer theme={navigationTheme}>
-      <View style={{ height: 32, backgroundColor: navigationTheme.colors.background }} />
-      <StatusBar style={theme == "dark" ? "light" : "dark"} />
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: { backgroundColor: navigationTheme.colors.card },
-          statusBarStyle: 'dark',
-          headerTintColor: navigationTheme.colors.text,
-          contentStyle: { backgroundColor: navigationTheme.colors.background },
-          animation: 'none'
-        }}
-      >
-        {authState?.authenticated && user ? (
+    <View style={{backgroundColor:'red', flex:1}}>
+      <NavigationContainer theme={navigationTheme}>
+        <View style={{ height: 32, backgroundColor: navigationTheme.colors.background }} />
+        <StatusBar style={theme == "dark" ? "light" : "dark"} />
+        <Stack.Navigator
+          screenOptions={{
+            headerStyle: { backgroundColor: navigationTheme.colors.card },
+            headerTintColor: navigationTheme.colors.text,
+            contentStyle: { backgroundColor: navigationTheme.colors.background },
+            animation: 'none'
+          }}
+        >
+          {authState?.authenticated && user ? (
 
-          user.role === "User" ? (
-            <Stack.Screen name="UserTabs" component={UserTabs} options={{ headerShown: false }} />
+            user.role === "User" ? (
+              <Stack.Screen name="UserTabs" component={UserTabs} options={{ headerShown: false }} />
+            ) : (
+              <Stack.Screen name="SellerTabs" component={SellerTabs} options={{ headerShown: false }} />
+            )
+
           ) : (
-            <Stack.Screen name="SellerTabs" component={SellerTabs} options={{ headerShown: false }} />
-          )
+            <>
+              <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+              <Stack.Screen name="Register" component={Register} options={{ headerShown: false }} />
+            </>
 
-        ) : (
-          <>
-            <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-            <Stack.Screen name="Register" component={Register} options={{ headerShown: false }} />
-          </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </View>
 
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
   )
 }

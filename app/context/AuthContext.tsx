@@ -8,7 +8,7 @@ import { API_URL } from "../../constants/ApiUri";
 interface AuthProps {
     user?: User | null
     authState?: { authenticated: boolean | null; }
-    onRegister?: (username: string, email: string, password: string, phone: string, role: string) => Promise<any>
+    onRegister?: (username: string, email: string, password: string, phone: string, postalCode: number, address: string, role: string) => Promise<any>
     onLogin?: (email: string, password: string) => Promise<any>
     onLogout?: () => Promise<any>
     onUserUpdate?: (user: User) => Promise<any>
@@ -43,13 +43,15 @@ export default function AuthProvider({ children }: any) {
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
 
-    const register = async (username: string, email: string, password: string, phone: string, role: string) => {
+    const register = async (username: string, email: string, password: string, phone: string, postalCode: number, address: string, role: string) => {
         try {
             const response = await axios.post(`${API_URL}/register-user`, {
                 UserName: username,
                 Password: password,
                 Email: email,
                 Phone: phone,
+                PostalCode: postalCode,
+                Address: address,
                 Role: role,
             })
             return response.data
@@ -152,7 +154,6 @@ export default function AuthProvider({ children }: any) {
         await SecureStore.deleteItemAsync(USER_DATA_KEY)
     };
     const checkAuthState = async () => {
-        console.log("checking auth state")
         const token = await SecureStore.getItemAsync(TOKEN_KEY);
         const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
         if (token && refreshToken) {

@@ -10,17 +10,20 @@ import dayjs from "dayjs";
 import Colors from "../constants/Colors";
 import { OrderRequestResponse } from "../types/OrderRequestResponse";
 import { ProcessResponse } from "../types/ProcesssResponse";
+import PfpComponent from "./PfpComponent";
 export default function ShippableComponent({ process, navigation}: { process: ProcessResponse, navigation: any }) {
     const { theme } = useTheme()
     var textColor = theme == "dark" ? "white" : "black"
-    var placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
     return (
         <TouchableOpacity style={[styles.container]} onPress={() => navigation.navigate('CreateShipment', { processId: process.processId })}>
             <View style={styles.left}>
-                <Image style={[styles.pfp, { backgroundColor: placeholderColor }]} src={process.picture} />
+                <PfpComponent width={50} pfp={process.user.pfp} userId={""} navigation={navigation}/>
                 <View style={styles.leftContent}>
                     <Text style={{ color: textColor, fontWeight: "bold" }}>
                         {process.title}
+                    </Text>
+                    <Text style={{ color: 'gray', fontSize:12}}>
+                        {`Create Shipping Order for ${process.user.userName}'s Product`}
                     </Text>
                 </View>
             </View>

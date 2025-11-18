@@ -1,5 +1,5 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import { View, Text, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from "react-native"
+import { View, Text, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity, StyleSheet } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import * as SecureStore from 'expo-secure-store'
 import { useCallback, useEffect, useState } from "react"
@@ -7,18 +7,22 @@ import axios from "axios"
 import { SellerResponse } from "../../types/SellerResponse"
 import { useTheme } from "../context/ThemeContext"
 import SellerCard from "../../components/SellerCard"
-import { Bell, Search, Settings, Wallet } from "lucide-react-native"
+import { Bell, Search, Settings, Store, Wallet } from "lucide-react-native"
 import { API_URL } from "../../constants/ApiUri"
 import { RootStackParamList } from "../../constants/RootStackParams"
 import { USER_LOCATION_KEY } from "./Settings"
+import { useAuth } from "../context/AuthContext"
+import Colors from "../../constants/Colors"
 
 export default function UserHome() {
+    const { user } = useAuth()
     const { theme } = useTheme()
     const [sellers, setSellers] = useState<SellerResponse[]>([])
     const [refresh, setRefresh] = useState(false)
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(false)
     const [total, setTotal] = useState(0)
+    const color = theme == "dark" ? "white" : "black"
     const fetchSellers = async () => {
         try {
             let queryString = `/sellers-query?pageSize=2&pageNumber=${page}`
@@ -68,33 +72,50 @@ export default function UserHome() {
     return (
         <View>
             <View style={{
-                flexDirection: "row",
-                padding: 10,
+                marginTop:10,
+                paddingBottom:10,
                 paddingLeft: 15,
                 paddingRight: 15,
-                justifyContent: 'space-between',
-                backgroundColor: theme == "dark" ? "#222831" : "white",
-                elevation: 2
+                elevation:2
             }}>
-                <Text style={{ color: theme == "dark" ? 'white' : 'black', fontWeight: "bold", fontSize: 20 }}>
-                    Buatin
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                    <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
-                        <Settings color={theme == "dark" ? "white" : "black"} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
-                        <Bell color={theme == "dark" ? "white" : "black"} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate("Wallet")}>
-                        <Wallet color={theme == "dark" ? "white" : "black"} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate("SearchPage")}>
-                        <Search color={theme == "dark" ? "white" : "black"} />
-                    </TouchableOpacity>
-                </View>
+                <View style={{
+                    flexDirection: "row",
+                    alignItems: 'center',
 
+                    justifyContent: 'space-between',
+                    backgroundColor: theme == "dark" ? "#222831" : "white",
+                }}>
+                    <Text style={{ color: color, fontWeight: "bold", fontSize: 20 }}>
+                        Buatin
+                    </Text>
+                    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+
+                        <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
+                            <Settings color={color} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
+                            <Bell color={color} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate("Wallet")}>
+                            <Wallet color={color} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate("SearchPage")}>
+                            <Search color={color} />
+                        </TouchableOpacity>
+                    </View>
+
+                </View>
+                <View style={{marginTop:10}}>
+                    {user?.role == "Seller" ?
+                        <TouchableOpacity style={styles.sellerHome} onPress={() => navigation.navigate("SellerDetails", { sellerId: null })}>
+                            <Store color={'white'} />
+                            <Text style={{ color: 'white', fontWeight: 'bold' }}>My Seller Details</Text>
+                        </TouchableOpacity>
+                        : <></>}
+                </View>
             </View>
+
+
             {sellers.length > 0 ?
                 <FlatList
                     data={sellers}
@@ -113,10 +134,23 @@ export default function UserHome() {
                         loading ?
                             <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
                             :
-                            <View style={{ marginTop: 64 }} />
+                            <View style={{ marginTop: 120 }} />
                     } /> : <></>
             }
 
         </View>
     )
 }
+const styles = StyleSheet.create({
+    sellerHome: {
+        backgroundColor: Colors.green,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        padding: 5,
+        paddingHorizontal: 10,
+        borderRadius: 5,
+        width: 'auto'
+
+    }
+})

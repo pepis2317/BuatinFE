@@ -127,6 +127,9 @@ export default function Chat({ navigation, route }: ChatProps) {
         const formData = new FormData();
         formData.append("conversationId", conversationId);
         formData.append("text", message);
+        if (attachments.length > 0) {
+            formData.append("hasAttachments", "true");
+        }
         attachments.forEach((uri) => {
             const name = uri.split("/").pop() ?? "file";
             const type = getMimeType(uri);
@@ -169,15 +172,20 @@ export default function Chat({ navigation, route }: ChatProps) {
             >
                 {anchor ?
                     <View style={{ padding: 12, minWidth: 180, gap: 8 }}>
-                        <Text onPress={() => {
+                        <TouchableOpacity onPress={() => {
                             setEditMessage(anchor.message)
                             setMessage(anchor.message.message)
                             setAnchor(null)
-                        }}>Edit</Text>
-                        <Text onPress={() => {
+                        }}>
+                            <Text>Edit</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
                             handleDelete(anchor.message.messageId)
                             setAnchor(null)
-                        }}>Delete</Text>
+                        }}>
+                            <Text>Delete</Text>
+                        </TouchableOpacity>
+
                     </View>
                     : <></>
                 }

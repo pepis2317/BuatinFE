@@ -65,36 +65,26 @@ export default function EditStep({ navigation, route }: EditStepProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
-    const saveChanges = async (title: string, description: string, minCompleteDate: Date, maxCompleteDate: Date) => {
+    // const saveChanges = async (title: string, description: string, minCompleteDate: Date, maxCompleteDate: Date) => {
+    //     try {
+    //         const response = await axios.put(`${API_URL}/edit-step`, {
+    //             stepId: stepId,
+    //             title: title,
+    //             description: description,
+    //             minCompleteEstimate: minCompleteDate,
+    //             maxCompleteEstimate: maxCompleteDate
+    //         })
+    //         return response.data
+    //     } catch (e) {
+    //         return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
+    //     }
+    // }
+    const saveChanges = async (formData: FormData) => {
         try {
-            const response = await axios.put(`${API_URL}/edit-step`, {
-                stepId: stepId,
-                title: title,
-                description: description,
-                minCompleteEstimate: minCompleteDate,
-                maxCompleteEstimate: maxCompleteDate
-            })
-            return response.data
-        } catch (e) {
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
-        }
-    }
-    const cancelStep = async () => {
-        try {
-            const response = await axios.put(`${API_URL}/edit-step`, {
-                stepId: stepId,
-                status: "Cancelled"
-            })
-            return response.data
-        } catch (e) {
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
-        }
-    }
-    const completeStep = async () => {
-        try {
-            const response = await axios.put(`${API_URL}/edit-step`, {
-                stepId: stepId,
-                status: "Completed"
+            const response = await axios.put(`${API_URL}/edit-step`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
             })
             return response.data
         } catch (e) {
@@ -124,7 +114,13 @@ export default function EditStep({ navigation, route }: EditStepProps) {
     const handleUpdate = async () => {
         setLoading(true)
         if (step != null && minimumDate && maximumDate) {
-            var result = await saveChanges(step.title, step.description, minimumDate, maximumDate)
+            const formData = new FormData()
+            formData.append("stepId", stepId)
+            formData.append("title", step.title)
+            formData.append("description", step.description)
+            formData.append("minCompleteEstimate", minimumDate.toISOString());
+            formData.append("maxCompleteEstimate", maximumDate.toISOString());
+            var result = await saveChanges(formData)
             if (!result.error) {
                 setShowUpdatedModal(true)
             }
@@ -134,25 +130,24 @@ export default function EditStep({ navigation, route }: EditStepProps) {
     const handleComplete = async () => {
         setLoading(true)
         if (step != null) {
-            var result = await completeStep()
+            const formData = new FormData()
+            formData.append("stepId", stepId)
+            formData.append("status", "Completed")
+            for (const imageUri of images) {
+
+                const fileName = imageUri.split("/").pop() || "image.jpg";
+                const match = /\.(\w+)$/.exec(fileName);
+                const fileType = match ? `image/${match[1]}` : "image";
+
+                formData.append("images", {
+                    uri: imageUri,
+                    name: fileName,
+                    type: fileType,
+                } as any);
+            }
+            var result = await saveChanges(formData)
             if (!result.error) {
-                for (const imageUri of images) {
-                    const formData = new FormData();
-                    formData.append("ContentId", step.stepId);
 
-                    const fileName = imageUri.split("/").pop() || "image.jpg";
-                    const match = /\.(\w+)$/.exec(fileName);
-                    const fileType = match ? `image/${match[1]}` : "image";
-
-                    formData.append("File", {
-                        uri: imageUri,
-                        name: fileName,
-                        type: fileType,
-                    } as any);
-
-                    const res = await handleUploadImage(formData);
-                    console.log("upload result:", res);
-                }
                 setShowCompletedModal(true)
             }
         }
@@ -161,7 +156,10 @@ export default function EditStep({ navigation, route }: EditStepProps) {
     const handleCancel = async () => {
         setLoading(true)
         if (step != null) {
-            var result = await cancelStep()
+            const formData = new FormData()
+            formData.append("stepId", stepId)
+            formData.append("status", "Cancelled")
+            var result = await saveChanges(formData)
             if (!result.error) {
                 setShowCancelledModal(true)
             }

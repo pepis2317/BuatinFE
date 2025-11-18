@@ -9,6 +9,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import Colors from "../constants/Colors";
 import { OrderRequestResponse } from "../types/OrderRequestResponse";
+import PfpComponent from "./PfpComponent";
 export default function OrderRequestComponent({ request, navigation, respondable }: { request: OrderRequestResponse, navigation: any, respondable: boolean }) {
     const { theme } = useTheme()
     const [statusColor, setStatusColor] = useState(Colors.darkBorder)
@@ -25,18 +26,17 @@ export default function OrderRequestComponent({ request, navigation, respondable
     return (
         <TouchableOpacity style={[styles.container]} onPress={() => navigation.navigate('OrderRequestDetails', { orderRequest: request, respondable: respondable })}>
             <View style={styles.left}>
-                <Image style={[styles.pfp, { backgroundColor: placeholderColor }]} src={request.pictureUrl} />
+                <PfpComponent width={50} pfp={request.pictureUrl} userId={""} navigation={navigation}/>
                 <View style={styles.leftContent}>
                     <View style={styles.nameRow}>
                         <Text style={{ color: textColor, fontWeight: "bold" }}>
-                            {request.name}{" "}
+                            {request.title}
                         </Text>
                     </View>
-                    <Text style={[styles.comment, { color: textColor }]}>{request.title}</Text>
-                    <Text style={[styles.comment, { color: textColor }]}>{request.status}</Text>
+                    <Text style={[styles.comment, { color: 'gray', fontSize:12 }]}>Request by {request.name}</Text>
+                    <Text style={[styles.comment, { color: statusColor, fontSize:12 }]}>{request.status}</Text>
                 </View>
             </View>
-            <View style={[styles.right,{backgroundColor:statusColor}]} />
         </TouchableOpacity>
     )
 }
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     },
     left: {
         flex: 1,
-        padding: 20,
+        padding: 15,
         flexDirection: "row",
         alignItems: "center",
         gap: 10,
@@ -71,10 +71,5 @@ const styles = StyleSheet.create({
     right: {
         width: 5,
         alignSelf: "stretch"
-    },
-    pfp: {
-        width: 50,
-        aspectRatio: 1,
-        borderRadius: 50,
-    },
+    }
 });

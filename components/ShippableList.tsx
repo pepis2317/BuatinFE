@@ -1,30 +1,31 @@
 import { useCallback, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
-import { ConversationResponse } from "../types/ConversationResponse";
+import { ActivityIndicator, FlatList, RefreshControl, View, Text } from "react-native";
+import { ProcessResponse } from "../types/ProcesssResponse";
+import ShippableComponent from "./ShippableComponent";
 import { useTheme } from "../app/context/ThemeContext";
-import axios from "axios";
-import { API_URL } from "../constants/ApiUri";
 import { useAuth } from "../app/context/AuthContext";
+import { API_URL } from "../constants/ApiUri";
+import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
-import ConversationComponent from "./ConversationComponent";
 
-export default function ConversationsList({ navigation }: { navigation: any }) {
+export default function ShippableList({ navigation }: { navigation: any }) {
+    const { onGetUserToken } = useAuth()
+    const [processes, setProcesses] = useState<ProcessResponse[]>([])
+    const [total, setTotal] = useState(0)
+    const { theme } = useTheme()
+    const [refresh, setRefresh] = useState(false)
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
     const refreshRef = useRef(false)
-    const { theme } = useTheme()
-    const { onGetUserToken } = useAuth()
-    const [conversations, setConversations] = useState<ConversationResponse[]>([])
-    const [total, setTotal] = useState(0)
-    const [refresh, setRefresh] = useState(false)
-    const fetchConvos = async (pageNumber: number) => {
+    const fetchProcesses = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            const response = await axios.get(`${API_URL}/chat/get-conversations?pageSize=3&pageNumber=${pageNumber}`, {
+            const response = await axios.get(`${API_URL}/get-shippable?pageSize=3&pageNumber=${pageNumber}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
+            setRefresh(false)
             return response.data
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
@@ -33,19 +34,19 @@ export default function ConversationsList({ navigation }: { navigation: any }) {
     const handleFetch = async (page = pageRef.current, replace: boolean) => {
         if (loadingRef.current) return;
         loadingRef.current = true;
-        const result = await fetchConvos(page);
+        const result = await fetchProcesses(page);
         if (!result.error) {
             if (replace) {
-                setConversations(result.conversations)
+                setProcesses(result.processes)
             } else {
-                setConversations(prev => [...prev, ...result.conversations])
+                setProcesses(prev => [...prev, ...result.processes])
             }
             setTotal(result.total);
         }
         loadingRef.current = false;
     }
     const loadMore = async () => {
-        if (!loadingRef.current && conversations.length < total) {
+        if (!loadingRef.current && processes.length < total) {
             loadingRef.current = true;
             pageRef.current += 1;
             await handleFetch(pageRef.current, false);
@@ -71,13 +72,19 @@ export default function ConversationsList({ navigation }: { navigation: any }) {
             reset()
         }, [])
     );
+    if (processes.length == 0 && !loadingRef.current) {
+        return (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+                <Text style={{ color: 'gray' }}>No Shippable Processes Yet</Text>
+            </View>
+        )
+    }
     return (
         <FlatList
-            data={conversations}
-            keyExtractor={(item) => item.conversationId}
-            renderItem={({ item }: { item: ConversationResponse }) => <ConversationComponent conversation={item} navigation={navigation} />}
+            data={processes}
+            keyExtractor={(item) => item.processId}
+            renderItem={({ item }: { item: ProcessResponse }) => <ShippableComponent process={item} navigation={navigation} />}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingBottom: 8 }}
             onEndReached={loadMore}
             onEndReachedThreshold={0.2}
             refreshControl={

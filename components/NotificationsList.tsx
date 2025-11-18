@@ -57,16 +57,19 @@ export default function NotificationsList() {
         refreshRef.current = true
         setRefresh(true)
         try {
-            pageRef.current = 1
-            await handleFetch(1, true)
+            reset()
         } finally {
             setRefresh(false);
             refreshRef.current = false;
         }
     }, [handleFetch])
+    const reset = async () => {
+        pageRef.current = 1
+        await handleFetch(1, true)
+    }
     useFocusEffect(
         useCallback(() => {
-            handleRefresh()
+            reset()
         }, [])
     );
     return (

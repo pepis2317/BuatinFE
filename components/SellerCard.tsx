@@ -11,9 +11,9 @@ export default function SellerCard({ seller }: { seller: SellerResponse }) {
     const { theme } = useTheme()
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
-    const iconColor = theme == "dark" ?Colors.darkBorder:Colors.lightBorder
+    const iconColor = theme == "dark" ? Colors.darkBorder : Colors.lightBorder
     return (
-        <TouchableOpacity style={theme == "dark" ? styles.seller : styles.lightSeller} onPress={() => navigation.navigate("SellerDetails", { seller: seller })}>
+        <TouchableOpacity style={theme == "dark" ? styles.seller : styles.lightSeller} onPress={() => navigation.navigate("SellerDetails", { sellerId: seller.sellerId })}>
             <View style={{ width: "100%", padding: 5 }}>
                 {seller.banner ?
                     <Image src={seller.banner} style={styles.thumbnail} />
@@ -25,16 +25,12 @@ export default function SellerCard({ seller }: { seller: SellerResponse }) {
                 <View style={styles.info}>
                     <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.sellerName}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Star fill={"gold"} size={16} />
-                        <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.rating}</Text>
+                        <Star fill={"gold"} size={16} color={"gold"} />
+                        <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.rating.toPrecision(2)}</Text>
                     </View>
                     <Text style={theme == "dark" ? styles.darkText : styles.lightText}>{seller.clients} Clients</Text>
-                    <Text style={theme == "dark" ? styles.darkText : styles.lightText}>address here</Text>
                 </View>
-
             </View>
-
-
         </TouchableOpacity>
     )
 }

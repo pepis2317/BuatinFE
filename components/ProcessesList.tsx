@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { View, FlatList, RefreshControl, ActivityIndicator } from "react-native";
+import { View, FlatList, RefreshControl, ActivityIndicator, Text } from "react-native";
 import { ProcessResponse } from "../types/ProcesssResponse";
 import ProcessComponent from "./ProcessComponent";
 import { useAuth } from "../app/context/AuthContext";
@@ -59,18 +59,28 @@ export default function ProcessesList({ navigation, isSeller }: { navigation: an
         refreshRef.current = true
         setRefresh(true)
         try {
-            pageRef.current = 1
-            await handleFetch(1, true)
+            reset()
         } finally {
             setRefresh(false);
             refreshRef.current = false;
         }
     }, [handleFetch])
+    const reset = async () => {
+        pageRef.current = 1
+        await handleFetch(1, true)
+    }
     useFocusEffect(
         useCallback(() => {
-            handleRefresh()
+            reset()
         }, [])
     );
+    if (processes.length == 0 && !loadingRef.current) {
+        return (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+                <Text style={{ color: 'gray' }}>No Ongoing Processes Yet</Text>
+            </View>
+        )
+    }
     return (
         <FlatList
             data={processes}

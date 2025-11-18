@@ -1,10 +1,13 @@
-import { TextInput, View, StyleSheet, TextInputProps } from "react-native";
+import { TextInput, View, StyleSheet, TextInputProps, StyleProp, TextStyle } from "react-native";
 import { useTheme } from "../app/context/ThemeContext";
-
-export default function TextInputComponent(props: TextInputProps) {
+type Props = TextInputProps & {
+  style?: StyleProp<TextStyle>;
+};
+export default function TextInputComponent({ style, ...props }:Props) {
     const { theme } = useTheme()
+    const base = theme == "dark" ? styles.darkTextInput : styles.lighTextInput
     return (
-        <TextInput style={theme == "dark" ? styles.darkTextInput : styles.lighTextInput} placeholderTextColor={theme == "dark" ? "#636C7C" : "#C4C4C4"} {...props} />
+        <TextInput style={[base, style]} placeholderTextColor={theme == "dark" ? "#636C7C" : "#C4C4C4"} {...props} />
     )
 }
 const styles = StyleSheet.create({

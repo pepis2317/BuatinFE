@@ -4,6 +4,14 @@ export type ProcessResponse={
     description:string;
     status:string;
     picture:string;
-    sellerId:string;
-    userId:string;
+    seller:{
+        sellerId:string
+        sellerName:string
+        sellerPicture:string|null
+    }
+    user:{
+        userId:string
+        userName:string
+        pfp:string|null
+    }
 }

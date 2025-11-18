@@ -208,16 +208,6 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
         Vibration.vibrate(30)
         onSelect(item, pageX, pageY);
     };
-    const renderItem = ({ item }: { item: MessageResponse }) => (
-        <Pressable
-            onLongPress={(e) => handleLongPress(item, e)}
-            delayLongPress={300}
-        >
-            <Text style={{ fontWeight: "600" }}>{item.senderId}</Text>
-            <Text>{item.message}</Text>
-            <Text style={{ opacity: 0.6, fontSize: 12 }}>{new Date(item.createdAt).toLocaleString()}</Text>
-        </Pressable>
-    );
     return (
         <FlatList
             ref={listRef}

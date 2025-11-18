@@ -12,13 +12,14 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import PostComments from "../../components/PostComments";
 import Colors from "../../constants/Colors";
+import { useAuth } from "../context/AuthContext";
 
 type PostDetailProps = NativeStackScreenProps<RootStackParamList, "PostDetails">;
 export default function PostDetails({ navigation, route }: PostDetailProps) {
     const { theme } = useTheme()
+    const {onGetUserToken} = useAuth()
     const { posts, selectedPostIndex, seller, hasMorePosts } = route.params;
     const [loadedPosts, setLoadedPosts] = useState<PostResponse[]>(posts)
-    const [commentPostId, setCommentPostId] = useState("")
     const [hasMore, setHasMore] = useState(hasMorePosts)
     const [loadingOlder, setLoadingOlder] = useState(false);
     const [cursor, setCursor] = useState<{ lastId: string; lastCreatedAt: string }>({
@@ -29,8 +30,13 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
     const ITEM_HEIGHT = 600;
     const fetchPosts = async (lastPostId: string, lastCreatedAt: string) => {
         try {
+            const token = await onGetUserToken!()
             let queryString = `/get-posts?AuthorId=${seller.owner.userId}&pageSize=3&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`;
-            const response = await axios.get(`${API_URL}${queryString}`);
+            const response = await axios.get(`${API_URL}${queryString}`,{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            });
             return response.data;
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
@@ -70,7 +76,7 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
                 data={loadedPosts}
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(p) => p.postId}
-                renderItem={({ item }) => <PostDetail post={item} seller={seller} onCommentPressed={() => {
+                renderItem={({ item }) => <PostDetail navigation={navigation} post={item} seller={seller} onCommentPressed={() => {
                     navigation.navigate("Comments",{postId:item.postId})
                 }} />}
                 initialScrollIndex={selectedPostIndex}

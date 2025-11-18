@@ -3,6 +3,7 @@ import { ConversationResponse } from "../types/ConversationResponse";
 import { useTheme } from "../app/context/ThemeContext";
 import { useState } from "react";
 import Colors from "../constants/Colors";
+import PfpComponent from "./PfpComponent";
 
 export default function ConversationComponent({ navigation, conversation }: { navigation: any, conversation: ConversationResponse }) {
     const { theme } = useTheme()
@@ -12,7 +13,7 @@ export default function ConversationComponent({ navigation, conversation }: { na
     return (
         <TouchableOpacity style={[styles.container]} onPress={() => navigation.navigate('Chat', { conversationId: conversation.conversationId })}>
             <View style={styles.left}>
-                <Image style={[styles.pfp, { backgroundColor: placeholderColor }]} src={conversation.picture} />
+                <PfpComponent width={50} pfp={conversation.picture} userId={""} navigation={undefined}/>
                 <View style={styles.leftContent}>
                     <Text style={{ color: textColor, fontWeight: "bold" }}>
                         {conversation.name}

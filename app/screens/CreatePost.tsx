@@ -1,30 +1,29 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ScrollView, TouchableOpacity, View, Image, StyleSheet } from "react-native";
+import { ScrollView, TouchableOpacity, View, Image, StyleSheet, Text } from "react-native";
 import { RootStackParamList } from "../../constants/RootStackParams";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { PlusSquare, X } from "lucide-react-native";
 import ColoredButton from "../../components/ColoredButton";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
 import TextInputComponent from "../../components/TextInputComponent";
+import TopBar from "../../components/TopBar";
+import ConfirmedModal from "../../components/ConfirmedModal";
+import { SellerResponse } from "../../types/SellerResponse";
+import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 type CreatePostProps = NativeStackScreenProps<RootStackParamList, "CreatePost">
 export default function CreatePost({ navigation, route }: CreatePostProps) {
-    const { seller } = route.params
+    const { user } = useAuth()
+    const { theme } = useTheme()
+    const textColor = theme == "dark" ? "white" : "black"
     const [images, setImages] = useState<string[]>([])
     const [caption, setCaption] = useState("")
-    const [loading, setLoading] = useState("")
-    const handleUploadImage = async (formData: FormData) => {
-        try {
-            const result = await axios.post(`${API_URL}/upload-image`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            return { data: result.data };
-        } catch (e) {
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
-        }
-    }
+    const [loading, setLoading] = useState(false)
+    const [inputHeight, setInputHeight] = useState(0)
+    const [showConfirmed, setShowConfirmed] = useState(false)
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -45,43 +44,45 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
     const removeImage = (index: number) => {
         setImages((prevImages) => prevImages.filter((_, i) => i !== index));
     }
-    const handleCreatePostMetadata = async () => {
+    const handleCreatePost = async (form: FormData) => {
         try {
-            const result = await axios.post(`${API_URL}/create-post-metadata`, {
-                authorId: seller.owner.userId,
-                caption: caption
-            })
+            const result = await axios.post(`${API_URL}/create-post`, form, { headers: { "Content-Type": "multipart/form-data" } })
             return { data: result.data };
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
     const handleUpload = async () => {
-        const postMetadata = await handleCreatePostMetadata();
-        if (!postMetadata.error) {
-            for (const imageUri of images) {
-                const formData = new FormData();
-                formData.append("ContentId", postMetadata.data);
+        if (user?.userId && caption && images.length > 0) {
 
+            setLoading(true)
+            const formData = new FormData();
+            formData.append("authorId", user.userId)
+            formData.append("caption", caption)
+            for (const imageUri of images) {
                 const fileName = imageUri.split("/").pop() || "image.jpg";
                 const match = /\.(\w+)$/.exec(fileName);
                 const fileType = match ? `image/${match[1]}` : "image";
 
-                formData.append("File", {
+                formData.append("files", {
                     uri: imageUri,
                     name: fileName,
                     type: fileType,
                 } as any);
-
-                const res = await handleUploadImage(formData);
-                console.log("upload result:", res);
             }
-        } else {
-            alert(postMetadata.msg);
+            const result = await handleCreatePost(formData)
+            if (!result.error) {
+                setShowConfirmed(true)
+            }
+            setLoading(false)
         }
+        console.log(user?.userId, caption, images.length)
     }
+
     return (
-        <ScrollView>
+        <View style={{ flex: 1 }}>
+            <TopBar title={"Create Post"} showBackButton />
+            <ConfirmedModal visible={showConfirmed} message={"Post Created"} onPress={() => navigation.goBack()} />
             <View style={styles.imagesContainer}>
                 <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
                     <View style={styles.addBorder}>
@@ -102,9 +103,17 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
                     ))}
                 </ScrollView>
             </View>
-            <TextInputComponent placeholder="Caption" onChangeText={setCaption} />
-            <ColoredButton title={"Test"} style={{ backgroundColor: "#5CCFA3", width: "100%" }} onPress={handleUpload} />
-        </ScrollView>
+            <ScrollView style={{ padding: 20, gap: 20 }}>
+                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Review</Text>
+                <TextInputComponent style={{ height: inputHeight }} placeholder="Caption" onChangeText={setCaption} multiline
+                    onContentSizeChange={(e) => {
+                        const newHeight = e.nativeEvent.contentSize.height;
+                        setInputHeight(Math.min(newHeight, 120));
+                    }}
+                />
+                <ColoredButton title={"Create Post"} style={{ backgroundColor: "#5CCFA3", width: "100%" }} onPress={() => handleUpload()} isLoading={loading} />
+            </ScrollView>
+        </View>
     )
 }
 const styles = StyleSheet.create({

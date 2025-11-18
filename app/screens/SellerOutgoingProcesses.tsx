@@ -7,6 +7,7 @@ import Colors from "../../constants/Colors";
 import { TabBar, TabView } from "react-native-tab-view";
 import ProcessesList from "../../components/ProcessesList";
 import OrderRequestsList from "../../components/OrderRequestsList";
+import TopBar from "../../components/TopBar";
 const ProcessesRoute = ({ navigation }: { navigation: any }) => {
     return (
         <ProcessesList navigation={navigation} isSeller={false}/>
@@ -17,8 +18,8 @@ const RequestsRoute = ({ navigation }: { navigation: any }) => {
         <OrderRequestsList isSeller={false} navigation={navigation}/>
     )
 }
-type ProcessesProps = NativeStackScreenProps<RootStackParamList, "Processes">;
-export default function Processes({ navigation, route }: ProcessesProps) {
+type ProcessesProps = NativeStackScreenProps<RootStackParamList, "SellerOutgoingProcesses">;
+export default function SellerOutgoingProcesses({ navigation, route }: ProcessesProps) {
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
     const { theme } = useTheme()
@@ -31,6 +32,7 @@ export default function Processes({ navigation, route }: ProcessesProps) {
     ];
     return (
         <View style={{ flex: 1 }}>
+            <TopBar title={"Outgoing Processes"} showBackButton/>
             <TabView
                 style={{ flex: 1 }}
                 navigationState={{ index, routes }}

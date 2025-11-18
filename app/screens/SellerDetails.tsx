@@ -1,9 +1,9 @@
-import { ScrollView, View, Text, useWindowDimensions, FlatList, RefreshControl, ActivityIndicator } from "react-native";
+import { ScrollView, View, Text, useWindowDimensions, FlatList, RefreshControl, ActivityIndicator, StyleSheet, Image, TouchableOpacity } from "react-native";
 import TopBar from "../../components/TopBar";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import { useCallback, useEffect, useState } from "react";
-import { SceneMap, TabBar, TabView } from "react-native-tab-view";
+import { TabBar, TabView } from "react-native-tab-view";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
 import { PostResponse } from "../../types/PostResponse";
@@ -13,13 +13,111 @@ import { SellerResponse } from "../../types/SellerResponse";
 import Colors from "../../constants/Colors";
 import ColoredButton from "../../components/ColoredButton";
 import { useAuth } from "../context/AuthContext";
-import { OrderRequestResponse } from "../../types/OrderRequestResponse";
+import SellerDetailComponent from "../../components/SellerDetailComponent";
+import { SellerStats } from "../../types/Stats";
+import { Star } from "lucide-react-native";
+import { ReviewResponse } from "../../types/ReviewResponse";
+import { ReviewComponentShort } from "../../components/ReviewComponent";
 
-const DetailsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation: any }) => {
+const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerResponse, navigation: any, editable: boolean, theme: string }) => {
+    const { onGetUserToken } = useAuth()
+    const [stats, setStats] = useState<SellerStats>()
+    const [topreviews, setTopReviews] = useState<ReviewResponse[]>([])
+    const textColor = theme == "dark" ? "white" : "black"
+    const bgColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
+    const getStats = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/get-seller-stats`, {
+                params: {
+                    sellerId: seller.sellerId
+                }
+            });
+            return response.data;
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
+        }
+    }
+    const getTopReviews = async () => {
+        try {
+            const token = await onGetUserToken!()
+            var url = `${API_URL}/get-seller-reviews?pageSize=5&pageNumber=1&sellerId=${seller.sellerId}`
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            return response.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
+        }
+    }
+    const handleGetStats = async () => {
+        const result = await getStats()
+        if (!result.error) {
+            setStats(result)
+        }
+    }
+    const handleGetReviews = async () => {
+        const result = await getTopReviews()
+        if (!result.error) {
+            setTopReviews(result.reviews)
+        }
+    }
+    useEffect(() => {
+        handleGetStats()
+        handleGetReviews()
+    }, [])
     return (
-        <View>
-            <ColoredButton title={"Create Order Request"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('OrderRequest', { sellerId: seller.sellerId })} />
-        </View>
+        <ScrollView style={{ flex: 1 }}>
+            <SellerDetailComponent seller={seller} navigation={navigation} editing={false} />
+            {stats ?
+                <View style={[styles.stats, { backgroundColor: bgColor }]}>
+                    <View style={styles.leftStats}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                            <Text style={[{ color: textColor }, styles.rating]}>{stats.rating.toPrecision(2)}</Text>
+                            <Star color="gold" fill="gold" />
+                        </View>
+                        <Text style={{ color: textColor, fontSize: 12 }}>Avg. Rating</Text>
+                    </View>
+                    <View style={[styles.rightStats, { borderLeftColor: textColor }]}>
+                        <Text style={{ color: textColor, fontWeight: 'bold' }}>{stats.clients} {stats.clients == 1 ? "Client" : "Clients"}</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold' }}>{stats.reviews} {stats.reviews == 1 ? "Review" : "Reviews"}</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold' }}>{(stats.completionRate * 100).toFixed(1)}% Completion Rate</Text>
+                    </View>
+                </View>
+                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+            }
+            <View style={{ marginHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                <Text style={{ color: textColor, fontWeight: 'bold' }}>Latest Reviews</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('SellerReviews', { sellerId: seller.sellerId })}>
+                    <Text style={{ color: textColor, fontWeight: 'bold', textDecorationLine: 'underline' }} >View All Reviews</Text>
+                </TouchableOpacity>
+            </View>
+            {topreviews ?
+                <View>
+                    <ScrollView horizontal>
+                        <View style={{ width: 20 }} />
+                        {topreviews.map((review, index) => (
+                            <ReviewComponentShort key={index} review={review} navigation={navigation} isEnd={index == topreviews.length} />
+                        ))}
+                        <View style={{ width: 20 }} />
+                    </ScrollView>
+                </View>
+
+                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+            }
+            <View style={{ padding: 20 }}>
+                {editable ?
+                    <View>
+                        <ColoredButton title={"Edit Seller"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('EditSeller')} />
+                        <ColoredButton title={"Create Post"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate("CreatePost")} />
+                    </View>
+
+                    : <ColoredButton title={"Create Order Request"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('OrderRequest', { sellerId: seller.sellerId })} />
+                }
+            </View>
+
+        </ScrollView>
     )
 }
 type Cursor = {
@@ -28,6 +126,7 @@ type Cursor = {
 }
 
 const PostsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation: any }) => {
+    const { onGetUserToken } = useAuth()
     const [posts, setPosts] = useState<PostResponse[]>([])
     const [cursor, setCursor] = useState<Cursor>({ lastId: null, lastCreatedAt: null, });
     const [hasMore, setHasMore] = useState(false)
@@ -39,7 +138,7 @@ const PostsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation
         setLoading(true);
         const result = await fetchPosts(lastId, lastCreatedAt);
         if (result.error) {
-            alert(result.error)
+            alert(result.msg)
         } else {
             setPosts(prev => {
                 if (!lastId && !lastCreatedAt) return result.posts;
@@ -67,11 +166,16 @@ const PostsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation
     }, [handleFetch]);
     const fetchPosts = async (lastPostId: string | null, lastCreatedAt: string | null) => {
         try {
+            const token = await onGetUserToken!()
             let queryString = `/get-posts?AuthorId=${seller.owner.userId}&pageSize=3`;
             if (lastPostId != null && lastCreatedAt != null) {
                 queryString = queryString + `&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`
             }
-            const response = await axios.get(`${API_URL}${queryString}`);
+            const response = await axios.get(`${API_URL}${queryString}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             return response.data;
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
@@ -115,42 +219,138 @@ const routes = [
 ];
 type SellerDetailProps = NativeStackScreenProps<RootStackParamList, "SellerDetails">;
 export default function SellerDetails({ navigation, route }: SellerDetailProps) {
-    const { seller } = route.params
+    const { user } = useAuth()
+    const { sellerId } = route.params
+    const [seller, setSeller] = useState<SellerResponse>()
+    const [editable, setEditable] = useState(false)
+    const [loading, setLoading] = useState(false)
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
     const { theme } = useTheme()
     const backgroundColor = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
     const selectedColor = theme == "dark" ? "white" : "black"
     const unselectedColor = theme == "dark" ? Colors.offWhite : Colors.darkGray
+
+    const getSellerByOwnerId = async (userId: string) => {
+        try {
+            const result = await axios.get(`${API_URL}/get-seller-by-owner-id`, {
+                params: {
+                    ownerId: userId
+                }
+            })
+            return result.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+    const getSellerById = async () => {
+        try {
+            const result = await axios.get(`${API_URL}/get-seller`, {
+                params: {
+                    sellerId: sellerId
+                }
+            })
+            return result.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+    const handleGetSellerBySellerId = async () => {
+        setLoading(true)
+        const result = await getSellerById()
+        if (!result.error) {
+            setSeller(result)
+        }
+        setLoading(false)
+    }
+    const handleGetSellerByUserId = async () => {
+        if (user?.userId) {
+            setLoading(true)
+            const result = await getSellerByOwnerId(user.userId)
+            if (!result.error) {
+                setSeller(result)
+            }
+            setLoading(false)
+        }
+    }
+    useEffect(() => {
+        if (!sellerId) {
+            setEditable(true)
+            handleGetSellerByUserId()
+        } else {
+            handleGetSellerBySellerId()
+        }
+
+    }, [sellerId])
+
+    if (loading) {
+        return <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+    }
     return (
         <View style={{ flex: 1 }}>
-            <TopBar title={seller.sellerName} showBackButton />
-            <TabView
-                style={{ flex: 1 }}
-                navigationState={{ index, routes }}
-                renderScene={({ route }) => {
-                    switch (route.key) {
-                        case 'Details':
-                            return <DetailsRoute navigation={navigation} seller={seller} />;
-                        case 'Posts':
-                            return <PostsRoute navigation={navigation} seller={seller} />;
-                        default:
-                            return null;
-                    }
-                }}
-                onIndexChange={setIndex}
-                initialLayout={{ width: layout.width }}
-                renderTabBar={(props) => (
-                    <TabBar
-                        {...props}
-                        activeColor={selectedColor}
-                        inactiveColor={unselectedColor}
-                        scrollEnabled={false}
-                        indicatorStyle={{ backgroundColor: Colors.green }}
-                        style={{ backgroundColor: backgroundColor }}
-                    />
-                )}
-            />
+            <TopBar title={"Seller Details"} showBackButton />
+            {seller ?
+                <TabView
+                    style={{ flex: 1 }}
+                    navigationState={{ index, routes }}
+                    renderScene={({ route }) => {
+                        switch (route.key) {
+                            case 'Details':
+                                return <DetailsRoute navigation={navigation} seller={seller} editable={editable} theme={theme ? theme : "dark"} />;
+                            case 'Posts':
+                                return <PostsRoute navigation={navigation} seller={seller} />;
+                            default:
+                                return null;
+                        }
+                    }}
+                    onIndexChange={setIndex}
+                    initialLayout={{ width: layout.width }}
+                    renderTabBar={(props) => (
+                        <TabBar
+                            {...props}
+                            activeColor={selectedColor}
+                            inactiveColor={unselectedColor}
+                            scrollEnabled={false}
+                            indicatorStyle={{ backgroundColor: Colors.green }}
+                            style={{ backgroundColor: backgroundColor }}
+                        />
+                    )}
+                />
+                : <></>}
+
         </View>
     );
 }
+const styles = StyleSheet.create({
+    reviewContainer: {
+        padding: 10,
+        borderRadius: 5,
+        width: 250
+    },
+    stats: {
+        marginHorizontal: 20,
+        padding: 10,
+        borderRadius: 5,
+        flexDirection: 'row',
+        gap: 10,
+        marginBottom: 10,
+    },
+    rating: {
+        fontSize: 24,
+        fontWeight: 'bold'
+    },
+    leftStats: {
+        justifyContent: 'center',
+        width: '20%',
+    },
+    rightStats: {
+        width: '80%',
+        padding: 10,
+        borderLeftWidth: 1,
+    },
+    pfp: {
+        width: 32,
+        aspectRatio: 1,
+        borderRadius: 32,
+    },
+})

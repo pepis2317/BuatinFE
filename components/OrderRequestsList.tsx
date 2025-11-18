@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useAuth } from "../app/context/AuthContext"
 import { API_URL } from "../constants/ApiUri"
-import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native"
+import { ActivityIndicator, FlatList, RefreshControl, View, Text } from "react-native"
 import { useCallback, useRef, useState } from "react"
 import { OrderRequestResponse } from "../types/OrderRequestResponse"
 import { useFocusEffect } from "@react-navigation/native"
@@ -61,18 +61,28 @@ export default function OrderRequestsList({ isSeller, navigation}: { isSeller: b
         refreshRef.current = true
         setRefresh(true)
         try {
-            pageRef.current = 1
-            await handleFetch(1, true)
+            reset()
         } finally {
             setRefresh(false);
             refreshRef.current = false;
         }
     }, [handleFetch])
+    const reset = async () => {
+        pageRef.current = 1
+        await handleFetch(1, true)
+    }
     useFocusEffect(
         useCallback(() => {
-            handleRefresh()
+            reset()
         }, [])
     );
+    if(orderRequests.length == 0 && !loadingRef.current){
+        return(
+            <View style={{padding:20,alignItems:'center'}}>
+                <Text style={{color: 'gray'}}>No Order Request Yet</Text>
+            </View>
+        )
+    }
     return (
         <FlatList
             data={orderRequests}

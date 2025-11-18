@@ -114,7 +114,6 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
                     </View>
                 </View>
                 : <></>}
-            {process && process.status == 'Completed' ? <ColoredButton title={"Rate Seller"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('ReviewSeller', { sellerId: process?.sellerId })} /> : <></>}
         </View>
     );
     return (

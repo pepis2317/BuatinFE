@@ -5,17 +5,16 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
-    "userInterfaceStyle": "automatic",            
-
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#222831"                
+      "backgroundColor": "#222831"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pepis2317.BuatinFE"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,11 +27,11 @@
       "package": "com.pepis2317.BuatinFE",
       "googleServicesFile": "./google-services.json"
     },
-    "androidNavigationBar": {                      
+    "androidNavigationBar": {
       "backgroundColor": "#121212",
       "barStyle": "light-content"
     },
-    "androidStatusBar": {                          
+    "androidStatusBar": {
       "backgroundColor": "#121212",
       "barStyle": "light-content",
       "translucent": false

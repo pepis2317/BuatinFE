@@ -1,3 +1,4 @@
+import { Bold } from "lucide-react-native";
 import { TouchableOpacity, TouchableOpacityProps, Text, StyleSheet, ActivityIndicator } from "react-native";
 interface ButtonProps extends TouchableOpacityProps {
     title: string;
@@ -14,10 +15,12 @@ export default function ColoredButton({ title,style,isLoading, ...rest }: Button
 }
 const styles = StyleSheet.create({
     button:{
-        padding:15,
+        padding:16,
         alignItems:'center',
         justifyContent:'center',
-        borderRadius:5
+        borderRadius:8,
+        fontSize: 16,
+        fontWeight: "bold"
     }
 })
 

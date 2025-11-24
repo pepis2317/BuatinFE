@@ -1,19 +1,22 @@
 import { TextInput, View, StyleSheet, TextInputProps, StyleProp, TextStyle } from "react-native";
 import { useTheme } from "../app/context/ThemeContext";
+
 type Props = TextInputProps & {
   style?: StyleProp<TextStyle>;
 };
+
 export default function TextInputComponent({ style, ...props }:Props) {
     const { theme } = useTheme()
     const base = theme == "dark" ? styles.darkTextInput : styles.lighTextInput
     return (
-        <TextInput style={[base, style]} placeholderTextColor={theme == "dark" ? "#636C7C" : "#C4C4C4"} {...props} />
+        <TextInput style={[base, style, { fontSize: 16 }]} placeholderTextColor={theme == "dark" ? "#636C7C" : "#C4C4C4"} {...props} />
     )
 }
+
 const styles = StyleSheet.create({
     formContainer: {
-        padding: 10,
-        gap: 10,
+        padding: 16,
+        gap: 12,
         width: "100%"
     },
     darkTextInput: {
@@ -22,9 +25,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         color: 'white',
         width:"100%",
-        height: 50,
-        padding: 10,
-        borderRadius: 5
+        height: 45,
+        padding: 16,
+        borderRadius: 6
     },
     lighTextInput: {
         backgroundColor: 'white',
@@ -32,8 +35,8 @@ const styles = StyleSheet.create({
         width:"100%",
         borderWidth: 1,
         borderColor:'#D9D9D9',
-        height: 50,
-        padding: 10,
-        borderRadius: 5
+        height: 45,
+        padding: 16,
+        borderRadius: 6
     }
 })

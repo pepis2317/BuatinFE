@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, Text, KeyboardAvoidingView, ScrollView, Platform, } from "react-native";
+import { View, StyleSheet, Text, KeyboardAvoidingView, ScrollView, Platform, TouchableOpacity, } from "react-native";
 import PhoneInputComponent from "../../components/PhoneInputComponent";
 import { useAuth } from "../context/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -15,6 +15,9 @@ import Colors from "../../constants/Colors";
 import * as Location from "expo-location";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
+import RNPickerSelect from "react-native-picker-select";
+import colors from "../../constants/Colors";
+import { black } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 	
 export default function Register() {
 	const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -122,49 +125,56 @@ export default function Register() {
 
 				<View style={styles.formContainer}>
 					
-					<Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold",}}>User Name</Text>
-					<TextInputComponent autoCapitalize="none" placeholder="User Name" onChangeText={setUserName}/>
+					<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Username</Text>
+					<TextInputComponent autoCapitalize="none" placeholder="Username" onChangeText={setUserName}/>
 					
-					<Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", }}>Email</Text>
+					<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Email</Text>
 					<TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail}/>
 
-					<Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", }}>Phone</Text>
+					<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Phone</Text>
 					<PhoneInputComponent defaultValue="" onPhoneChange={setPhone} />
 				
-					<Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", }}>Password</Text>
+					<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Password</Text>
 					<TextInputComponent autoCapitalize="none" secureTextEntry={true} placeholder="Password" onChangeText={setPassword}/>
 
-					<Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", }}>Zip Code</Text>
+					<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Zip Code</Text>
 					<TextInputComponent autoCapitalize="none" placeholder="Zip code" keyboardType="numeric" onChangeText={setPostalCode}/>
 
-					<Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", }}>Address</Text>
+					<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Address</Text>
 					<TextInputComponent autoCapitalize="none" placeholder="Address" onChangeText={setAddress}/>
 				
-					<Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", }}>Role</Text>
+					<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Role</Text>
 					<View style={ theme == "dark" ? styles.DarkPickerContainer : styles.LightPickerContainer}>
 						<Picker
-							style={ theme == "dark" ? { color: "white" } : { color: "black" }}
+							mode="dropdown"
+							style={{color: theme === "dark" ? "white" : "black"}}
 							dropdownIconColor={theme == "dark" ? "#636C7C" : ""}
 							selectedValue={role}
 							onValueChange={(val) => val == "none" ? setRole("User") : setRole(val)}
 						>
-							<Picker.Item label="Select Role" value="none" />
+							{role === "" && (
+								<Picker.Item
+									label="Select Role"
+									value="none"
+								/>
+							)}
 							<Picker.Item label="User" value="User" />
 							<Picker.Item label="Seller" value="Seller" />
-
 						</Picker>
+
 					</View>
 
 					{role == "Seller" ? (
-						<View>
+						<View style={{gap:8, }}>
 
-							<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", }}>Seller Name</Text>
+							<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Seller Name</Text>
 							<TextInputComponent autoCapitalize="none" placeholder="Seller Name" onChangeText={setSellerName}/>
 
-							<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", }}>Seller Location</Text>
-							
+							<Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>
+								Seller Location
+							</Text>
 							<ColoredButton
-								title={"Set current position as seller location"}
+								title={"Set Current Location"}
 								style={{ backgroundColor: Colors.primary }}
 								onPress={() => handleGetLocation()}
 							/>
@@ -183,7 +193,7 @@ export default function Register() {
 					)}
 
 					{errMessage ? <ErrorComponent errorsString={errMessage} /> : <></>}
-					<ColoredButton title={"Register"} style={{ backgroundColor: Colors.primary }} onPress={register} isLoading={loading}/> 
+					<ColoredButton title={"Register"} style={styles.Button} onPress={register} isLoading={loading}/> 
 
 				</View>
 
@@ -198,26 +208,35 @@ export default function Register() {
 const styles = StyleSheet.create({
 	formContainer: {
 		padding: 16,
-		gap: 5,
-		paddingBottom: 100,
+		gap: 8,
 	},
 	DarkPickerContainer: {
-		borderStyle: "solid",
+		backgroundColor: "#1C1C1E",
+		borderRadius: 6,
+		paddingHorizontal: 12,
+		height: 45,
+		justifyContent: "center",
 		borderColor: "#636C7C",
 		borderWidth: 1,
-		borderRadius: 5,
-		width: "100%",
 	},
 	LightPickerContainer: {
-		backgroundColor: "white",
-		color: "black",
-		height: 50,
-		borderRadius: 5,
+		backgroundColor: "Colors.white",
+		borderRadius: 6,
+		paddingHorizontal: 12,
+		height: 45,
+		justifyContent: "center",
+		borderColor: "#D9D9D9",
+		borderWidth: 1,
 	},
-	textInput: {
+	textInput: { // Unused
 		backgroundColor: "white",
 		height: 50,
 		padding: 10,
 		borderRadius: 5,
 	},
+	Button:{
+		backgroundColor: Colors.primary,
+		marginTop: 8,
+		height: 50,
+	}
 });

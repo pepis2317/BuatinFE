@@ -5,14 +5,16 @@ interface ButtonProps extends TouchableOpacityProps {
     style?: any;
     isLoading?:boolean;
 }
+
 export default function ColoredButton({ title,style,isLoading, ...rest }: ButtonProps){
     return(
         <TouchableOpacity style={[styles.button, style]}{...rest} >
-            {isLoading? <ActivityIndicator size="small" color={"white"}  />:<Text style={{color:'white', fontWeight:'bold'}}>{title}</Text>}
+            {isLoading? <ActivityIndicator size="small" color={"white"}  />:<Text style={{color:'white', fontWeight:'bold', fontSize: 16}}>{title}</Text>}
             
         </TouchableOpacity>
     )
 }
+
 const styles = StyleSheet.create({
     button:{
         padding:16,
@@ -20,7 +22,7 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         borderRadius:8,
         fontSize: 16,
-        fontWeight: "bold"
+        fontWeight: "bold",
     }
 })
 

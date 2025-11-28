@@ -28,10 +28,9 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: Colors.darkGray,
         backgroundColor: Colors.darkBackground,
-        padding: 10,
-        gap: 10,
-        height:50
-
+        paddingTop: 32,
+        paddingBottom: 16,
+        gap: 16,
     },
     lightTopBar: {
         flexDirection: 'row',
@@ -39,24 +38,27 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: Colors.offWhite,
         backgroundColor: 'white',
-        padding: 10,
-        gap: 10,
-        height:50,
+        paddingTop: 32,
+        paddingBottom: 16,
+        gap: 16,
         elevation:2
     },
     darkTitle: {
         color: "white",
         fontWeight: 'bold',
         width: "100%",
-        textAlign: 'center'
+        textAlign: 'center',
+        fontSize: 18
     },
     lightTitle: {
         fontWeight: 'bold',
         width: "100%",
-        textAlign: 'center'
+        textAlign: 'center',
+        fontSize: 18
     },
     backButton:{
         position:'absolute',
-        left:20
+        paddingTop:16,
+        left:24
     }
 })

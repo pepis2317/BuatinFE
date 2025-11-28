@@ -14,12 +14,11 @@ import { useTheme } from "../context/ThemeContext";
 type EditParams = NativeStackScreenProps<RootStackParamList, "EditComment">
 export default function EditComment({ navigation, route }: EditParams) {
     const { comment } = route.params
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const [commentMessage, setCommentMessage] = useState("")
     const [loading, setLoading] = useState(false)
     const [showConfirmed, setShowConfirmed] = useState(false)
     const [inputHeight, setInputHeight] = useState(0)
-    const textColor = theme == "dark" ? "white" : "black"
     const editMessage = async () => {
         try {
             const res = await axios.put(`${API_URL}/edit-comment`, {
@@ -44,10 +43,14 @@ export default function EditComment({ navigation, route }: EditParams) {
     }, [])
     return (
         <View>
-            <ConfirmedModal visible={showConfirmed} message={"Comment edited"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showConfirmed} message={"Comment edited"} onPress={() => navigation.goBack()} />
             <TopBar title={"Edit Comment"} showBackButton />
             <ScrollView style={{ padding: 20 }}>
-                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Comment</Text>
+                <Text style={{
+                    color: textColor,
+                    fontWeight: 'bold',
+                    marginBottom: 10
+                }}>Comment</Text>
                 <TextInputComponent style={{ height: inputHeight }} value={commentMessage} placeholder="Review" onChangeText={setCommentMessage} multiline
                     onContentSizeChange={(e) => {
                         const newHeight = e.nativeEvent.contentSize.height;

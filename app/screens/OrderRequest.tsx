@@ -13,17 +13,18 @@ import { useTheme } from "../context/ThemeContext";
 import ConfirmedModal from "../../components/ConfirmedModal";
 import { PlusSquare, X } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
+import ErrorComponent from "../../components/ErrorComponent";
 type OrderRequestProps = NativeStackScreenProps<RootStackParamList, "OrderRequest">
 export default function OrderRequest({ navigation, route }: OrderRequestProps) {
     const { sellerId } = route.params
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const [title, setTitle] = useState("")
     const [message, setMessage] = useState("")
     const [loading, setLoading] = useState(false)
     const [modalVisible, setModalVisible] = useState(false)
+    const [errMessage, setErrMessage] = useState("")
     const [images, setImages] = useState<string[]>([])
     const { onGetUserToken } = useAuth()
-    const textColor = theme === "dark" ? "white" : "black"
     const createOrderRequest = async (message: string, title: string) => {
         try {
             const token = await onGetUserToken!()
@@ -71,6 +72,10 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
         }
     }
     const handleCreateRequest = async () => {
+        if (!title || !message) {
+            setErrMessage("Mandatory forms must be filled")
+            return
+        }
         if (!loading) {
             setLoading(true)
             const result = await createOrderRequest(message, title)
@@ -90,7 +95,6 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
                     } as any);
 
                     const res = await handleUploadImage(formData);
-                    console.log("upload result:", res);
                 }
                 setModalVisible(true)
             }
@@ -101,34 +105,50 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
     return (
         <View style={{ flex: 1 }}>
             <TopBar title="Create Order Request" showBackButton />
-            <ConfirmedModal visible={modalVisible} message={"Request has been created"} onPress={() => navigation.goBack()} />
-            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Images</Text>
-            <View style={styles.imagesContainer}>
-                <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
-                    <View style={styles.addBorder}>
-                        <PlusSquare color={"#5CCFA3"} size={32} />
-                    </View>
-                </TouchableOpacity>
-                <ScrollView horizontal>
-                    {images.map((uri, index) => (
-                        <View key={index} >
-                            <Image
-                                source={{ uri }}
-                                style={{ width: 150, height: 150 }}
-                            />
-                            <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
-                                <X size={20} color={"white"} />
-                            </TouchableOpacity>
-                        </View>
-                    ))}
-                </ScrollView>
-            </View>
+            <ConfirmedModal isFail={false} visible={modalVisible} message={"Request has been created"} onPress={() => navigation.goBack()} />
             <ScrollView style={{ flex: 1, padding: 20 }}>
-                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Title</Text>
-                <TextInputComponent placeholder="Title" onChangeText={setTitle} />
-                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10, marginTop: 10 }}>Message</Text>
-                <TextInputComponent placeholder="Message" onChangeText={setMessage} />
-                <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green, marginTop: 10 }} disabled={title == "" || message == ""} />
+                <View style={{ gap: 10 }}>
+                    <View>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Images (optional)</Text>
+                        <View style={styles.imagesContainer}>
+                            <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
+                                <View style={styles.addBorder}>
+                                    <PlusSquare color={Colors.green} size={32} />
+                                </View>
+                            </TouchableOpacity>
+                            <ScrollView horizontal>
+                                {images.map((uri, index) => (
+                                    <View key={index} >
+                                        <Image
+                                            source={{ uri }}
+                                            style={{ width: 150, height: 150 }}
+                                        />
+                                        <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
+                                            <X size={20} color={"white"} />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                            </ScrollView>
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Title</Text>
+                        <TextInputComponent placeholder="Title" onChangeText={setTitle} />
+                    </View>
+                    <View>
+                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Message</Text>
+                        <TextInputComponent placeholder="Message" onChangeText={setMessage} />
+                    </View>
+                    {errMessage ?
+                        <ErrorComponent errorsString={errMessage} />
+                        : <></>}
+                    <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green, marginTop: 10 }}/>
+                </View>
+
             </ScrollView>
         </View>
     )

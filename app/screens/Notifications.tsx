@@ -4,7 +4,7 @@ import NotificationsList from "../../components/NotificationsList";
 
 export default function Notifications(){
     return(
-        <View>
+        <View style={{flex:1}}>
             <TopBar title={"Notifications"} showBackButton={true}/>
             <NotificationsList/>
         </View>

@@ -1,28 +1,25 @@
-import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
+import { TouchableOpacity, View, StyleSheet, Text, Pressable } from "react-native";
 import { ShipmentResponse } from "../types/ShipmentResponse";
 import { useTheme } from "../app/context/ThemeContext";
 import Colors from "../constants/Colors";
 import { useAuth } from "../app/context/AuthContext";
 import { Box, Truck } from "lucide-react-native";
 
-export default function ShipmentComponent({ shipment, navigation }: { shipment: ShipmentResponse, navigation: any }) {
-    const { theme } = useTheme()
-    var textColor = theme == "dark" ? "white" : "black"
-    var bg = theme == "dark"? Colors.darkGray:Colors.offWhite
-    var border = theme == "dark"? Colors.darkBorder:Colors.lightBorder
-    const {user} = useAuth()
+export default function ShipmentComponent({ shipment, navigation, isSeller}: { shipment: ShipmentResponse, navigation: any, isSeller: boolean}) {
+    const { textColor, subtleBorderColor, borderColor } = useTheme()
+
     const handleNavigation = () => {
-        if(user?.role == "User"){
+        if (!isSeller) {
             navigation.navigate('ShipmentDetails', { shipmentId: shipment.shipmentId })
-        }else{
+        } else {
             navigation.navigate('SellerShipmentDetails', { shipmentId: shipment.shipmentId })
         }
     }
     return (
-        <TouchableOpacity style={[styles.container]} onPress={() => handleNavigation()}>
+        <Pressable style={[styles.container, { borderColor: subtleBorderColor }]} onPress={() => handleNavigation()}>
             <View style={styles.left}>
-                <View style={{backgroundColor:bg, aspectRatio:1,padding:10, borderRadius:100, borderWidth:1, borderColor:border}}>
-                    <Box color={textColor}/>
+                <View style={{ backgroundColor: subtleBorderColor, aspectRatio: 1, padding: 10, borderRadius: 100, borderWidth: 1, borderColor: borderColor }}>
+                    <Box color={textColor} />
                 </View>
                 <View style={styles.leftContent}>
                     <View style={styles.nameRow}>
@@ -30,10 +27,10 @@ export default function ShipmentComponent({ shipment, navigation }: { shipment: 
                             {shipment.name}
                         </Text>
                     </View>
-                    <Text style={[styles.comment, { color: textColor, fontSize:12 }]}>{shipment.status}</Text>
+                    <Text style={[styles.comment, { color: textColor, fontSize: 12 }]}>{shipment.status}</Text>
                 </View>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     )
 }
 const styles = StyleSheet.create({
@@ -41,8 +38,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         width: "100%",
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.darkGray
+        borderBottomWidth: 1
     },
     left: {
         flex: 1,

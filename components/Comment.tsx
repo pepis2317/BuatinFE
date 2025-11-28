@@ -18,9 +18,7 @@ export default function Comment({ comment, navigation }: { comment: CommentRespo
     const { onGetUserToken, user } = useAuth()
     const [likes, setLikes] = useState(comment.likes)
     const [liked, setLiked] = useState(comment.liked)
-    const [anchor, setAnchor] = useState<Anchor | null>(null);
-    const { theme } = useTheme()
-    var textColor = theme == "dark" ? "white" : "black"
+    const { textColor } = useTheme()
     var likePost = async () => {
         try {
             const token = await onGetUserToken!()

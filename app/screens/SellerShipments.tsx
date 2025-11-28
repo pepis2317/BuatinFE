@@ -19,19 +19,15 @@ const ShipmentsRoute = ({ navigation }: { navigation: any }) => {
 const ShippableRoute = ({ navigation }: { navigation: any }) => {
     return (
         <View>
-            <ShippableList navigation={navigation}/>
+            <ShippableList navigation={navigation} />
         </View>
-        // <OrderRequestsList isSeller={true} navigation={navigation} />
     )
 }
 type SellerShipmentsProps = NativeStackScreenProps<RootStackParamList, "SellerShipments">
 export default function SellerShipments({ navigation, route }: SellerShipmentsProps) {
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
-    const { theme } = useTheme()
-    const color = theme == "dark" ? "white" : "black"
-    const backgroundColor = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
-    const selectedColor = theme == "dark" ? "white" : "black"
+    const { theme, textColor, backgroundColor } = useTheme()
     const unselectedColor = theme == "dark" ? Colors.offWhite : Colors.darkGray
     const routes = [
         { key: 'Shipments', title: 'Shipments' },
@@ -39,12 +35,9 @@ export default function SellerShipments({ navigation, route }: SellerShipmentsPr
     ];
     return (
         <View style={{ flex: 1 }}>
-            <View style={{ margin: 20, marginTop: 10, marginBottom: 0 }}>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SellerIncomingShipments')}>
-                    <Truck color={color} />
-                    <Text style={{ color: color, fontWeight: 'bold' }}>View My Incoming Shipments</Text>
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SellerIncomingShipments')}>
+                <Truck color={"white"} />
+            </TouchableOpacity>
             <TabView
                 style={{ flex: 1 }}
                 navigationState={{ index, routes }}
@@ -63,7 +56,7 @@ export default function SellerShipments({ navigation, route }: SellerShipmentsPr
                 renderTabBar={(props) => (
                     <TabBar
                         {...props}
-                        activeColor={selectedColor}
+                        activeColor={textColor}
                         inactiveColor={unselectedColor}
                         scrollEnabled={false}
                         indicatorStyle={{ backgroundColor: Colors.green }}
@@ -81,7 +74,14 @@ const styles = StyleSheet.create({
         gap: 5,
         padding: 5,
         paddingHorizontal: 10,
+        width:60,
         alignItems: 'center',
-        borderRadius: 5
+        justifyContent:'center',
+        borderRadius: 60,
+        aspectRatio:1,
+        position:'absolute',
+        right:15,
+        bottom:15,
+        zIndex:10
     }
 })

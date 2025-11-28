@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import * as SystemUI from 'expo-system-ui';
 import * as NavigationBar from 'expo-navigation-bar';
 import { SignalRProvider } from './app/context/SignalRContext';
+import SelectLocation from './app/screens/SelectLocation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 function SignalRWithAuth() {
@@ -69,7 +70,7 @@ export function Layout() {
   }, [theme]);
   const navigationTheme = theme === "dark" ? customDarkTheme : customLightTheme;
   return (
-    <View style={{backgroundColor:'red', flex:1}}>
+    <View style={{flex:1}}>
       <NavigationContainer theme={navigationTheme}>
         <View style={{ height: 32, backgroundColor: navigationTheme.colors.background }} />
         <StatusBar style={theme == "dark" ? "light" : "dark"} />
@@ -93,6 +94,7 @@ export function Layout() {
             <>
               <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
               <Stack.Screen name="Register" component={Register} options={{ headerShown: false }} />
+              <Stack.Screen name ="SelectLocation" component={SelectLocation} options={{ headerShown: false }} />
             </>
 
           )}

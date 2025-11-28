@@ -13,7 +13,7 @@ export default function SellerReviewsList({ sellerId, navigation }: { sellerId: 
     const {onGetUserToken} = useAuth()
     const [reviews, setReviews] = useState<ReviewResponse[]>([])
     const [total, setTotal] = useState(0)
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const [refresh, setRefresh] = useState(false)
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
@@ -86,7 +86,7 @@ export default function SellerReviewsList({ sellerId, navigation }: { sellerId: 
             }
             ListFooterComponent={
                 loadingRef.current ?
-                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     :
                     <View style={{ marginTop: 64 }} />
             }

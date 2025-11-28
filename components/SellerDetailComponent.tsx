@@ -13,17 +13,13 @@ import { SellerResponse } from "../types/SellerResponse";
 import { ReviewResponse } from "../types/ReviewResponse";
 
 export default function SellerDetailComponent({ seller, navigation, editing }: { seller: SellerResponse, navigation: any, editing: boolean }) {
-    const { theme } = useTheme()
+    const { subtleBorderColor, foregroundColor, borderColor, textColor, backgroundColor } = useTheme()
     const [banner, setBanner] = useState<string | null>(seller.banner)
     const [picture, setPicture] = useState<string | null>(seller.sellerPicture)
     const [sellerName, setSellerName] = useState<string>('')
     const [sellerDescription, setSellerDescription] = useState<string>('')
     const [showSuccess, setShowSuccess] = useState(false)
     const [loading, setLoading] = useState(false)
-    const placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
-    const iconColor = theme == "dark" ? Colors.darkBorder : Colors.lightBorder
-    const textColor = theme == "dark" ? "white" : "black"
-    const bg = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
     useEffect(() => {
         setSellerName(seller.sellerName)
         setSellerDescription(seller.description ? seller.description : "")
@@ -105,13 +101,13 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
     const date = new Date(seller.createdAt)
     return (
         <View style={{ marginBottom: -40 }}>
-            <ConfirmedModal visible={showSuccess} message={"Seller data has been updated"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showSuccess} message={"Seller data has been updated"} onPress={() => navigation.goBack()} />
             <TouchableOpacity onPress={pickBannerAsync} style={{ position: 'relative' }} disabled={!editing}>
                 {banner ?
                     <Image src={banner} style={styles.banner} />
                     :
-                    <View style={[styles.banner, { backgroundColor: placeholderColor }]} >
-                        <ImageIcon size={50} color={iconColor} />
+                    <View style={[styles.banner, { backgroundColor: subtleBorderColor }]} >
+                        <ImageIcon size={50} color={borderColor} />
                     </View>
                 }
                 {editing ?
@@ -123,8 +119,8 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
             </TouchableOpacity>
             <View style={styles.info}>
                 <TouchableOpacity onPress={pickPictureAsync} disabled={!editing} style={styles.pictureContainer}>
-                    <View style={[styles.pfpBorder, { backgroundColor: bg }]}>
-                        <Image style={[styles.picture, { backgroundColor: placeholderColor }]} src={picture ? picture : ""} />
+                    <View style={[styles.pfpBorder, { backgroundColor: backgroundColor }]}>
+                        <Image style={[styles.picture, { backgroundColor: subtleBorderColor }]} src={picture ? picture : ""} />
                     </View>
 
                     {editing ?
@@ -150,7 +146,7 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
                         <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 24 }}>{sellerName}</Text>
                         <Text style={{ color: textColor, marginBottom: 10, fontSize: 12 }}>Est. {date.toLocaleDateString('en-GB')}</Text>
                         <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 5 }}>About</Text>
-                        <View style={[styles.defaultDescriptionContainer, { backgroundColor: placeholderColor }]}>
+                        <View style={[styles.defaultDescriptionContainer, { backgroundColor: foregroundColor }]}>
                             <Text style={{ color: textColor }}>{sellerDescription}</Text>
                         </View>
                     </View>

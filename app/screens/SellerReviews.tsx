@@ -14,7 +14,7 @@ import Colors from "../../constants/Colors";
 type SellerReviewsProps = NativeStackScreenProps<RootStackParamList, "SellerReviews">
 export default function SellerReviews({ navigation, route }: SellerReviewsProps) {
     const { sellerId } = route.params
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const { onGetUserToken } = useAuth()
     const [canReview, setCanReview] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -48,7 +48,7 @@ export default function SellerReviews({ navigation, route }: SellerReviewsProps)
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"Seller Reviews"} showBackButton />
-            {loading ? <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} /> :
+            {loading ? <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} /> :
                 <View style={{ padding: 20 }}>
                     {canReview ?
                         <ColoredButton title={"Create Seller Review"} onPress={() => navigation.navigate('ReviewSeller', { sellerId: sellerId })} style={{backgroundColor: Colors.green}} />

@@ -15,13 +15,11 @@ import CommentsList from "../../components/CommentsList";
 type CommentsDetailProps = NativeStackScreenProps<RootStackParamList, "Comments">;
 export default function Comments({ navigation, route }: CommentsDetailProps) {
     const { postId } = route.params
-    const { theme } = useTheme()
+    const { theme, borderColor, textColor } = useTheme()
     const { onGetUserToken } = useAuth()
     const [comments, setComments] = useState<CommentResponse[]>([])
     const [message, setMessage] = useState("")
     const [messageLoading, setMessageLoading] = useState(false)
-    const borderColor = theme == "dark" ? Colors.darkBorder : Colors.lightBorder
-    const textColor = theme === "dark" ? "white" : "black"
     const postMessage = async (message: string, contentId: string) => {
         try {
             const token = await onGetUserToken!()
@@ -53,47 +51,33 @@ export default function Comments({ navigation, route }: CommentsDetailProps) {
     return (
         <KeyboardAvoidingView style={{ flex: 1, position: 'relative' }}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}>
+            keyboardVerticalOffset={50}>
             <TopBar title="Comments" showBackButton />
             <View style={{ flex: 1 }}>
-                <CommentsList contentId={postId} comments={comments} setComments={setComments } navigation={navigation} />
-                <View style={[styles.inputContainer, { borderColor: borderColor }]}>
-                    <TextInput style={[styles.textInput, { color: textColor }]} returnKeyType="send" onChangeText={setMessage} value={message} />
+                <CommentsList
+                    contentId={postId}
+                    comments={comments}
+                    setComments={setComments}
+                    navigation={navigation} />
+                <View
+                    style={[
+                        styles.inputContainer,
+                        { borderColor: borderColor }
+                    ]}>
+                    <TextInput
+                        style={[
+                            styles.textInput,
+                            { color: textColor }
+                        ]}
+                        returnKeyType="send"
+                        onChangeText={setMessage}
+                        value={message}
+                    />
                     <TouchableOpacity style={styles.sendButton} onPress={() => handlePost()}>
                         {messageLoading ? <ActivityIndicator size="small" style={{ height: 20 }} color={theme == "dark" ? "white" : "black"} /> : <Send color={"white"} size={20} />}
                     </TouchableOpacity>
                 </View>
             </View>
-
-
-            {/* <View style={{ flex: 1 }}> */}
-            {/* {loading ? (
-                    <ActivityIndicator size="small" style={{ height: 16, borderRadius: 5, margin: 10 }} color={theme == "dark" ? "white" : "black"} />
-                ) : comments.length > 0 ? (
-                    <FlatList
-                        data={comments}
-                        keyExtractor={(item: CommentResponse) => item.commentId}
-                        renderItem={({ item }: { item: CommentResponse }) => <Comment comment={item} />}
-                        contentContainerStyle={{ paddingBottom: 8 }}
-                        keyboardShouldPersistTaps="handled"
-                        onEndReached={loadMore}
-                        onEndReachedThreshold={0.5}
-                        refreshControl={
-                            <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
-                        }
-                    />
-                ) : (
-                    <View style={{ alignItems: "center", justifyContent: "center", padding: 16, }}>
-                        <Text style={{ color: textColor }}>No comments yet</Text>
-                    </View>
-                )} */}
-            {/* </View> */}
-            {/* <View style={[styles.inputContainer, { borderColor: borderColor }]}>
-                <TextInput style={[styles.textInput, { color: textColor }]} returnKeyType="send" onChangeText={setMessage} />
-                <TouchableOpacity style={styles.sendButton} onPress={() => handlePost()}>
-                    {messageLoading ? <ActivityIndicator size="small" style={{ height: 20 }} color={theme == "dark" ? "white" : "black"} /> : <Send color={"white"} size={20} />}
-                </TouchableOpacity>
-            </View> */}
         </KeyboardAvoidingView>
     )
 }

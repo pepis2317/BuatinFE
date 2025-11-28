@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { RootStackParamList } from "../../constants/RootStackParams"
-import { View, Text, TouchableOpacity, Modal, StyleSheet } from "react-native"
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, Platform, KeyboardAvoidingView } from "react-native"
 import TopBar from "../../components/TopBar"
 import { useEffect, useState } from "react"
 import { ShipmentResponse } from "../../types/ShipmentResponse"
@@ -13,6 +13,9 @@ import { BiteshipRatesResponse } from "../../types/BiteshipRatesResponse"
 import ConfirmedModal from "../../components/ConfirmedModal"
 import WebView from "react-native-webview"
 import PaymentModal from "../../components/PaymentModal"
+import Colors from "../../constants/Colors"
+import { useTheme } from "../context/ThemeContext"
+import ErrorComponent from "../../components/ErrorComponent"
 
 type ShipmentDetailsProps = NativeStackScreenProps<RootStackParamList, "ShipmentDetails">
 export default function ShipmentDetails({ navigation, route }: ShipmentDetailsProps) {
@@ -25,12 +28,11 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
     const [shipment, setShipment] = useState<ShipmentResponse>()
     const [rates, setRates] = useState<BiteshipRatesResponse>()
     const [tracking, setTracking] = useState<BiteshipTrackResponse>()
-    const [courierCompany, setCourierCompany] = useState('')
     const [courierType, setCourierType] = useState('')
     const [orderNote, setOrderNote] = useState('')
-    const [originNote, setOriginNote] = useState('')
-    const [destinationNote, setDestinationNote] = useState('')
+    const [errMessage, setErrMessage] = useState('')
     const { shipmentId } = route.params
+    const { textColor, subtleBorderColor } = useTheme()
     const fetchShipment = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-shipment?shipmentId=${shipmentId}`)
@@ -61,11 +63,9 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
                 shipmentId: shipmentId,
                 method: "Wallet",
                 amount: amount * 100,
-                courierCompany: courierCompany,
+                courierCompany: "jne",
                 courierType: courierType,
                 orderNote: orderNote,
-                originNote: originNote,
-                destinationNote: destinationNote
             })
             return response.data
         } catch (e) {
@@ -78,11 +78,9 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
                 shipmentId: shipmentId,
                 method: "Snap",
                 amount: amount * 100,
-                courierCompany: courierCompany,
+                courierCompany: "jne",
                 courierType: courierType,
                 orderNote: orderNote,
-                originNote: originNote,
-                destinationNote: destinationNote
             })
             return response.data
         } catch (e) {
@@ -90,6 +88,10 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
         }
     }
     const handleWalletPay = async () => {
+        if(!courierType){
+            setErrMessage("Courier type must be selected")
+            return
+        }
         if (rates) {
             const price = rates.pricing.find(r => r.courier_service_code == courierType)
             if (price) {
@@ -103,6 +105,10 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
         }
     }
     const handleSnapPay = async () => {
+        if(!courierType){
+            setErrMessage("Courier type must be selected")
+            return
+        }
         if (rates) {
             const price = rates.pricing.find(r => r.courier_service_code == courierType)
             if (price) {
@@ -164,13 +170,12 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
             setShowPayment(true)
         }
     }, [snapUrl])
-
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <TopBar title={"Shipment Details"} showBackButton />
-            <ConfirmedModal visible={showWalletModal} message={"Paid with wallet type shi"} onPress={() => handleCloseModal()} />
-            <ConfirmedModal visible={showSnapPaid} message={"Paid with snap type shi"} onPress={() => handleCloseModal()} />
-            <ConfirmedModal visible={showSnapFailed} message={"Failed with snap type shi"} onPress={() => handleCloseModal()} />
+            <ConfirmedModal isFail={false} visible={showWalletModal} message={"Paid with wallet"} onPress={() => handleCloseModal()} />
+            <ConfirmedModal isFail={false} visible={showSnapPaid} message={"Paid with snap"} onPress={() => handleCloseModal()} />
+            <ConfirmedModal isFail={true} visible={showSnapFailed} message={"Failed with snap"} onPress={() => handleCloseModal()} />
             <PaymentModal showPayment={showPayment} snapUrl={snapUrl}
                 closePaymentModal={() => setShowPayment(false)}
                 onSuccess={() => {
@@ -180,57 +185,104 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
                     setShowPayment(false);
                     setShowSnapFailed(true)
                 }} onLoadEnd={() => setLoading(false)} />
-            {rates ?
-                <View>
-                    {rates.pricing.map((item, index) => (
-                        <View key={index}>
-                            <Text>{item.courier_service_name}</Text>
-                            <Text>{item.shipping_fee}</Text>
-                            <Text>{item.description}</Text>
-                        </View>
-                    ))}
-                </View>
-                : <></>}
-            {shipment && shipment.status == "Pending" ?
-                <View>
-                    <TextInputComponent placeholder="CourierCompany" onChangeText={setCourierCompany} />
-                    <TextInputComponent placeholder="CourierType" onChangeText={setCourierType} />
-                    <TextInputComponent placeholder="OrderNote" onChangeText={setOrderNote} />
-                    <TextInputComponent placeholder="OriginNote" onChangeText={setOriginNote} />
-                    <TextInputComponent placeholder="DestinationNote" onChangeText={setDestinationNote} />
-                    <ColoredButton title={"Pay with Snap"} onPress={() => handleSnapPay()} isLoading={loading} />
-                    <ColoredButton title={"Pay with Wallet"} onPress={() => handleWalletPay()} isLoading={loading} />
-                </View>
-                : <></>}
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={50}>
+                <ScrollView>
+                    {shipment ?
+                        <View style={{ padding: 20 }}>
+                            <View style={[styles.shipmentContainer, { backgroundColor: subtleBorderColor }]}>
+                                <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16, marginBottom: 10 }}>{shipment.name}</Text>
+                                <View style={{ marginBottom: 10 }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold' }}>Description:</Text>
+                                    <Text style={{ color: textColor }}>{shipment.description}</Text>
+                                </View>
+                                <View style={{ marginBottom: 10 }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold' }}>Category:</Text>
+                                    <Text style={{ color: textColor }}>{shipment.category}</Text>
+                                </View>
+                                <View style={{ marginBottom: 10 }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold' }}>Quantity:</Text>
+                                    <Text style={{ color: textColor }}>{shipment.quantity}</Text>
+                                </View>
+                                <View style={{ marginBottom: 10 }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold' }}>Dimensions (Height x Width x Length):</Text>
+                                    <Text style={{ color: textColor }}>{shipment.height} x {shipment.width} x {shipment.length}</Text>
+                                </View>
+                                <View style={{ marginBottom: 10 }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold' }}>Weight:</Text>
+                                    <Text style={{ color: textColor }}>{shipment.weight}</Text>
+                                </View>
 
-            {shipment && shipment.status == "Paid" ?
-                <View>
-                    <Text>
-                        awaiting seller to send shipment
-                    </Text>
-                </View> : <></>}
-            {tracking ?
-                <View>
-                    {tracking.items.map((item, index) => (
-                        <View key={index}>
-                            <Text>{item.name}</Text>
-                            <Text>{item.category}</Text>
-                            <Text>{item.description}</Text>
-                        </View>
-                    ))}
-                    {tracking.courier.history.map((item, index) => (
-                        <View key={index}>
-                            <Text>{item.status}</Text>
-                            <Text>{item.note}</Text>
-                        </View>
-                    ))}
-                </View>
-                : <></>}
+                                {shipment.status == "Pending" ? <Text style={{ color: textColor }}>Awaiting buyer to pay for shipping fee</Text> : <></>}
+                                {shipment.status == "Paid" ? <Text style={{ color: textColor }}>Awaiting seller to send item</Text> : <></>}
+                                {shipment.status == "Sent" ? <Text style={{ color: textColor }}>Item is being sent to buyer</Text> : <></>}
+                            </View>
+                            {tracking ?
+                                <View style={{ marginTop: 20 }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 5 }}>Tracking History</Text>
+                                    {tracking.courier.history.map((item, index) => (
+                                        <View key={index} style={[styles.history, { backgroundColor: subtleBorderColor }]}>
+                                            <View style={{ marginBottom: 5, flexDirection: 'row' }}>
+                                                <Text style={{ color: textColor, fontWeight: 'bold' }}>Status:</Text>
+                                                <Text style={{ color: textColor }}> {item.status}</Text>
+                                            </View>
+                                            <Text style={{ color: textColor }}>{item.note}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+                                : <></>}
 
+                            {shipment.status == "Pending" ?
+                                <View>
+                                    {rates ?
+                                        <View style={{ gap: 10, marginVertical: 20 }}>
+                                            <Text style={{ color: textColor, fontWeight: 'bold' }}>Select Courier Service</Text>
+                                            {rates.pricing.map((item, index) => (
+                                                <TouchableOpacity key={index} style={[styles.service, { backgroundColor: subtleBorderColor }, courierType == item.courier_service_code ? { borderWidth: 1, borderColor: Colors.green } : {}]} onPress={() => setCourierType(item.courier_service_code)}>
+                                                    <Text style={{ color: textColor, fontWeight: 'bold' }}>{item.courier_service_name}</Text>
+                                                    <Text style={{ color: textColor }}>{item.description}</Text>
+                                                    <Text style={{ color: textColor }}>Rp.{item.shipping_fee}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                        : <></>}
+                                    <View style={{ gap: 10 }}>
+
+                                        <View>
+                                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Order Note (Optional):</Text>
+                                            <TextInputComponent placeholder="Order Note" onChangeText={setOrderNote} />
+                                        </View>
+                                        {errMessage ?
+                                            <ErrorComponent errorsString={errMessage} />
+                                            : <></>}
+                                        <ColoredButton title={"Pay with Snap"} onPress={() => handleSnapPay()} style={{ backgroundColor: Colors.green }} isLoading={loading}/>
+                                        <ColoredButton title={"Pay with Wallet"} onPress={() => handleWalletPay()} style={{ backgroundColor: Colors.green }} isLoading={loading} />
+                                    </View>
+                                </View>
+
+                                : <></>}
+                        </View>
+                        : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />}
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     )
 }
 const styles = StyleSheet.create({
+    service: {
+        padding: 10,
+        borderRadius: 10
+    },
+    shipmentContainer: {
+        padding: 10,
+        borderRadius: 10
+    },
+    history: {
+        padding: 10,
+        borderRadius: 10,
+    },
     container: { flex: 1, justifyContent: "center", alignItems: "center" },
     payButton: {
         backgroundColor: "#007AFF",

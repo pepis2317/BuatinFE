@@ -2,7 +2,7 @@ import { Alert, ScrollView, TouchableOpacity, View, Text, StyleSheet } from "rea
 import ColoredButton from "./ColoredButton";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+
 import { X } from "lucide-react-native";
 export interface MessageAttachmentsRef {
     buildFormData: () => Promise<FormData>;
@@ -63,22 +63,6 @@ export default function MessageAttachmentsComponent({ attachments, setAttachment
     };
     const removeAttachmentAt = (index: number) => {
         setAttachments((prev) => prev.filter((_, i) => i !== index));
-    };
-    const buildFormData = async (): Promise<FormData> => {
-        const formData = new FormData();
-        for (let uri of attachments) {
-            const filename = uri.split("/").pop() ?? "file";
-            const type = filename.endsWith(".jpg")
-                ? "image/jpeg"
-                : "application/octet-stream";
-
-            formData.append("files", {
-                uri,
-                name: filename,
-                type,
-            } as any);
-        }
-        return formData;
     };
 
     return (

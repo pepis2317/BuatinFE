@@ -20,14 +20,12 @@ import Colors from "../constants/Colors";
 
 export default function PostDetail({ post, seller, onCommentPressed, navigation }: { post: PostResponse, seller: SellerResponse, onCommentPressed: () => void, navigation: any }) {
     const { onGetUserToken, user } = useAuth()
-    const { theme } = useTheme()
+    const { textColor, subtleBorderColor } = useTheme()
     const [images, setImages] = useState<string[]>([])
     const [slideIndex, setSlideIndex] = useState(0)
     const [likes, setLikes] = useState<number>(post.likes)
     const [liked, setLiked] = useState<boolean>(post.liked)
     const [expanded, setExpanded] = useState(false);
-    const textColor = theme === "dark" ? "white" : "black";
-    const backgroundColor = theme == "dark" ? Colors.darkGray : Colors.offWhite;
     const heartOpacity = useSharedValue(0);
     const heartScale = useSharedValue(0.5);
     dayjs.extend(relativeTime)
@@ -117,7 +115,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
         <View style={styles.postContainer}>
             <View style={styles.authorContainer}>
                 <View style={{flexDirection:'row', alignItems:'center', gap:10}}>
-                    <Image style={[styles.authorImage, { backgroundColor: backgroundColor }]} src={seller.sellerPicture}></Image>
+                    <Image style={[styles.authorImage, { backgroundColor: subtleBorderColor }]} src={seller.sellerPicture}></Image>
                     <Text style={[styles.text, { color: textColor }]}>{seller.sellerName}</Text>
                 </View>
 
@@ -128,7 +126,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
                     : <></>}
             </View>
             <View style={styles.carouselContainer}>
-                <PagerView style={[styles.carousel, { backgroundColor: backgroundColor }]} onPageSelected={(e) => setSlideIndex(e.nativeEvent.position)}>
+                <PagerView style={[styles.carousel, { backgroundColor: subtleBorderColor }]} onPageSelected={(e) => setSlideIndex(e.nativeEvent.position)}>
                     {images.map((image, index) => (
                         <Image source={{ uri: image }} key={index} />
                     ))}
@@ -204,8 +202,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start'
     },
     carouselContainer: {
-        position: 'relative',
-        backgroundColor: 'red'
+        position: 'relative'
     },
     counter: {
         position: "absolute",

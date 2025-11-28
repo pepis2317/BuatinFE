@@ -2,6 +2,10 @@ export type OrderRequestResponse={
     requestId:string
     title:string
     status:string
-    name:string
-    pictureUrl:string
+    buyerName:string
+    buyerUserId:string
+    sellerId:string
+    sellerName:string
+    buyerPictureUrl:string
+    sellerPictureUrl:string
 }

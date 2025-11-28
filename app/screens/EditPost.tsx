@@ -13,12 +13,11 @@ import { useTheme } from "../context/ThemeContext";
 type EditProps = NativeStackScreenProps<RootStackParamList, "EditPost">
 export default function EditPost({ navigation, route }: EditProps) {
     const { post } = route.params
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const [caption, setCaption] = useState('')
     const [loading, setLoading] = useState(false)
     const [showConfirmed, setShowConfirmed] = useState(false)
     const [inputHeight, setInputHeight] = useState(0)
-    const textColor = theme == "dark" ? "white" : "black"
     const editPost = async () => {
         try {
             const response = await axios.put(`${API_URL}/edit-post`, {
@@ -44,9 +43,13 @@ export default function EditPost({ navigation, route }: EditProps) {
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"Edit Post"} showBackButton />
-            <ConfirmedModal visible={showConfirmed} message={"Review has been edited"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showConfirmed} message={"Review has been edited"} onPress={() => navigation.goBack()} />
             <ScrollView style={{ padding: 20, gap: 20 }}>
-                <Text style={{ color:textColor, fontWeight:'bold', marginBottom:10}}>Caption</Text>
+                <Text style={{
+                    color: textColor,
+                    fontWeight: 'bold',
+                    marginBottom: 10
+                }}>Caption</Text>
                 <TextInputComponent style={{ height: inputHeight }} value={caption} placeholder="Review" onChangeText={setCaption} multiline
                     onContentSizeChange={(e) => {
                         const newHeight = e.nativeEvent.contentSize.height;

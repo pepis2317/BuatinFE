@@ -2,15 +2,15 @@ import axios from "axios"
 import { useAuth } from "../app/context/AuthContext"
 import { API_URL } from "../constants/ApiUri"
 import { ActivityIndicator, FlatList, RefreshControl, View, Text } from "react-native"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { OrderRequestResponse } from "../types/OrderRequestResponse"
 import { useFocusEffect } from "@react-navigation/native"
 import OrderRequestComponent from "./OrderRequestComponent"
 import { useTheme } from "../app/context/ThemeContext"
 
-export default function OrderRequestsList({ isSeller, navigation}: { isSeller: boolean, navigation:any }) {
+export default function OrderRequestsList({ isSeller, navigation }: { isSeller: boolean, navigation: any }) {
     const { onGetUserToken } = useAuth()
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const [orderRequests, setOrderRequests] = useState<OrderRequestResponse[]>([])
     const [total, setTotal] = useState(0)
     const [refresh, setRefresh] = useState(false)
@@ -21,11 +21,7 @@ export default function OrderRequestsList({ isSeller, navigation}: { isSeller: b
     const fetchRequests = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            var url = `${API_URL}/get-order-requests?pageSize=3&pageNumber=${pageNumber}`
-            if (isSeller) {
-                url = `${API_URL}/get-seller-order-requests?pageSize=3&pageNumber=${pageNumber}`
-            }
-            const response = await axios.get(url, {
+            const response = await axios.get(`${API_URL}/get-order-requests?pageSize=3&pageNumber=${pageNumber}&isSeller=${isSeller}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -76,10 +72,10 @@ export default function OrderRequestsList({ isSeller, navigation}: { isSeller: b
             reset()
         }, [])
     );
-    if(orderRequests.length == 0 && !loadingRef.current){
-        return(
-            <View style={{padding:20,alignItems:'center'}}>
-                <Text style={{color: 'gray'}}>No Order Request Yet</Text>
+    if (orderRequests.length == 0 && !loadingRef.current) {
+        return (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+                <Text style={{ color: 'gray' }}>No Order Request Yet</Text>
             </View>
         )
     }
@@ -87,7 +83,7 @@ export default function OrderRequestsList({ isSeller, navigation}: { isSeller: b
         <FlatList
             data={orderRequests}
             keyExtractor={(item: OrderRequestResponse) => item.requestId}
-            renderItem={({ item }: { item: OrderRequestResponse }) => <OrderRequestComponent request={item} navigation={navigation} respondable={isSeller} />}
+            renderItem={({ item }: { item: OrderRequestResponse }) => <OrderRequestComponent request={item} navigation={navigation} respondable={isSeller} isSeller={isSeller} />}
             keyboardShouldPersistTaps="handled"
             onEndReached={loadMore}
             onEndReachedThreshold={0.2}
@@ -96,7 +92,7 @@ export default function OrderRequestsList({ isSeller, navigation}: { isSeller: b
             }
             ListFooterComponent={
                 loadingRef.current ?
-                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     :
                     <View style={{ marginTop: 64 }} />
             }

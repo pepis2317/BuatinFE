@@ -4,7 +4,6 @@ import {
 } from '@react-navigation/bottom-tabs';
 import UserHome from '../app/screens/UserHome';
 import Profile from '../app/screens/Profile';
-import SellerHome from '../app/screens/SellerHome';
 import { Anvil, House, MessageCircle, Truck, User } from 'lucide-react-native';
 import { useTheme } from '../app/context/ThemeContext';
 import SellerDetails from '../app/screens/SellerDetails';
@@ -51,6 +50,7 @@ import UserDetails from '../app/screens/UserDetails';
 import UserReviews from '../app/screens/UserReviews';
 import SellerOutgoingProcesses from '../app/screens/SellerOutgoingProcesses';
 import SellerIncomingShipments from '../app/screens/SellerIncomingShipments';
+import SelectLocation from '../app/screens/SelectLocation';
 const UserTab = createBottomTabNavigator<RootStackParamList>()
 export function UserTabs() {
     const { theme } = useTheme()
@@ -204,7 +204,7 @@ export function SellerTabs() {
             <SellerTab.Screen name="SellerProcessesTab" component={SellerProcessesStackScreen} options={processesTabOptions} />
             <SellerTab.Screen name="SellerShipmentsTab" component={SellerShipmentsStackScreen} options={ShipmentsTabOptions} />
             <SellerTab.Screen name="ChatTab" component={ChatStackScreen} options={ChatTabOptions} />
-            <SellerTab.Screen name="Profile" component={Profile} options={profileTabOptions} />
+            <SellerTab.Screen name="ProfileTab" component={ProfileStackScreen} options={profileTabOptions} />
         </SellerTab.Navigator>
     );
 }
@@ -234,8 +234,12 @@ function SellerShipmentsStackScreen() {
             <SellerShipmentsStack.Screen name="SellerShipments" component={SellerShipments} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="SellerIncomingShipments" component={SellerIncomingShipments} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="Shippable" component={Shippable} options={{ headerShown: false }} />
-            <SellerProcessesStack.Screen name="CreateShipment" component={CreateShipment} options={{ headerShown: false }} />
+            <SellerShipmentsStack.Screen name="UserReviews" component={UserReviews} options={{ headerShown: false }} />
+            <SellerShipmentsStack.Screen name="Comments" component={Comments} options={{ headerShown: false }} />
+            <SellerShipmentsStack.Screen name="ReviewUser" component={ReviewUser} options={{ headerShown: false }} />
+            <SellerShipmentsStack.Screen name="CreateShipment" component={CreateShipment} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="SellerShipmentDetails" component={SellerShipmentDetails} options={{ headerShown: false }} />
+            <SellerShipmentsStack.Screen name="ShipmentDetails" component={ShipmentDetails} options={{ headerShown: false }} />
         </SellerShipmentsStack.Navigator>
     )
 }
@@ -257,14 +261,14 @@ function HomeStackScreen() {
             <HomeStack.Screen name="Withdraw" component={Withdraw} options={{ headerShown: false }} />
             <HomeStack.Screen name="EditSeller" component={EditSeller} options={{ headerShown: false }} />
             <HomeStack.Screen name="CreatePost" component={CreatePost} options={{ headerShown: false }} />
-            <HomeStack.Screen name="SellerReviews" component={SellerReviews} options={{ headerShown: false }}/>
-            <HomeStack.Screen name="EditReview" component={EditReview} options={{ headerShown: false }}/>
+            <HomeStack.Screen name="SellerReviews" component={SellerReviews} options={{ headerShown: false }} />
+            <HomeStack.Screen name="EditReview" component={EditReview} options={{ headerShown: false }} />
             <HomeStack.Screen name="ReviewSeller" component={ReviewSeller} options={{ headerShown: false }} />
-            <HomeStack.Screen name="EditComment" component={EditComment} options={{headerShown: false}}/>
-            <HomeStack.Screen name="EditPost" component={EditPost} options={{headerShown: false}}/>
-            <HomeStack.Screen name="UserDetails" component={UserDetails} options={{headerShown: false}}/>
-            <HomeStack.Screen name="UserReviews" component={UserReviews} options={{headerShown: false}}/>
-            <HomeStack.Screen name="ReviewUser" component={ReviewUser} options={{headerShown: false}}/>
+            <HomeStack.Screen name="EditComment" component={EditComment} options={{ headerShown: false }} />
+            <HomeStack.Screen name="EditPost" component={EditPost} options={{ headerShown: false }} />
+            <HomeStack.Screen name="UserDetails" component={UserDetails} options={{ headerShown: false }} />
+            <HomeStack.Screen name="UserReviews" component={UserReviews} options={{ headerShown: false }} />
+            <HomeStack.Screen name="ReviewUser" component={ReviewUser} options={{ headerShown: false }} />
         </HomeStack.Navigator>
     )
 }
@@ -276,8 +280,15 @@ function ProcessesStackScreen() {
             <ProcessesStack.Screen name="OrderRequestDetails" component={OrderRequestDetails} options={{ headerShown: false }} />
             <ProcessesStack.Screen name="ProcessDetails" component={ProcessDetails} options={{ headerShown: false }} />
             <ProcessesStack.Screen name="AcceptAndPay" component={AcceptAndPay} options={{ headerShown: false }} />
+            <ProcessesStack.Screen name="UserDetails" component={UserDetails} options={{ headerShown: false }} />
+            <ProcessesStack.Screen name="UserReviews" component={UserReviews} options={{ headerShown: false }} />
+            <ProcessesStack.Screen name="SellerDetails" component={SellerDetails} options={{ headerShown: false }} />
+            <ProcessesStack.Screen name="SellerReviews" component={SellerReviews} options={{ headerShown: false }} />
+            <ProcessesStack.Screen name="Comments" component={Comments} options={{ headerShown: false }} />
             <ProcessesStack.Screen name="CreateRefundRequest" component={CreateRefundRequest} options={{ headerShown: false }} />
             <ProcessesStack.Screen name="ReviewSeller" component={ReviewSeller} options={{ headerShown: false }} />
+            <ProcessesStack.Screen name="PostDetails" component={PostDetails} options={{ headerShown: false }} />
+            <ProcessesStack.Screen name="ReviewUser" component={ReviewUser} options={{ headerShown: false }} />
         </ProcessesStack.Navigator>
     )
 }
@@ -287,12 +298,22 @@ function SellerProcessesStackScreen() {
         <SellerProcessesStack.Navigator>
             <SellerProcessesStack.Screen name="SellerProcesses" component={SellerProcesses} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="SellerOutgoingProcesses" component={SellerOutgoingProcesses} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="ProcessDetails" component={ProcessDetails} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="OrderRequestDetails" component={OrderRequestDetails} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="AcceptAndPay" component={AcceptAndPay} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="CreateProcess" component={CreateProcess} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="CreateRefundRequest" component={CreateRefundRequest} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="SellerProcessDetails" component={SellerProcessDetails} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="ReviewSeller" component={ReviewSeller} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="EditStep" component={EditStep} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="AddStep" component={AddStep} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="ReviewUser" component={ReviewUser} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="UserDetails" component={UserDetails} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="UserReviews" component={UserReviews} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="PostDetails" component={PostDetails} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="SellerDetails" component={SellerDetails} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="SellerReviews" component={SellerReviews} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="Comments" component={Comments} options={{ headerShown: false }} />
         </SellerProcessesStack.Navigator>
     )
 }
@@ -301,7 +322,7 @@ function ProfileStackScreen() {
     return (
         <ProfileStack.Navigator>
             <ProfileStack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
-            {/* Add more screens if needed for profile-related pages */}
+            <ProfileStack.Screen name="SelectLocation" component={SelectLocation} options={{ headerShown: false }} />
         </ProfileStack.Navigator>
     );
 }

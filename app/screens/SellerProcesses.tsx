@@ -25,10 +25,7 @@ type SellerProcessesProps = NativeStackScreenProps<RootStackParamList, "SellerPr
 export default function SellerProcesses({ navigation, route }: SellerProcessesProps) {
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
-    const { theme } = useTheme()
-    const color = theme == "dark" ? "white" : "black"
-    const backgroundColor = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
-    const selectedColor = theme == "dark" ? "white" : "black"
+    const { theme , backgroundColor, textColor} = useTheme()
     const unselectedColor = theme == "dark" ? Colors.offWhite : Colors.darkGray
     const routes = [
         { key: 'Ongoing', title: 'Ongoing Processes' },
@@ -36,12 +33,9 @@ export default function SellerProcesses({ navigation, route }: SellerProcessesPr
     ];
     return (
         <View style={{ flex: 1 }}>
-            <View style={{margin:20, marginTop:10, marginBottom:0}}>
-                <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('SellerOutgoingProcesses')}>
-                    <Anvil color={color} />
-                    <Text style={{ color: color, fontWeight:'bold' }}>View My Outgoing Processes</Text>
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SellerOutgoingProcesses')}>
+                <Anvil color={"white"} />
+            </TouchableOpacity>
             <TabView
                 style={{ flex: 1 }}
                 navigationState={{ index, routes }}
@@ -60,7 +54,7 @@ export default function SellerProcesses({ navigation, route }: SellerProcessesPr
                 renderTabBar={(props) => (
                     <TabBar
                         {...props}
-                        activeColor={selectedColor}
+                        activeColor={textColor}
                         inactiveColor={unselectedColor}
                         scrollEnabled={false}
                         indicatorStyle={{ backgroundColor: Colors.green }}
@@ -76,9 +70,14 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.green,
         flexDirection: 'row',
         gap: 5,
-        padding: 5,
-        paddingHorizontal: 10,
         alignItems: 'center',
-        borderRadius: 5
+        borderRadius: 60,
+        width:60,
+        aspectRatio:1,
+        position:'absolute',
+        justifyContent:'center',
+        bottom:15,
+        right:15,
+        zIndex:10
     }
 })

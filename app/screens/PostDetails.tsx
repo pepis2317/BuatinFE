@@ -9,15 +9,12 @@ import { API_URL } from "../../constants/ApiUri";
 import { useTheme } from "../context/ThemeContext";
 import { PostResponse } from "../../types/PostResponse";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import PostComments from "../../components/PostComments";
-import Colors from "../../constants/Colors";
 import { useAuth } from "../context/AuthContext";
 
 type PostDetailProps = NativeStackScreenProps<RootStackParamList, "PostDetails">;
 export default function PostDetails({ navigation, route }: PostDetailProps) {
-    const { theme } = useTheme()
-    const {onGetUserToken} = useAuth()
+    const { textColor } = useTheme()
+    const { onGetUserToken } = useAuth()
     const { posts, selectedPostIndex, seller, hasMorePosts } = route.params;
     const [loadedPosts, setLoadedPosts] = useState<PostResponse[]>(posts)
     const [hasMore, setHasMore] = useState(hasMorePosts)
@@ -32,9 +29,9 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
         try {
             const token = await onGetUserToken!()
             let queryString = `/get-posts?AuthorId=${seller.owner.userId}&pageSize=3&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`;
-            const response = await axios.get(`${API_URL}${queryString}`,{
-                headers:{
-                    Authorization:`Bearer ${token}`
+            const response = await axios.get(`${API_URL}${queryString}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
             });
             return response.data;
@@ -76,21 +73,34 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
                 data={loadedPosts}
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(p) => p.postId}
-                renderItem={({ item }) => <PostDetail navigation={navigation} post={item} seller={seller} onCommentPressed={() => {
-                    navigation.navigate("Comments",{postId:item.postId})
-                }} />}
+                renderItem={({ item }) =>
+                    <PostDetail
+                        navigation={navigation}
+                        post={item}
+                        seller={seller}
+                        onCommentPressed={() => {
+                            navigation.navigate("Comments", { postId: item.postId })
+                        }}
+                    />
+                }
                 initialScrollIndex={selectedPostIndex}
                 getItemLayout={(d, i) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * i, index: i })}
                 onScrollToIndexFailed={(info) => {
-                    listRef.current?.scrollToOffset({ offset: info.averageItemLength * info.index, animated: false });
-                    setTimeout(() => listRef.current?.scrollToIndex({ index: info.index, animated: false }), 50);
+                    listRef.current?.scrollToOffset({
+                        offset: info.averageItemLength * info.index,
+                        animated: false
+                    });
+                    setTimeout(() => listRef.current?.scrollToIndex({
+                        index: info.index,
+                        animated: false
+                    }), 50);
                 }}
                 onEndReachedThreshold={1}
                 onEndReached={loadMore}
                 maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
                 ListFooterComponent={
                     loadingOlder ?
-                        <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                        <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                         :
                         <View style={{ marginTop: 64 }} />
                 }

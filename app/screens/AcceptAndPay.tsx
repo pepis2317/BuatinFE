@@ -7,11 +7,14 @@ import { API_URL } from "../../constants/ApiUri";
 import { useEffect, useState } from "react";
 import TopBar from "../../components/TopBar";
 import ConfirmedModal from "../../components/ConfirmedModal";
-import WebView from "react-native-webview";
 import PaymentModal from "../../components/PaymentModal";
+import Colors from "../../constants/Colors";
+import { DollarSign } from "lucide-react-native";
+import { useTheme } from "../context/ThemeContext";
 type AcceptAndPayProps = NativeStackScreenProps<RootStackParamList, "AcceptAndPay">;
 export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
     const { stepId } = route.params
+    const { textColor } = useTheme()
     const [loading, setLoading] = useState(false)
     const [showPaid, setShowPaid] = useState(false)
     const [showSnapPaid, setShowSnapPaid] = useState(false)
@@ -63,12 +66,26 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
     }, [snapUrl])
     return (
         <View>
-            <ConfirmedModal onPress={() => navigation.goBack()} visible={showPaid} message={"Step has been paid"} />
-            <ConfirmedModal onPress={() => navigation.goBack()} visible={showSnapPaid} message={"Step has been paid with snap"} />
-            <ConfirmedModal onPress={() => setShowSnapFailed(false)} visible={showSnapFailed} message={"Something went wrong with the snap payment"} />
+            <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showPaid} message={"Step has been paid"} />
+            <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showSnapPaid} message={"Step has been paid with snap"} />
+            <ConfirmedModal isFail={true} onPress={() => setShowSnapFailed(false)} visible={showSnapFailed} message={"Something went wrong with the snap payment"} />
             <TopBar title={"Accept & Pay Step"} showBackButton />
-            <ColoredButton title={"Pay using wallet"} onPress={() => handleWalletPay()} />
-            <ColoredButton title={"Pay using Midtrans"} onPress={() => handleSnapPay()} />
+            <View style={{ padding: 20, gap: 10 }}>
+                <View style={{ alignItems: 'center' }}>
+                    <DollarSign color={Colors.green} size={100} />
+                    <Text style={{
+                        color: textColor,
+                        fontWeight: 'bold',
+                        marginTop: 10
+                    }}>
+                        Select Payment Method
+                    </Text>
+                </View>
+
+                <ColoredButton title={"Pay using wallet"} style={{ backgroundColor: Colors.green }} onPress={() => handleWalletPay()} />
+                <ColoredButton title={"Pay using Midtrans"} style={{ backgroundColor: Colors.green }} onPress={() => handleSnapPay()} />
+            </View>
+
             <PaymentModal showPayment={showPayment} snapUrl={snapUrl}
                 closePaymentModal={() => setShowPayment(false)}
                 onSuccess={() => {

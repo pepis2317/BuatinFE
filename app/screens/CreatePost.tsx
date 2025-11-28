@@ -101,14 +101,17 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
                     ))}
                 </ScrollView>
             </View>
-            <ScrollView style={{ padding: 20, gap: 20 }}>
-                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Review</Text>
-                <TextInputComponent style={{ height: inputHeight }} placeholder="Caption" onChangeText={setCaption} multiline
-                    onContentSizeChange={(e) => {
-                        const newHeight = e.nativeEvent.contentSize.height;
-                        setInputHeight(Math.min(newHeight, 120));
-                    }}
-                />
+            <ScrollView style={{ padding: 20 }}>
+                <View style={{marginBottom:10}}>
+                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Review</Text>
+                    <TextInputComponent style={{ height: inputHeight }} placeholder="Caption" onChangeText={setCaption} multiline
+                        onContentSizeChange={(e) => {
+                            const newHeight = e.nativeEvent.contentSize.height;
+                            setInputHeight(Math.min(newHeight, 120));
+                        }}
+                    />
+                </View>
+
                 <ColoredButton title={"Create Post"} style={{ backgroundColor: "#5CCFA3", width: "100%" }} onPress={() => handleUpload()} isLoading={loading} />
             </ScrollView>
         </View>

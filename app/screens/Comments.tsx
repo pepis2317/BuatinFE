@@ -19,6 +19,7 @@ export default function Comments({ navigation, route }: CommentsDetailProps) {
     const { onGetUserToken } = useAuth()
     const [comments, setComments] = useState<CommentResponse[]>([])
     const [message, setMessage] = useState("")
+    const [inputHeight, setInputHeight] = useState(0)
     const [messageLoading, setMessageLoading] = useState(false)
     const postMessage = async (message: string, contentId: string) => {
         try {
@@ -44,9 +45,9 @@ export default function Comments({ navigation, route }: CommentsDetailProps) {
                 setComments(prev => [result, ...prev]);
             }
             setMessage("")
+            setInputHeight(0)
             setMessageLoading(false)
         }
-
     }
     return (
         <KeyboardAvoidingView style={{ flex: 1, position: 'relative' }}
@@ -65,13 +66,19 @@ export default function Comments({ navigation, route }: CommentsDetailProps) {
                         { borderColor: borderColor }
                     ]}>
                     <TextInput
+                        multiline
                         style={[
                             styles.textInput,
-                            { color: textColor }
+                            { color: textColor, height: inputHeight }
                         ]}
                         returnKeyType="send"
-                        onChangeText={setMessage}
                         value={message}
+                        onChangeText={setMessage}
+                        onContentSizeChange={(e) => {
+                            const newHeight = e.nativeEvent.contentSize.height;
+                            // clamp height between min and max (40 -> 120)
+                            setInputHeight(Math.max(40, Math.min(newHeight, 120)));
+                        }}
                     />
                     <TouchableOpacity style={styles.sendButton} onPress={() => handlePost()}>
                         {messageLoading ? <ActivityIndicator size="small" style={{ height: 20 }} color={theme == "dark" ? "white" : "black"} /> : <Send color={"white"} size={20} />}

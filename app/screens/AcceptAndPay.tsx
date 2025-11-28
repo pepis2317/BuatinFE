@@ -20,6 +20,7 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
     const [showSnapPaid, setShowSnapPaid] = useState(false)
     const [showSnapFailed, setShowSnapFailed] = useState(false)
     const [showPayment, setShowPayment] = useState(false)
+    const [showPaymentFailed, setShowPaymentFailed] = useState(false)
     const [snapUrl, setSnapUrl] = useState('')
     const walletPay = async () => {
         try {
@@ -69,6 +70,7 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
             <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showPaid} message={"Step has been paid"} />
             <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showSnapPaid} message={"Step has been paid with snap"} />
             <ConfirmedModal isFail={true} onPress={() => setShowSnapFailed(false)} visible={showSnapFailed} message={"Something went wrong with the snap payment"} />
+            <ConfirmedModal isFail={true} onPress={() => setShowPaymentFailed(false)} visible={showPaymentFailed} message={"Something went wrong, please check your balance"} />
             <TopBar title={"Accept & Pay Step"} showBackButton />
             <View style={{ padding: 20, gap: 10 }}>
                 <View style={{ alignItems: 'center' }}>

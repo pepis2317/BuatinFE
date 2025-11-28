@@ -15,7 +15,7 @@ export default function ConversationComponent({ navigation, conversation }: { na
                     <Text style={{ color: textColor, fontWeight: "bold" }}>
                         {conversation.name} {conversation.sellerName?`(Owner of ${conversation.sellerName})`:""}
                     </Text>
-                    <Text style={{ color: 'gray' }}>
+                    <Text numberOfLines={1} style={{ color: 'gray' }}>
                         {conversation.latestMessage}
                     </Text>
                 </View>

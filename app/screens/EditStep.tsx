@@ -80,28 +80,22 @@ export default function EditStep({ navigation, route }: EditStepProps) {
         return new Date(year, month - 1, day);
     }
     const setMinDate = (event: any, selectedDate: any) => {
-        const utcDate = new Date(selectedDate)
-        const localDate = new Date(
-            utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
-        )
-        setMinimumDate(localDate)
+        if (!selectedDate) return;
+        setMinimumDate(selectedDate);
         setShowMinDate(false)
     }
     const setMaxDate = (event: any, selectedDate: any) => {
-        const utcDate = new Date(selectedDate)
-        const localDate = new Date(
-            utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
-        )
-        setMaximumDate(localDate)
+        if (!selectedDate) return;
+        setMaximumDate(selectedDate);
         setShowMaxDate(false)
     }
     const handleUpdate = async () => {
-        if(!step) return
-        if (!step.title || !step.description || !minimumDate|| !maximumDate) {
+        if (!step) return
+        if (!step.title || !step.description || !minimumDate || !maximumDate) {
             setErrMessage("All forms must be filled")
             return
         }
-        
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 

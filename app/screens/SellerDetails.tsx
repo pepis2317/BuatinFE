@@ -156,7 +156,7 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
             }
             <View style={{ padding: 20 }}>
                 {editable ?
-                    <View>
+                    <View style={{gap:10}}>
                         <ColoredButton title={"Edit Seller"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('EditSeller')} />
                         <ColoredButton title={"Create Post"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate("CreatePost")} />
                     </View>

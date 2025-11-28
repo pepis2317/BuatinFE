@@ -141,6 +141,7 @@ export default function Chat({ navigation, route }: ChatProps) {
         if (!result.error) {
             setMessage('')
             setAttachments([])
+            setInputHeight(0)
         }
         setLoading(false)
     }

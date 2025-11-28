@@ -47,21 +47,15 @@ export default function AddStep({ navigation, route }: AddStepProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
-    const setMinimumDate = (event: any, selectedDate: any) => {
-        const utcDate = new Date(selectedDate)
-        const localDate = new Date(
-            utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
-        )
-        setMinDate(localDate)
-        setShowMinDate(false)
-    }
+    const setMinimumDate = (event: any, selectedDate: Date | undefined) => {
+        if (!selectedDate) return;
+        setMinDate(selectedDate);
+        setShowMinDate(false);
+    };
     const setMaximumDate = (event: any, selectedDate: any) => {
-        const utcDate = new Date(selectedDate)
-        const localDate = new Date(
-            utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
-        )
-        setMaxDate(localDate)
-        setShowMaxDate(false)
+        if (!selectedDate) return;
+        setMaxDate(selectedDate);
+        setShowMaxDate(false);
     }
     const handleUpload = async () => {
         if (!title || !description || !minDate || !maxDate) {

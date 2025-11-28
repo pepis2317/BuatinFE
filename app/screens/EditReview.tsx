@@ -20,8 +20,7 @@ export default function EditReviewReview({ navigation, route }: EditProps) {
     const [rating, setRating] = useState(0)
     const [inputHeight, setInputHeight] = useState(0)
     const [showSuccess, setShowSuccess] = useState(false)
-    const { theme } = useTheme()
-    const textColor = theme == "dark" ? "white" : "black"
+    const { textColor } = useTheme()
     const editReview = async (reviewMessage: string, rating: number) => {
         try {
             var url = `${API_URL}/edit-seller-review`
@@ -52,11 +51,19 @@ export default function EditReviewReview({ navigation, route }: EditProps) {
     }, [])
     return (
         <ScrollView style={{ flex: 1 }}>
-            <ConfirmedModal visible={showSuccess} message={"Review has been edited"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showSuccess} message={"Review has been edited"} onPress={() => navigation.goBack()} />
             <TopBar title={"Edit Review"} showBackButton />
-            <View style={{ alignItems: 'center', padding: 20, gap: 20 }}>
+            <View style={{
+                alignItems: 'center',
+                padding: 20,
+                gap: 20
+            }}>
                 <Stars onChange={setRating} value={rating} />
-                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Review</Text>
+                <Text style={{
+                    color: textColor,
+                    fontWeight: 'bold',
+                    marginBottom: 10
+                }}>Review</Text>
                 <TextInputComponent style={{ height: inputHeight }} value={reviewMessage} placeholder="Review" onChangeText={setReviewMessage} multiline
                     onContentSizeChange={(e) => {
                         const newHeight = e.nativeEvent.contentSize.height;

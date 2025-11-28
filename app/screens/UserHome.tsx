@@ -13,16 +13,16 @@ import { RootStackParamList } from "../../constants/RootStackParams"
 import { USER_LOCATION_KEY } from "./Settings"
 import { useAuth } from "../context/AuthContext"
 import Colors from "../../constants/Colors"
+import ColoredButton from "../../components/ColoredButton"
 
 export default function UserHome() {
     const { user } = useAuth()
-    const { theme } = useTheme()
+    const { theme, textColor } = useTheme()
     const [sellers, setSellers] = useState<SellerResponse[]>([])
     const [refresh, setRefresh] = useState(false)
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(false)
     const [total, setTotal] = useState(0)
-    const color = theme == "dark" ? "white" : "black"
     const fetchSellers = async () => {
         try {
             let queryString = `/sellers-query?pageSize=2&pageNumber=${page}`
@@ -70,13 +70,13 @@ export default function UserHome() {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'UserHome'>>();
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <View style={{
-                marginTop:10,
-                paddingBottom:10,
+                marginTop: 10,
+                paddingBottom: 10,
                 paddingLeft: 15,
                 paddingRight: 15,
-                elevation:2
+                elevation: 2
             }}>
                 <View style={{
                     flexDirection: "row",
@@ -85,35 +85,36 @@ export default function UserHome() {
                     justifyContent: 'space-between',
                     backgroundColor: theme == "dark" ? "#222831" : "white",
                 }}>
-                    <Text style={{ color: color, fontWeight: "bold", fontSize: 20 }}>
+                    <Text style={{ color: textColor, fontWeight: "bold", fontSize: 20 }}>
                         Buatin
                     </Text>
                     <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
 
                         <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
-                            <Settings color={color} />
+                            <Settings color={textColor} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
-                            <Bell color={color} />
+                            <Bell color={textColor} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => navigation.navigate("Wallet")}>
-                            <Wallet color={color} />
+                            <Wallet color={textColor} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => navigation.navigate("SearchPage")}>
-                            <Search color={color} />
+                            <Search color={textColor} />
                         </TouchableOpacity>
                     </View>
 
                 </View>
-                <View style={{marginTop:10}}>
-                    {user?.role == "Seller" ?
-                        <TouchableOpacity style={styles.sellerHome} onPress={() => navigation.navigate("SellerDetails", { sellerId: null })}>
-                            <Store color={'white'} />
-                            <Text style={{ color: 'white', fontWeight: 'bold' }}>My Seller Details</Text>
-                        </TouchableOpacity>
-                        : <></>}
-                </View>
+
             </View>
+            {user && user.role == "Seller" ?
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.sellerHome} onPress={() => navigation.navigate("SellerDetails", { sellerId: null })}>
+                        <Store color={'white'} />
+                    </TouchableOpacity>
+                </View>
+
+                : <></>}
 
 
             {sellers.length > 0 ?
@@ -132,7 +133,7 @@ export default function UserHome() {
                     }
                     ListFooterComponent={
                         loading ?
-                            <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                            <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                             :
                             <View style={{ marginTop: 120 }} />
                     } /> : <></>
@@ -142,15 +143,23 @@ export default function UserHome() {
     )
 }
 const styles = StyleSheet.create({
+    buttonContainer: {
+        position: 'absolute',
+        bottom: 15,
+        right: 15,
+        zIndex: 10,
+        alignItems: 'center',
+        gap: 5
+    },
     sellerHome: {
         backgroundColor: Colors.green,
-        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        width: 60,
+        aspectRatio: 1,
         gap: 5,
         padding: 5,
         paddingHorizontal: 10,
-        borderRadius: 5,
-        width: 'auto'
-
+        borderRadius: 50,
     }
 })

@@ -13,20 +13,27 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from "dayjs";
 import ConfirmedModal from "../../components/ConfirmedModal";
 import * as ImagePicker from "expo-image-picker";
-import { PlusSquare, X } from "lucide-react-native";
+import { Calendar, PanelTopDashedIcon, PlusSquare, X } from "lucide-react-native";
+import ConfirmationModal from "../../components/ConfirmationModal";
+import { useTheme } from "../context/ThemeContext";
+import { processFontWeight } from "react-native-reanimated/lib/typescript/css/native";
+import ErrorComponent from "../../components/ErrorComponent";
 
 type EditStepProps = NativeStackScreenProps<RootStackParamList, "EditStep">;
 export default function EditStep({ navigation, route }: EditStepProps) {
     const { stepId } = route.params
+    const { textColor, borderColor } = useTheme()
     const [loading, setLoading] = useState(false)
     const [step, setStep] = useState<StepResponse | null>()
     const [minimumDate, setMinimumDate] = useState<Date>()
     const [maximumDate, setMaximumDate] = useState<Date>()
     const [showUpdatedModal, setShowUpdatedModal] = useState(false)
     const [showCompletedModal, setShowCompletedModal] = useState(false)
+    const [showCancelModal, setShowCancelModal] = useState(false)
     const [showCancelledModal, setShowCancelledModal] = useState(false)
     const [showMinDate, setShowMinDate] = useState(false)
     const [showMaxDate, setShowMaxDate] = useState(false)
+    const [errMessage, setErrMessage] = useState("")
     const [images, setImages] = useState<string[]>([])
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -55,30 +62,7 @@ export default function EditStep({ navigation, route }: EditStepProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
-    const handleUploadImage = async (formData: FormData) => {
-        try {
-            const result = await axios.post(`${API_URL}/upload-image`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            return { data: result.data };
-        } catch (e) {
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
-        }
-    }
-    // const saveChanges = async (title: string, description: string, minCompleteDate: Date, maxCompleteDate: Date) => {
-    //     try {
-    //         const response = await axios.put(`${API_URL}/edit-step`, {
-    //             stepId: stepId,
-    //             title: title,
-    //             description: description,
-    //             minCompleteEstimate: minCompleteDate,
-    //             maxCompleteEstimate: maxCompleteDate
-    //         })
-    //         return response.data
-    //     } catch (e) {
-    //         return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
-    //     }
-    // }
+
     const saveChanges = async (formData: FormData) => {
         try {
             const response = await axios.put(`${API_URL}/edit-step`, formData, {
@@ -96,22 +80,40 @@ export default function EditStep({ navigation, route }: EditStepProps) {
         return new Date(year, month - 1, day);
     }
     const setMinDate = (event: any, selectedDate: any) => {
-        const utcDate = new Date(selectedDate)
-        const localDate = new Date(
-            utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
-        )
-        setMinimumDate(localDate)
+        if (!selectedDate) return;
+        setMinimumDate(selectedDate);
         setShowMinDate(false)
     }
     const setMaxDate = (event: any, selectedDate: any) => {
-        const utcDate = new Date(selectedDate)
-        const localDate = new Date(
-            utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
-        )
-        setMaximumDate(localDate)
+        if (!selectedDate) return;
+        setMaximumDate(selectedDate);
         setShowMaxDate(false)
     }
     const handleUpdate = async () => {
+        if (!step) return
+        if (!step.title || !step.description || !minimumDate || !maximumDate) {
+            setErrMessage("All forms must be filled")
+            return
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const min = new Date(minimumDate);
+        min.setHours(0, 0, 0, 0);
+
+        const max = new Date(maximumDate);
+        max.setHours(0, 0, 0, 0);
+
+        if (min > max) {
+            setErrMessage("Invalid estimation date")
+            return
+        }
+
+        if (min < today || max < today) {
+            setErrMessage("Date must be somewhere in the future");
+            return;
+        }
         setLoading(true)
         if (step != null && minimumDate && maximumDate) {
             const formData = new FormData()
@@ -161,6 +163,7 @@ export default function EditStep({ navigation, route }: EditStepProps) {
             formData.append("status", "Cancelled")
             var result = await saveChanges(formData)
             if (!result.error) {
+                setShowCancelModal(false)
                 setShowCancelledModal(true)
             }
         }
@@ -180,17 +183,46 @@ export default function EditStep({ navigation, route }: EditStepProps) {
     const handleChange = (key: keyof StepResponse, value: any) => {
         setStep((prev) => prev ? { ...prev, [key]: value } : prev)
     }
+
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <TopBar title="Edit Step" showBackButton />
-            <ConfirmedModal visible={showUpdatedModal} message={"Step data has been updated"} onPress={() => setShowUpdatedModal(false)} />
-            <ConfirmedModal visible={showCancelledModal} message={"Step has been cancelled"} onPress={() => setShowCancelledModal(false)} />
-            <ConfirmedModal visible={showCompletedModal} message={"Step data has been completed"} onPress={() => setShowCompletedModal(false)} />
+            <ConfirmedModal isFail={false} visible={showUpdatedModal} message={"Step data has been updated"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showCancelledModal} message={"Step has been cancelled"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showCompletedModal} message={"Step data has been completed"} onPress={() => navigation.goBack()} />
+            <ConfirmationModal visible={showCancelModal} message={"Cancel the step? funds will be refunded to the buyer"} onAccept={() => handleCancel()} onCancel={() => setShowCancelModal(false)} />
             {step != null ?
-                <View>
-                    <TextInputComponent value={step?.title} onChangeText={(text) => handleChange("title", text)} />
-                    <TextInputComponent value={step?.description} onChangeText={(text) => handleChange("description", text)} />
-                    <ColoredButton style={{ backgroundColor: Colors.green }} title={"Select min date"} onPress={() => setShowMinDate(true)} />
+                <View style={{ padding: 20, gap: 10 }}>
+                    <View>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Title</Text>
+                        <TextInputComponent value={step?.title} onChangeText={(text) => handleChange("title", text)} />
+                    </View>
+                    <View>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Description</Text>
+                        <TextInputComponent value={step?.description} onChangeText={(text) => handleChange("description", text)} />
+                    </View>
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={{ width: '45%' }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Min Estimate</Text>
+                            <TouchableOpacity style={[styles.date, { borderColor: borderColor }]} onPress={() => setShowMinDate(true)}>
+                                <Calendar color={textColor} />
+                                <Text style={{ color: textColor, fontWeight: 'bold' }}>
+                                    {minimumDate?.toLocaleDateString()}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={{ width: '45%' }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Max Estimate</Text>
+                            <TouchableOpacity style={[styles.date, { borderColor: borderColor }]} onPress={() => setShowMaxDate(true)}>
+                                <Calendar color={textColor} />
+                                <Text style={{ color: textColor, fontWeight: 'bold' }}>
+                                    {maximumDate?.toLocaleDateString()}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                     {showMinDate == true && minimumDate ?
                         <DateTimePicker
                             value={minimumDate}
@@ -199,7 +231,6 @@ export default function EditStep({ navigation, route }: EditStepProps) {
                             onChange={setMinDate}
                         />
                         : <></>}
-                    <ColoredButton style={{ backgroundColor: Colors.green }} title={"Select max date"} onPress={() => setShowMaxDate(true)} />
                     {showMaxDate == true && maximumDate ?
                         <DateTimePicker
                             value={maximumDate}
@@ -208,9 +239,16 @@ export default function EditStep({ navigation, route }: EditStepProps) {
                             onChange={setMaxDate}
                         />
                         : <></>}
-                    <ColoredButton style={{ backgroundColor: Colors.green }} title={"Save Changes"} onPress={() => handleUpdate()} isLoading={loading} />
+                    {errMessage ?
+                        <ErrorComponent errorsString={errMessage} />
+                        : <></>}
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        {step.status != "Submitted" ? < ColoredButton style={[{ backgroundColor: Colors.peach }, styles.button]} title={"Cancel Step"} onPress={() => setShowCancelModal(true)} isLoading={loading} /> : <></>}
+                        <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Save Changes"} onPress={() => handleUpdate()} isLoading={loading} />
+                    </View>
                     {step.status == "Working" ?
                         <View>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Step Completion Proof</Text>
                             <View style={styles.imagesContainer}>
                                 <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
                                     <View style={styles.addBorder}>
@@ -236,11 +274,8 @@ export default function EditStep({ navigation, route }: EditStepProps) {
                                 :
                                 <ColoredButton style={{ backgroundColor: Colors.darkGray }} title={"Complete Step"} onPress={() => handleComplete()} isLoading={loading} disabled={true} />
                             }
-
                         </View>
                         : <></>}
-
-                    <ColoredButton style={{ backgroundColor: Colors.red }} title={"Cancel Step"} onPress={() => handleCancel()} isLoading={loading} />
                 </View>
                 : <></>}
 
@@ -249,6 +284,19 @@ export default function EditStep({ navigation, route }: EditStepProps) {
 }
 
 const styles = StyleSheet.create({
+    button: {
+        width: "48%",
+        height: 40,
+        padding: 10,
+    },
+    date: {
+        padding: 15,
+        borderWidth: 1,
+        borderRadius: 10,
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center',
+    },
     imagesContainer: {
         height: 150,
         flexDirection: 'row',

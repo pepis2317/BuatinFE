@@ -56,7 +56,6 @@ export default function PaymentModal({
             animationType="slide"
             transparent={true}
             statusBarTranslucent={true}
-            backdropColor={'red'}
             onRequestClose={closePaymentModal}
         >
             <View style={styles.modalContainer}>

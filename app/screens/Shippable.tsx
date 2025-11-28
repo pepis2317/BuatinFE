@@ -19,9 +19,8 @@ export default function Shippable({ navigation, route }: ShippableProps) {
     const [total, setTotal] = useState(0)
     const [page, setPage] = useState(1)
     const [processes, setProcesses] = useState<ProcessResponse[]>([])
-    const { theme } = useTheme()
-    const { onGetUserToken, user } = useAuth()
-    const textColor = theme === "dark" ? "white" : "black"
+    const { textColor } = useTheme()
+    const { onGetUserToken } = useAuth()
     const fetchProcesses = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
@@ -75,7 +74,7 @@ export default function Shippable({ navigation, route }: ShippableProps) {
     );
     return (
         <>
-        <TopBar title={"Shippable Processes"} showBackButton/>
+            <TopBar title={"Shippable Processes"} showBackButton />
             <FlatList
                 data={processes}
                 keyExtractor={(item: ProcessResponse) => item.processId}
@@ -89,7 +88,7 @@ export default function Shippable({ navigation, route }: ShippableProps) {
                 }
                 ListFooterComponent={
                     loading ?
-                        <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                        <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                         :
                         <View style={{ marginTop: 64 }} />
                 }

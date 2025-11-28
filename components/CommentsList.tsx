@@ -20,7 +20,7 @@ export default function CommentsList({
   navigation
 }: Props) {
     const { onGetUserToken } = useAuth()
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const [total, setTotal] = useState(0)
     const [refresh, setRefresh] = useState(false)
     const loadingRef = useRef(false)
@@ -97,7 +97,7 @@ export default function CommentsList({
             }
             ListFooterComponent={
                 loadingRef.current ?
-                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     :
                     <View style={{ marginTop: 64 }} />
             }

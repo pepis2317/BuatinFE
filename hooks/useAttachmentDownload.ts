@@ -48,6 +48,7 @@ export const useAttachmentDownload = () => {
         const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
         if (!permissions.granted) {
           Alert.alert("Permission denied", "You must choose a folder to save the file.");
+          setDownloadingId(null)
           return;
         }
         // Copy the downloaded file into the user-picked folder via SAF

@@ -22,8 +22,7 @@ export default function ReviewSeller({ navigation, route }: ReviewSellerProps) {
     const [loading, setLoading] = useState(false)
     const [inputHeight, setInputHeight] = useState(0)
     const [showCompleted, setShowCompleted] = useState(false)
-    const { theme } = useTheme()
-    const textColor = theme == "dark" ? "white" : "black"
+    const { textColor } = useTheme()
     const reviewUser = async (review: string, rating: number) => {
         try {
             const token = await onGetUserToken!()
@@ -52,7 +51,7 @@ export default function ReviewSeller({ navigation, route }: ReviewSellerProps) {
     return (
         <View>
             <TopBar title="Review Seller" showBackButton />
-            <ConfirmedModal visible={showCompleted} message={"Review created"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showCompleted} message={"Review created"} onPress={() => navigation.goBack()} />
             <View style={{ alignItems: 'center', padding: 20, gap: 20 }}>
                 <Stars onChange={setRating} />
                 <View style={{width:"100%"}}>

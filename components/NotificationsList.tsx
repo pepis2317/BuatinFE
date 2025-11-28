@@ -12,15 +12,17 @@ export default function NotificationsList() {
     const { onGetUserToken } = useAuth()
     const [notifications, setNotifications] = useState<NotificationResponse[]>([])
     const [total, setTotal] = useState(0)
-    const { theme } = useTheme()
+    const { textColor} = useTheme()
     const [refresh, setRefresh] = useState(false)
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
     const refreshRef = useRef(false)
+
     const fetchNotifications = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            var url = `${API_URL}/notifications?pageSize=3&pageNumber=${pageNumber}`
+            // adjust pageSize or remove it if you want default server page size
+            const url = `${API_URL}/notifications?pageSize=3&pageNumber=${pageNumber}`
             const response = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -31,47 +33,60 @@ export default function NotificationsList() {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
-    const handleFetch = async (page = pageRef.current, replace: boolean) => {
+
+    // default replace = false
+    const handleFetch = async (page = pageRef.current, replace = false) => {
         if (loadingRef.current) return;
         loadingRef.current = true;
-        const result = await fetchNotifications(page);
-        if (!result.error) {
-            if (replace) {
-                setNotifications(result.notifications)
+        try {
+            const result = await fetchNotifications(page);
+            if (!result.error) {
+                if (replace) {
+                    setNotifications(result.notifications)
+                } else {
+                    setNotifications(prev => [...prev, ...result.notifications])
+                }
+                setTotal(result.total ?? 0);
             } else {
-                setNotifications(prev => [...prev, ...result.notifications])
+                // optionally handle error (toast/log)
             }
-            setTotal(result.total);
+        } finally {
+            loadingRef.current = false;
         }
-        loadingRef.current = false;
     }
+
     const loadMore = async () => {
-        if (!loadingRef.current && notifications.length < total) {
-            loadingRef.current = true;
-            pageRef.current += 1;
-            await handleFetch(pageRef.current, false);
-        }
+        // guard: not already loading and there's more to load
+        if (loadingRef.current) return;
+        if (notifications.length >= total) return;
+
+        pageRef.current += 1;
+        await handleFetch(pageRef.current, false);
     }
+
     const handleRefresh = useCallback(async () => {
         if (refreshRef.current) return
         refreshRef.current = true
         setRefresh(true)
         try {
-            reset()
+            await reset()
         } finally {
             setRefresh(false);
             refreshRef.current = false;
         }
-    }, [handleFetch])
+    }, []) // no handleFetch dependency needed now
+
     const reset = async () => {
         pageRef.current = 1
         await handleFetch(1, true)
     }
+
     useFocusEffect(
         useCallback(() => {
             reset()
         }, [])
     );
+
     return (
         <FlatList
             data={notifications}
@@ -79,13 +94,13 @@ export default function NotificationsList() {
             renderItem={({ item }: { item: NotificationResponse }) => <NotificationComponent notification={item} />}
             keyboardShouldPersistTaps="handled"
             onEndReached={loadMore}
-            onEndReachedThreshold={0.2}
+            onEndReachedThreshold={0.5}
             refreshControl={
                 <RefreshControl refreshing={refresh} onRefresh={handleRefresh} />
             }
             ListFooterComponent={
                 loadingRef.current ?
-                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     :
                     <View style={{ marginTop: 64 }} />
             }

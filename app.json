@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "BuatinFE",
-    "slug": "BuatinFE",
+    "name": "Buatin",
+    "slug": "Buatin",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,18 +14,29 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pepis2317.BuatinFE"
+      "config": {
+        "googleMapsApiKey": "AIzaSyDg7Bxr3Z2iaOWilJGAPR3xrhgoFJinl9E"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#222831"
       },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDg7Bxr3Z2iaOWilJGAPR3xrhgoFJinl9E"
+        }
+      },
       "windowSoftInputMode": "adjustResize",
       "backgroundColor": "#222831",
       "edgeToEdgeEnabled": true,
       "package": "com.pepis2317.BuatinFE",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "androidNavigationBar": {
       "backgroundColor": "#121212",
@@ -39,9 +50,18 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-maps",
+        {
+          "requestLocationPermission": true,
+          "locationPermission": "Allow $(PRODUCT_NAME) to use your location"
+        }
+      ]
+    ],
     "extra": {
       "eas": {
-        "projectId": "145b5d90-87a8-49df-8170-843335d1baed"
+        "projectId": "df0140e0-6c8b-4b38-93c9-e2c8b9b774d5"
       }
     }
   }

@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
-import { View, Image, StyleSheet, Text, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
-import { useEffect, useState } from "react";
+import { View, Image, StyleSheet, Text, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl } from "react-native";
+import { useCallback, useEffect, useState } from "react";
 import { UserResponse } from "../../types/UserResponse";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
@@ -19,12 +19,12 @@ type UserDetailsProps = NativeStackScreenProps<RootStackParamList, "UserDetails"
 export default function UserDetails({ navigation, route }: UserDetailsProps) {
     const { userId } = route.params
     const { onGetUserToken } = useAuth()
-    const { theme } = useTheme()
+    const { textColor, foregroundColor, subtleBorderColor, borderColor } = useTheme()
+    const [refreshing, setRefreshing] = useState(false);
     const [user, setUser] = useState<UserResponse>()
     const [stats, setStats] = useState<UserStats>()
     const [topreviews, setTopReviews] = useState<ReviewResponse[]>([])
     const [loading, setLoading] = useState(false)
-    const backgroundColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
     const fetchUser = async () => {
         try {
             const result = await axios.get(`${API_URL}/get-user/${userId}`)
@@ -65,7 +65,6 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
             setTopReviews(result.reviews)
         }
     }
-    const textColor = theme == "dark" ? "white" : "black"
     const handleFetch = async () => {
         setLoading(true)
         const result = await fetchUser()
@@ -78,64 +77,78 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
         }
         setLoading(false)
     }
-    useEffect(() => {
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        setUser(undefined)
+        setStats(undefined)
+        setTopReviews([])
+        reset()
+        setRefreshing(false);
+    }, []);
+    const reset = () => {
         handleFetch()
         handleGetReviews()
+    }
+    useEffect(() => {
+        reset()
     }, [])
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <TopBar title={"Profile"} showBackButton={true} />
-
-            {user ?
-                <ScrollView style={{ padding: 20 }}>
-                    <View style={{ alignItems: 'center' }}>
-                        <Image style={styles.pfp} src={user.pfp} />
+            <ScrollView style={{ flex: 1 }}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }>
+                {user ?
+                    <View style={{ alignItems: 'center', marginTop:20, marginBottom:10 }}>
+                        <Image style={[styles.pfp,{backgroundColor:subtleBorderColor, borderColor:borderColor}]} src={user.pfp} />
                         <Text style={[styles.usernameText, { color: textColor }]}>{user.userName}</Text>
                     </View>
-
-                </ScrollView>
-                :
-                <></>
-            }
-            {stats ?
-                <View style={[styles.stats, { backgroundColor: backgroundColor }]}>
-                    <View style={styles.leftStats}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                            <Text style={[{ color: textColor }, styles.rating]}>{stats.rating.toPrecision(2)}</Text>
-                            <Star color="gold" fill="gold" />
+                    :
+                    <></>
+                }
+                {stats ?
+                    <View style={[styles.stats, { backgroundColor: foregroundColor }]}>
+                        <View style={styles.leftStats}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                                <Text style={[{ color: textColor }, styles.rating]}>{stats.rating.toPrecision(2)}</Text>
+                                <Star color="gold" fill="gold" />
+                            </View>
+                            <Text style={{ color: textColor, fontSize: 12 }}>Avg. Rating</Text>
                         </View>
-                        <Text style={{ color: textColor, fontSize: 12 }}>Avg. Rating</Text>
+                        <View style={[styles.rightStats, { borderLeftColor: textColor }]}>
+                            <Text style={{ color: textColor, fontWeight: 'bold' }}>{stats.reviews} {stats.reviews == 1 ? "Review" : "Reviews"}</Text>
+                        </View>
                     </View>
-                    <View style={[styles.rightStats, { borderLeftColor: textColor }]}>
-                        <Text style={{ color: textColor, fontWeight: 'bold' }}>{stats.reviews} {stats.reviews == 1 ? "Review" : "Reviews"}</Text>
+                    : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
+                }
+                {user ?
+                    <View style={{ height: 200 }}>
+                        <View style={{ marginHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold' }}>Latest Reviews</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('UserReviews', { userId: user.userId })}>
+                                <Text style={{ color: textColor, fontWeight: 'bold', textDecorationLine: 'underline' }} >View All Reviews</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {topreviews ?
+                            topreviews.length > 0 ?
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    <View style={{ width: 20 }} />
+                                    {topreviews.map((review, index) => (
+                                        <ReviewComponentShort key={index} review={review} navigation={navigation} isEnd={index == topreviews.length} />
+                                    ))}
+                                    <View style={{ width: 20 }} />
+                                </ScrollView> :
+                                <Text style={{ color: textColor, marginLeft: 20 }} >No reviews yet</Text>
+                            : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
+                        }
                     </View>
-                </View>
-                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
-            }
-            {user ?
-                <View>
-                    <View style={{ marginHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Latest Reviews</Text>
-                        <TouchableOpacity onPress={() => navigation.navigate('UserReviews', { userId: user.userId })}>
-                            <Text style={{ color: textColor, fontWeight: 'bold', textDecorationLine: 'underline' }} >View All Reviews</Text>
-                        </TouchableOpacity>
-                    </View>
-                    {topreviews ?
-                        topreviews.length > 0 ?
-                            <ScrollView horizontal>
-                                <View style={{ width: 20 }} />
-                                {topreviews.map((review, index) => (
-                                    <ReviewComponentShort key={index} review={review} navigation={navigation} isEnd={index == topreviews.length}/>
-                                ))}
-                                <View style={{ width: 20 }} />
-                            </ScrollView> :
-                            <Text style={{ color: textColor, marginLeft: 20 }} >No reviews yet</Text>
-                        : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
-                    }
-                </View>
 
-                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
-            }
+                    : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
+                }
+
+            </ScrollView>
+
         </View>
     )
 }
@@ -174,5 +187,6 @@ const styles = StyleSheet.create({
         width: 70,
         borderRadius: 70,
         aspectRatio: 1,
+        borderWidth:1
     }
 })

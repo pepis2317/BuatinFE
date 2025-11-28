@@ -4,4 +4,6 @@ export type ConversationResponse = {
     createdAt: string
     updatedAt: string | null
     picture: string
+    latestMessage:string | null,
+    sellerName:string|null
 }

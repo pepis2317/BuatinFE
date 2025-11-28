@@ -1,6 +1,6 @@
 import { ActivityIndicator, FlatList, RefreshControl, View, Text } from "react-native";
 import { useAuth } from "../app/context/AuthContext";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTheme } from "../app/context/ThemeContext";
 import { ShipmentResponse } from "../types/ShipmentResponse";
 import ShipmentComponent from "./ShipmentComponent";
@@ -12,7 +12,7 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
     const { onGetUserToken } = useAuth()
     const [shipments, setShipments] = useState<ShipmentResponse[]>([])
     const [total, setTotal] = useState(0)
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const [refresh, setRefresh] = useState(false)
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
@@ -88,7 +88,7 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
         <FlatList
             data={shipments}
             keyExtractor={(item) => item.shipmentId}
-            renderItem={({ item }: { item: ShipmentResponse }) => <ShipmentComponent shipment={item} navigation={navigation} />}
+            renderItem={({ item }: { item: ShipmentResponse }) => <ShipmentComponent shipment={item} navigation={navigation} isSeller={isSeller} />}
             keyboardShouldPersistTaps="handled"
             onEndReached={loadMore}
             onEndReachedThreshold={0.2}
@@ -97,7 +97,7 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
             }
             ListFooterComponent={
                 loadingRef.current ?
-                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     :
                     <View style={{ marginTop: 64 }} />
             }

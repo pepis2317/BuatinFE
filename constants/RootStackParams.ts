@@ -6,10 +6,10 @@ import { SellerResponse } from "../types/SellerResponse";
 
 export type RootStackParamList = {
   UserHome: undefined;
+  Maps: undefined;
   Profile: undefined;
   Login: undefined;
   Register: undefined;
-  SellerHome: undefined;
   UserTabs: undefined;
   ChatTab: undefined;
   SellerTabs: undefined;
@@ -18,18 +18,27 @@ export type RootStackParamList = {
   Shippable: undefined;
   SellerOutgoingProcesses: undefined;
   SellerIncomingShipments: undefined;
+  SelectLocation:{
+    margin:boolean,
+    onSelectLocation:(
+      coords: { 
+        latitude: number; 
+        longitude: number 
+      }
+    )=>void
+  }
   SellerReviews: {
     sellerId: string
   }
   EditReview: {
-    review:ReviewResponse,
-    isSeller:boolean
+    review: ReviewResponse,
+    isSeller: boolean
   }
   EditPost: {
-    post:PostResponse
+    post: PostResponse
   }
   EditComment: {
-    comment:CommentResponse
+    comment: CommentResponse
   }
   UserReviews: {
     userId: string

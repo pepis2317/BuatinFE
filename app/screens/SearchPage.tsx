@@ -12,9 +12,10 @@ import { USER_LOCATION_KEY } from "./Settings";
 import SellerCard from "../../components/SellerCard";
 import { API_URL } from "../../constants/ApiUri";
 import { RootStackParamList } from "../../constants/RootStackParams";
+import Colors from "../../constants/Colors";
 
 export default function SearchPage() {
-    const { theme } = useTheme()
+    const { textColor, theme } = useTheme()
     const [searchTerm, setSearchTerm] = useState("")
     const [sellers, setSellers] = useState<SellerResponse[]>([])
     const [page, setPage] = useState(1)
@@ -80,12 +81,12 @@ export default function SearchPage() {
         <View>
             <View style={styles.topBar}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <ArrowLeft color={theme == "dark" ? "white" : "black"} />
+                    <ArrowLeft color={textColor} />
                 </TouchableOpacity>
 
                 <TextInput
                     style={theme == "dark" ? styles.darkTextInput : styles.lightTextInput}
-                    placeholderTextColor={theme == "dark" ? "#C4C4C4" : ""}
+                    placeholderTextColor={theme == "dark" ? Colors.offWhite : ""}
                     placeholder="Search"
                     autoFocus
                     onChangeText={setSearchTerm}

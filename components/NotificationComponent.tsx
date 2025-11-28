@@ -4,16 +4,15 @@ import { useTheme } from "../app/context/ThemeContext";
 import Colors from "../constants/Colors";
 
 export default function NotificationComponent({ notification }: { notification: NotificationResponse }) {
-    const { theme } = useTheme()
-    var textColor = theme == "dark" ? "white" : "black"
+    const { textColor, subtleBorderColor } = useTheme()
     return (
         <View>
-            <View style={styles.left}>
+            <View style={[styles.left,{borderBottomColor:subtleBorderColor}]}>
                 <View style={styles.leftContent}>
                     <Text style={{ color: textColor, fontWeight: "bold" }}>
                         {notification.message}
                     </Text>
-                    {notification.seenAt != null ? <Text style={styles.comment}>{notification.seenAt}</Text> : <></>}
+                    {notification.seenAt != null ? <Text style={[styles.comment, {color:textColor}]}>{new Date(notification.createdAt).toLocaleDateString()}</Text> : <></>}
                 </View>
             </View>
         </View>
@@ -25,15 +24,15 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "flex-start",
         width: "100%",
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.darkGray,
+        borderBottomWidth: 1
     },
     left: {
         padding: 15,
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
-        gap: 10
+        gap: 10,
+        borderBottomWidth:1
     },
     leftContent: {
         flex: 1,

@@ -2,17 +2,15 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
     View,
     Text,
-    FlatList,
     TextInput,
     TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
-    TouchableWithoutFeedback,
-    Keyboard,
     StyleSheet,
-    SafeAreaView,
     ActivityIndicator,
     Alert,
+    Keyboard,
+    ScrollView,
 } from "react-native";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import TopBar from "../../components/TopBar";
@@ -27,8 +25,9 @@ import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
 import Colors from "../../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
-import { Save, Send, X } from "lucide-react-native";
+import { File, PlusCircle, Save, Send, X } from "lucide-react-native";
 import Popover, { Rect } from "react-native-popover-view";
+import * as DocumentPicker from "expo-document-picker";
 import MessageAttachmentsComponent from "../../components/MessageAttachmentsComponent";
 
 type Anchor = {
@@ -65,18 +64,22 @@ const getMimeType = (uri: string): string => {
             return 'application/octet-stream'; // fallback
     }
 };
+type Attachment = {
+    uri: string;
+    name: string
+}
 type ChatProps = NativeStackScreenProps<RootStackParamList, "Chat">
 export default function Chat({ navigation, route }: ChatProps) {
     const { conversationId } = route.params
-    const { theme } = useTheme()
+    const { subtleBorderColor, borderColor, textColor } = useTheme()
     const { onGetUserToken } = useAuth()
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(false)
     const [editMessage, setEditMessage] = useState<MessageResponse | null>(null)
     const [anchor, setAnchor] = useState<Anchor | null>(null);
-    const [attachments, setAttachments] = useState<string[]>([]);
-    const borderColor = theme == "dark" ? Colors.darkBorder : Colors.lightBorder
-    const textColor = theme === "dark" ? "white" : "black"
+    const [attachments, setAttachments] = useState<Attachment[]>([]);
+    const [inputHeight, setInputHeight] = useState(0)
+    const [canSend, setCanSend] = useState(false)
     const sendMessage = async (form: FormData) => {
         try {
             const token = await onGetUserToken!()
@@ -130,15 +133,15 @@ export default function Chat({ navigation, route }: ChatProps) {
         if (attachments.length > 0) {
             formData.append("hasAttachments", "true");
         }
-        attachments.forEach((uri) => {
-            const name = uri.split("/").pop() ?? "file";
-            const type = getMimeType(uri);
-            formData.append("files", { uri, name, type } as any);
+        attachments.forEach((attachment) => {
+            const type = getMimeType(attachment.uri);
+            formData.append("files", { uri: attachment.uri, name: attachment.name, type } as any);
         });
         const result = await sendMessage(formData)
         if (!result.error) {
             setMessage('')
             setAttachments([])
+            setInputHeight(0)
         }
         setLoading(false)
     }
@@ -150,8 +153,43 @@ export default function Chat({ navigation, route }: ChatProps) {
                 setEditMessage(null)
             }
             setLoading(false)
+            setMessage('')
         }
     }
+    const pickFromFiles = async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                multiple: true,
+                type: "*/*",
+                copyToCacheDirectory: true,
+            });
+
+            if ((result as any).canceled) return;
+
+            const pickedAssets =
+                "assets" in result ? result.assets : (result ? [result] : []);
+
+            if (!pickedAssets) return;
+
+            const newAttachments: Attachment[] = pickedAssets
+                .map((a: any) => {
+                    const uri = a?.uri ?? a?.file?.uri;
+                    const name = a?.name ?? "unknown";
+                    return uri ? { uri, name } : null;
+                })
+                .filter(Boolean) as Attachment[];
+
+            if (!newAttachments.length) return;
+
+            setAttachments(prev => [...prev, ...newAttachments]);
+
+        } catch (err: any) {
+            Alert.alert("File pick error", err?.message ?? "Unknown error");
+        }
+    };
+    const removeAttachmentAt = (index: number) => {
+        setAttachments((prev) => prev.filter((_, i) => i !== index));
+    };
     const handleDelete = async (messageId: string) => {
         setLoading(true)
         await putDeleteMessage(messageId)
@@ -160,30 +198,46 @@ export default function Chat({ navigation, route }: ChatProps) {
     const onSelect = (message: MessageResponse, x: number, y: number) => {
         setAnchor({ message: message, x: x, y: y });
     }
+    useEffect(() => {
+        if (message == '' && attachments.length == 0) {
+            setCanSend(false)
+        } else {
+            setCanSend(true)
+        }
+    }, [message, attachments.length])
     return (
         <KeyboardAvoidingView style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}>
+            keyboardVerticalOffset={50}>
             <TopBar title={"Conversations"} showBackButton />
             <Popover
+                popoverStyle={{
+                    backgroundColor: subtleBorderColor,
+                    width: 'auto',
+                    borderRadius: 10
+                }}
                 isVisible={!!anchor}
                 onRequestClose={() => setAnchor(null)}
                 from={anchor ? new Rect(anchor.x, anchor.y, 0, 0) : undefined}
             >
                 {anchor ?
-                    <View style={{ padding: 12, minWidth: 180, gap: 8 }}>
+                    <View style={{
+                        padding: 12,
+                        minWidth: 180,
+                        gap: 8
+                    }}>
                         <TouchableOpacity onPress={() => {
                             setEditMessage(anchor.message)
                             setMessage(anchor.message.message)
                             setAnchor(null)
                         }}>
-                            <Text>Edit</Text>
+                            <Text style={{ color: textColor }}>Edit</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
                             handleDelete(anchor.message.messageId)
                             setAnchor(null)
                         }}>
-                            <Text>Delete</Text>
+                            <Text style={{ color: textColor }}>Delete</Text>
                         </TouchableOpacity>
 
                     </View>
@@ -192,24 +246,74 @@ export default function Chat({ navigation, route }: ChatProps) {
             </Popover>
             <MessagesList conversationId={conversationId} onSelect={onSelect} />
             <View>
+                <ScrollView
+                    horizontal
+                    style={[
+                        styles.attachments,
+                        { borderColor: borderColor }
+                    ]}>
+                    {attachments.map((attachment, index) => (
+                        <View key={index} >
+                            <View style={{ padding: 5 }}>
+                                <View style={[
+                                    styles.attachment,
+                                    { backgroundColor: subtleBorderColor }
+                                ]}>
+                                    <File color={Colors.green} size={32} />
+                                    <Text style={{ color: textColor }} numberOfLines={2}>{attachment.name}</Text>
+                                </View>
+                            </View>
+                            <TouchableOpacity style={styles.removeAttachmentButton} onPress={() => removeAttachmentAt(index)}>
+                                <X size={20} color={"white"} />
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </ScrollView>
                 {editMessage ?
-                    <View>
-                        <TouchableOpacity onPress={() => setEditMessage(null)}>
-                            <X color={"white"} size={16} />
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center'
+                    }}>
+                        <TouchableOpacity style={{ padding: 10 }} onPress={() => setEditMessage(null)}>
+                            <X color={textColor} size={16} />
                         </TouchableOpacity>
-                        <Text>Editing message {editMessage.message}</Text>
+                        <Text style={{
+                            color: textColor,
+                            width: '100%'
+                        }} numberOfLines={1}>Editing message {editMessage.message}</Text>
                     </View>
                     : <></>}
-                <MessageAttachmentsComponent attachments={attachments} setAttachments={setAttachments} />
-                <View style={[styles.inputContainer, { borderColor: borderColor }]}>
-                    <TextInput multiline style={[styles.textInput, { color: textColor }]} returnKeyType="send" value={message} onChangeText={setMessage} />
+                <View style={[
+                    styles.inputContainer,
+                    { borderColor: borderColor }
+                ]}>
+                    <TouchableOpacity style={styles.attachmentsButton} onPress={() => pickFromFiles()}>
+                        <PlusCircle color={textColor} />
+                    </TouchableOpacity>
+
+                    <TextInput
+                        multiline
+                        style={[
+                            styles.textInput,
+                            { color: textColor, height: inputHeight }
+                        ]}
+                        returnKeyType="send"
+                        value={message}
+                        onChangeText={setMessage}
+                        onContentSizeChange={(e) => {
+                            const newHeight = e.nativeEvent.contentSize.height;
+                            // clamp height between min and max (40 -> 120)
+                            setInputHeight(Math.max(40, Math.min(newHeight, 120)));
+                        }}
+                    />
+
                     {editMessage ?
-                        <TouchableOpacity style={styles.sendButton} onPress={() => handleEdit()}>
-                            {loading ? <ActivityIndicator size="small" style={{ height: 20 }} color={theme == "dark" ? "white" : "black"} /> : <Save color={"white"} size={20} />}
+                        <TouchableOpacity style={styles.sendButton} onPress={() => handleEdit()} disabled={!canSend || loading}>
+                            {loading ? <ActivityIndicator size="small" style={{ height: 20 }} color={textColor} /> : <Save color={"white"} size={20} />}
                         </TouchableOpacity>
                         :
-                        <TouchableOpacity style={styles.sendButton} onPress={() => handleSend()}>
-                            {loading ? <ActivityIndicator size="small" style={{ height: 20 }} color={theme == "dark" ? "white" : "black"} /> : <Send color={"white"} size={20} />}
+                        <TouchableOpacity style={styles.sendButton} onPress={() => handleSend()} disabled={!canSend || loading}>
+                            {loading ? <ActivityIndicator size="small" style={{ height: 20 }} color={textColor} /> : <Send color={"white"} size={20} />}
                         </TouchableOpacity>
                     }
 
@@ -219,10 +323,46 @@ export default function Chat({ navigation, route }: ChatProps) {
     )
 }
 const styles = StyleSheet.create({
+    attachment: {
+        width: 100,
+        aspectRatio: 1,
+        borderRadius: 5,
+        padding: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10
+    },
+    attachments: {
+        borderTopWidth: StyleSheet.hairlineWidth,
+    },
     inputContainer: {
         flexDirection: 'row',
-        padding: 10,
         borderTopWidth: StyleSheet.hairlineWidth,
+        justifyContent: 'space-evenly',
+        alignItems: 'flex-end',
+        padding: 10,
+        paddingVertical: 5,
+        gap: 10
+    },
+    removeAttachmentButton: {
+        position: 'absolute',
+        width: 24,
+        height: 24,
+        right: 5,
+        top: 5,
+        backgroundColor: '#31363F',
+        borderRadius: 100,
+        justifyContent: 'center',
+        alignItems: 'center'
+
+    },
+    attachmentsButton: {
+        width: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 5,
+        aspectRatio: 1,
+        backgroundColor: Colors.green
     },
     sendButton: {
         width: 40,
@@ -249,10 +389,10 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderColor: "transparent",
         borderWidth: 1,
-        width: "85%",
+        flex: 1,
         height: 40,
     },
     container: {
-        flex: 1, position: 'relative'
+        flex: 1
     }
 })

@@ -1,4 +1,4 @@
-import { Pressable, Text, StyleSheet, View, TouchableOpacity } from "react-native";
+import { Pressable, Text, StyleSheet, View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { MessageResponse } from "../types/MessageResponse";
 import { useCallback, useEffect, useState } from "react";
 import { AttachmentDto } from "../types/AttachmentDTO";
@@ -6,16 +6,16 @@ import { useAuth } from "../app/context/AuthContext";
 import { useTheme } from "../app/context/ThemeContext";
 import axios from "axios";
 import { API_URL } from "../constants/ApiUri";
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 import { useAttachmentDownload } from "../hooks/useAttachmentDownload";
+import Colors from "../constants/Colors";
+import { File } from "lucide-react-native";
 
 export default function ChatComponent({ item, handleLongPress }: { item: MessageResponse, handleLongPress: (item: MessageResponse, e: any) => void; }) {
-    const [items, setItems] = useState<AttachmentDto[]>([]);
+    const [attachments, setAttachments] = useState<AttachmentDto[]>([]);
     const [loading, setLoading] = useState(false)
     const { downloadingId, downloadAttachment } = useAttachmentDownload();
-    const { onGetUserToken } = useAuth()
-    const { theme } = useTheme()
+    const { onGetUserToken, user } = useAuth()
+    const { textColor, borderColor, subtleBorderColor } = useTheme()
     const fetchAttachments = async () => {
         try {
             const token = await onGetUserToken!()
@@ -33,39 +33,72 @@ export default function ChatComponent({ item, handleLongPress }: { item: Message
         setLoading(true)
         const result = await fetchAttachments()
         if (!result.error) {
-            setItems(result)
+            setAttachments(result)
         }
         setLoading(false)
     }
-    useEffect(()=>{
-        if(item.hasAttachments){
+    useEffect(() => {
+        if (item.hasAttachments) {
             handleFetchAttachments()
         }
-    },[])
+    }, [])
     return (
-        <View>
-            <Pressable
-                onLongPress={(e) => handleLongPress(item, e)}
-                delayLongPress={300}
-            >
-                <Text style={{ fontWeight: "600" }}>{item.senderId}</Text>
-                <Text>{item.message}</Text>
-                <Text style={{ opacity: 0.6, fontSize: 12 }}>{new Date(item.createdAt).toLocaleString()}</Text>
-            </Pressable>
-            {items.map((item) => (
-                <TouchableOpacity
-                    key={item.attachmentId}
-                    onPress={() => downloadAttachment(item)}
-                    disabled={downloadingId === item.attachmentId}
-                    style={{ opacity: downloadingId === item.attachmentId ? 0.5 : 1 }}
+        <View style={[styles.container, item.senderId == user?.userId ? { alignItems: 'flex-end' } : {}, item.message != "" ? { marginVertical: 5 } : {}]}>
+            {item.message != "" ?
+                <Pressable
+                    disabled={item.senderId != user?.userId}
+                    style={[styles.message, item.senderId == user?.userId ? { backgroundColor: Colors.green } : { backgroundColor: subtleBorderColor }]}
+                    onLongPress={(e) => handleLongPress(item, e)}
+                    delayLongPress={300}
                 >
-                    <Text>
-                        {item.fileName}
-                        {downloadingId === item.attachmentId ? "  • downloading..." : ""}
-                    </Text>
-                </TouchableOpacity>
-            ))}
+                    <Text style={[{ color: textColor }, item.senderId == user?.userId ? { textAlign: 'right', color: 'white' } : {}]}>{item.message}</Text>
+                </Pressable>
+                : <></>}
+            {!loading ?
+                attachments.map((attachment) => (
+                    <TouchableOpacity
+                        key={attachment.attachmentId}
+                        onPress={() => downloadAttachment(attachment)}
+                        disabled={downloadingId === attachment.attachmentId}
+                        style={[styles.attachment, { backgroundColor: subtleBorderColor, borderColor: borderColor }]}
+                    >
+                        <File color={Colors.green} size={30} />
+                        <Text style={{ color: textColor, marginTop: 10 }}>
+                            {decodeURIComponent(attachment.fileName)}
+                        </Text>
+                        {downloadingId === attachment.attachmentId ?
+                            <Text style={{ color: textColor }}>
+                                Downloading...
+                            </Text>
+                            : <></>}
+                    </TouchableOpacity>
+                ))
+                : <ActivityIndicator size="small" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />}
+
+            {item.message != "" ?
+                <Text style={{ color: 'gray', fontSize: 10, marginHorizontal: 5, marginTop: 1 }}>
+                    {item.updatedAt != null ? "(Edited) " + new Date(item.updatedAt).toLocaleTimeString() : new Date(item.createdAt).toLocaleTimeString()}
+                </Text>
+                : <></>}
+
         </View>
 
     )
 }
+const styles = StyleSheet.create({
+    attachment: {
+        padding: 10,
+        maxWidth: '50%',
+        borderRadius: 10,
+        borderWidth: 1,
+        marginVertical: 5
+    },
+    message: {
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 20
+    },
+    container: {
+        alignItems: 'flex-start'
+    }
+})

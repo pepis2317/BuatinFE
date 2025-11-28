@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
-import { View, Text } from "react-native";
+import { View, Text, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import TopBar from "../../components/TopBar";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
@@ -9,10 +9,14 @@ import { useState } from "react";
 import ColoredButton from "../../components/ColoredButton";
 import TextInputComponent from "../../components/TextInputComponent";
 import ConfirmedModal from "../../components/ConfirmedModal";
+import { useTheme } from "../context/ThemeContext";
+import Colors from "../../constants/Colors";
+import ErrorComponent from "../../components/ErrorComponent";
 
 type CreateShipmentProps = NativeStackScreenProps<RootStackParamList, "CreateShipment">
 export default function CreateShipment({ navigation, route }: CreateShipmentProps) {
     const { processId } = route.params;
+    const { textColor } = useTheme()
     const [name, setName] = useState('')
     const [loading, setLoading] = useState(false)
     const [showCreated, setShowCreated] = useState(false)
@@ -23,6 +27,7 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
     const [width, setWidth] = useState(0)
     const [weight, setWeight] = useState(0)
     const [length, setLength] = useState(0)
+    const [errMessage, setErrMessage] = useState('')
     const postRequest = async () => {
         try {
             const response = await axios.post(`${API_URL}/create-shipment`, {
@@ -42,6 +47,14 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
         }
     }
     const handlePost = async () => {
+        if (!name || !description || !category || !quantity || !height || !width || !weight || !length) {
+            setErrMessage("All forms must be filled")
+            return
+        }
+        if (quantity <= 0 || height <= 0 || width <= 0 || weight <= 0 || length <= 0) {
+            setErrMessage("Values cant be <= 0")
+            return
+        }
         setLoading(true)
         const result = await postRequest()
         if (!result.error) {
@@ -50,18 +63,92 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
         setLoading(false)
     }
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <TopBar title={"Create Shipment"} showBackButton />
-            <ConfirmedModal visible={showCreated} message={"Shipment created"} onPress={() => navigation.goBack()} />
-            <TextInputComponent placeholder="Name" onChangeText={setName} />
-            <TextInputComponent placeholder="Description" onChangeText={setDescription} />
-            <TextInputComponent placeholder="Category" onChangeText={setCategory} />
-            <TextInputComponent placeholder="Quantity" keyboardType="numeric" onChangeText={(input) => setQuantity(Number(input))} />
-            <TextInputComponent placeholder="Height" keyboardType="numeric" onChangeText={(input) => setHeight(Number(input))} />
-            <TextInputComponent placeholder="Width" keyboardType="numeric" onChangeText={(input) => setWidth(Number(input))} />
-            <TextInputComponent placeholder="Weight" keyboardType="numeric" onChangeText={(input) => setWeight(Number(input))} />
-            <TextInputComponent placeholder="Length" keyboardType="numeric" onChangeText={(input) => setLength(Number(input))} />
-            <ColoredButton title={"Create Order"} isLoading={loading} onPress={() => handlePost()} />
+            <ConfirmedModal
+                isFail={false}
+                visible={showCreated}
+                message={"Shipment created"}
+                onPress={() => navigation.goBack()} />
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={50}>
+                <ScrollView
+                    contentContainerStyle={{ padding: 20, gap: 10 }}
+                    showsVerticalScrollIndicator={false}>
+                    <View>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Name</Text>
+                        <TextInputComponent placeholder="Name" onChangeText={setName} />
+                    </View>
+                    <View>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Description</Text>
+                        <TextInputComponent placeholder="Description" onChangeText={setDescription} />
+                    </View>
+                    <View>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Category</Text>
+                        <TextInputComponent placeholder="Category" onChangeText={setCategory} />
+                    </View>
+                    <View>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Quantity</Text>
+                        <TextInputComponent placeholder="Quantity" keyboardType="numeric" onChangeText={(input) => setQuantity(Number(input))} />
+                    </View>
+                    <View>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Height</Text>
+                        <TextInputComponent placeholder="Height" keyboardType="numeric" onChangeText={(input) => setHeight(Number(input))} />
+                    </View>
+                    <View>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Width</Text>
+                        <TextInputComponent placeholder="Width" keyboardType="numeric" onChangeText={(input) => setWidth(Number(input))} />
+                    </View>
+                    <View>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Weight</Text>
+                        <TextInputComponent placeholder="Weight" keyboardType="numeric" onChangeText={(input) => setWeight(Number(input))} />
+                    </View>
+                    <View>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Length</Text>
+                        <TextInputComponent placeholder="Length" keyboardType="numeric" onChangeText={(input) => setLength(Number(input))} />
+                    </View>
+                    {errMessage ?
+                        <ErrorComponent errorsString={errMessage} />
+                        : <></>}
+                    <ColoredButton title={"Create Order"} style={{ backgroundColor: Colors.green }} isLoading={loading} onPress={() => handlePost()} />
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
+
+
     )
 }

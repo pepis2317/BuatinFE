@@ -7,7 +7,6 @@ import { API_URL } from "../../constants/ApiUri";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import { SellerResponse } from "../../types/SellerResponse";
-import { useTheme } from "../context/ThemeContext";
 import SellerDetailComponent from "../../components/SellerDetailComponent";
 
 type EditSellerProps = NativeStackScreenProps<RootStackParamList, "EditSeller">
@@ -15,7 +14,6 @@ export default function EditSeller({ navigation, route }: EditSellerProps) {
     const { user } = useAuth()
     const [seller, setSeller] = useState<SellerResponse>()
     const [loading, setLoading] = useState(false)
-    const { theme } = useTheme()
     const getSeller = async (userId: string) => {
         try {
             const result = await axios.get(`${API_URL}/get-seller-by-owner-id`, {

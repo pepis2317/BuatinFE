@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, RefreshControl, View } from "react-native";
 import { ConversationResponse } from "../types/ConversationResponse";
 import { useTheme } from "../app/context/ThemeContext";
@@ -7,12 +7,19 @@ import { API_URL } from "../constants/ApiUri";
 import { useAuth } from "../app/context/AuthContext";
 import { useFocusEffect } from "@react-navigation/native";
 import ConversationComponent from "./ConversationComponent";
-
+import { useSignalR } from "../app/context/SignalRContext";
+type ConversationNotif = {
+    conversationId: string
+    senderId: string
+    message: string
+}
 export default function ConversationsList({ navigation }: { navigation: any }) {
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
     const refreshRef = useRef(false)
-    const { theme } = useTheme()
+    const { on, off } = useSignalR()
+    const { user } = useAuth()
+    const { textColor } = useTheme()
     const { onGetUserToken } = useAuth()
     const [conversations, setConversations] = useState<ConversationResponse[]>([])
     const [total, setTotal] = useState(0)
@@ -71,6 +78,30 @@ export default function ConversationsList({ navigation }: { navigation: any }) {
             reset()
         }, [])
     );
+    useEffect(() => {
+        const handler = (payload: ConversationNotif) => {
+            setConversations(prev => {
+                const updated = prev.map(conv =>
+                    conv.conversationId === payload.conversationId ?
+                        {
+                            ...conv,
+                            latestMessage: payload.senderId == user?.userId ? `(You) ${payload.message}` : payload.message
+                        }
+                        : conv
+                );
+                const index = updated.findIndex(c => c.conversationId === payload.conversationId);
+                if (index > -1) {
+                    const [item] = updated.splice(index, 1);
+                    updated.unshift(item);
+                }
+                return updated;
+            });
+        }
+        on("NewMessage", handler)
+        return () => {
+            off("NewMessage", handler)
+        }
+    }, [on, off])
     return (
         <FlatList
             data={conversations}
@@ -85,7 +116,7 @@ export default function ConversationsList({ navigation }: { navigation: any }) {
             }
             ListFooterComponent={
                 loadingRef.current ?
-                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     :
                     <View style={{ marginTop: 64 }} />
             }

@@ -8,14 +8,14 @@ import Colors from "../constants/Colors";
 
 export default function TopBar({ title, showBackButton }: { title: string, showBackButton: boolean }) {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const { theme } = useTheme()
+    const { theme , textColor} = useTheme()
     return (
         <View style={theme == "dark" ? styles.darkTopBar : styles.lightTopBar}>
 
             <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{title}</Text>
             {showBackButton ?
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <ArrowLeft color={theme == "dark" ? "white" : "black"} />
+                    <ArrowLeft color={textColor} />
                 </TouchableOpacity> : <></>
             }
         </View>
@@ -28,8 +28,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: Colors.darkGray,
         backgroundColor: Colors.darkBackground,
-        paddingTop: 32,
-        paddingBottom: 16,
+        paddingVertical:16,
         gap: 16,
     },
     lightTopBar: {

@@ -1,4 +1,4 @@
-import { TouchableOpacity, View, Image, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, View, Image, Text, StyleSheet, Pressable } from "react-native";
 import { ConversationResponse } from "../types/ConversationResponse";
 import { useTheme } from "../app/context/ThemeContext";
 import { useState } from "react";
@@ -6,21 +6,21 @@ import Colors from "../constants/Colors";
 import PfpComponent from "./PfpComponent";
 
 export default function ConversationComponent({ navigation, conversation }: { navigation: any, conversation: ConversationResponse }) {
-    const { theme } = useTheme()
-    const [statusColor, setStatusColor] = useState(Colors.darkBorder)
-    var textColor = theme == "dark" ? "white" : "black"
-    var placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
+    const { textColor, subtleBorderColor} = useTheme()
     return (
-        <TouchableOpacity style={[styles.container]} onPress={() => navigation.navigate('Chat', { conversationId: conversation.conversationId })}>
+        <Pressable style={[styles.container,{borderColor:subtleBorderColor}]} onPress={() => navigation.navigate('Chat', { conversationId: conversation.conversationId })}>
             <View style={styles.left}>
                 <PfpComponent width={50} pfp={conversation.picture} userId={""} navigation={undefined}/>
                 <View style={styles.leftContent}>
                     <Text style={{ color: textColor, fontWeight: "bold" }}>
-                        {conversation.name}
+                        {conversation.name} {conversation.sellerName?`(Owner of ${conversation.sellerName})`:""}
+                    </Text>
+                    <Text numberOfLines={1} style={{ color: 'gray' }}>
+                        {conversation.latestMessage}
                     </Text>
                 </View>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     )
 }
 const styles = StyleSheet.create({
@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
         alignItems: "flex-start",
         width: "100%",
         borderBottomWidth: 1,
-        borderBottomColor: Colors.darkGray,
     },
     left: {
         padding: 15,

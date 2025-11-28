@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import TextInputComponent from "../../components/TextInputComponent";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
@@ -8,23 +8,27 @@ import { useState } from "react";
 import ConfirmedModal from "../../components/ConfirmedModal";
 import ColoredButton from "../../components/ColoredButton";
 import { useAuth } from "../context/AuthContext";
+import TopBar from "../../components/TopBar";
+import { useTheme } from "../context/ThemeContext";
+import Colors from "../../constants/Colors";
 
 type CreateRefundProps = NativeStackScreenProps<RootStackParamList, "CreateRefundRequest">
 export default function CreateRefundRequest({ navigation, route }: CreateRefundProps) {
     const { processId } = route.params
+    const { textColor } = useTheme()
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(false)
     const [showCreated, setShowCreated] = useState(false)
-    const {onGetUserToken} = useAuth()
+    const { onGetUserToken } = useAuth()
     const postRequest = async () => {
         try {
             const token = await onGetUserToken!()
             const response = await axios.post(`${API_URL}/create-refund-request`, {
                 processId: processId,
                 message: message
-            },{
-                headers:{
-                    Authorization:`Bearer ${token}`
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
             })
             return response.data
@@ -40,12 +44,27 @@ export default function CreateRefundRequest({ navigation, route }: CreateRefundP
         }
         setLoading(false)
     }
-
     return (
-        <View>
-            <ConfirmedModal onPress={() => navigation.goBack()} visible={showCreated} message={"Refund request has been created"} />
-            <TextInputComponent placeholder="Message" onChangeText={setMessage} />
-            <ColoredButton title={"Create refund request"} onPress={() => handlePost()} isLoading={loading}/>
+        <View style={{ flex: 1 }}>
+            <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showCreated} message={"Refund request has been created"} />
+            <TopBar title={"Create Refund Request"} showBackButton />
+            <View style={{
+                flex: 1,
+                padding: 20,
+                gap: 10
+            }}>
+                <View>
+                    <Text style={{
+                        color: textColor,
+                        fontWeight: 'bold',
+                        marginBottom: 10
+                    }}>Message</Text>
+                    <TextInputComponent placeholder="Message" onChangeText={setMessage} />
+                </View>
+
+                <ColoredButton title={"Create refund request"} style={{ backgroundColor: Colors.green }} onPress={() => handlePost()} isLoading={loading} />
+            </View>
+
         </View>
     )
 }

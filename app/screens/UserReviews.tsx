@@ -14,7 +14,7 @@ import UserReviewsList from "../../components/UserReviewsList"
 type UserReviewsProps = NativeStackScreenProps<RootStackParamList, "UserReviews">
 export default function UserReviews({ navigation, route }: UserReviewsProps) {
     const { userId } = route.params
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const { onGetUserToken } = useAuth()
     const [canReview, setCanReview] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -48,7 +48,7 @@ export default function UserReviews({ navigation, route }: UserReviewsProps) {
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"User Reviews"} showBackButton />
-            {loading ? <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} /> :
+            {loading ? <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} /> :
                 <View style={{ padding: 20 }}>
                     {canReview ?
                         <ColoredButton title={"Create Seller Review"} onPress={() => navigation.navigate('ReviewUser', { userId: userId })} style={{ backgroundColor: Colors.green }} />

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import * as SignalR from "@microsoft/signalr";
 import { API_URL } from "../../constants/ApiUri";
 import { AppState } from "react-native";
+import { useAuth } from "./AuthContext";
 const API_WITHOUT_THINGY = API_URL.slice(0, API_URL.length - 7)
 const HUB_URL = `${API_WITHOUT_THINGY}/hubs/chat`;
 type SignalRContextValue = {
@@ -23,11 +24,12 @@ type Props = {
     onReconnected?: (conn: SignalR.HubConnection) => Promise<void> | void;
 }
 export function SignalRProvider({ children, getUserToken, onReconnected }: Props) {
+    const { authState } = useAuth()
     const [isConnected, setIsConnected] = useState(false);
     const listenersRef = useRef(new Map<string, Set<(...args: any[]) => void>>());
-
     // Build (or reuse) the singleton
     const connection = useMemo(() => {
+        if (!authState?.authenticated) return null
         if (singletonConnection) return singletonConnection;
 
         const conn = new SignalR.HubConnectionBuilder()

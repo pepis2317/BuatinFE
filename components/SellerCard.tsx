@@ -8,26 +8,31 @@ import { RootStackParamList } from "../constants/RootStackParams";
 import Colors from "../constants/Colors";
 
 export default function SellerCard({ seller }: { seller: SellerResponse }) {
-    const { theme } = useTheme()
+    const { subtleBorderColor, theme, borderColor } = useTheme()
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
-    const iconColor = theme == "dark" ? Colors.darkBorder : Colors.lightBorder
     return (
         <TouchableOpacity style={theme == "dark" ? styles.seller : styles.lightSeller} onPress={() => navigation.navigate("SellerDetails", { sellerId: seller.sellerId })}>
             <View style={{ width: "100%", padding: 5 }}>
                 {seller.banner ?
                     <Image src={seller.banner} style={styles.thumbnail} />
                     :
-                    <View style={[styles.thumbnail, { backgroundColor: placeholderColor }]} >
-                        <ImageIcon size={50} color={iconColor} />
+                    <View style={[styles.thumbnail, { backgroundColor: subtleBorderColor }]} >
+                        <ImageIcon size={50} color={borderColor} />
                     </View>
                 }
                 <View style={styles.info}>
-                    <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.sellerName}</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Star fill={"gold"} size={16} color={"gold"} />
-                        <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.rating.toPrecision(2)}</Text>
+                    <View style={{ flexDirection: 'row', alignItems:'flex-start', gap:5 }}>
+                        <Image src={seller.sellerPicture} style={[styles.sellerPic, { backgroundColor: subtleBorderColor, borderColor: borderColor }]} />
+                        <View style={{marginTop:-2}}>
+                            <Text ellipsizeMode="tail" numberOfLines={2} style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.sellerName}</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Star fill={"gold"} size={16} color={"gold"} />
+                                <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.rating.toPrecision(2)}</Text>
+                            </View>
+                        </View>
                     </View>
+
+
                     <Text style={theme == "dark" ? styles.darkText : styles.lightText}>{seller.clients} Clients</Text>
                 </View>
             </View>
@@ -35,6 +40,12 @@ export default function SellerCard({ seller }: { seller: SellerResponse }) {
     )
 }
 const styles = StyleSheet.create({
+    sellerPic: {
+        width: 32,
+        height: 32,
+        borderRadius: 32,
+        borderWidth: 1
+    },
     seller: {
         alignItems: "center",
         width: "50%",

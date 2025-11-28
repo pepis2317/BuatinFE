@@ -19,12 +19,13 @@ import { Star } from "lucide-react-native";
 import { ReviewResponse } from "../../types/ReviewResponse";
 import { ReviewComponentShort } from "../../components/ReviewComponent";
 
-const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerResponse, navigation: any, editable: boolean, theme: string }) => {
+const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse, navigation: any, editable: boolean }) => {
     const { onGetUserToken } = useAuth()
+    const { textColor, foregroundColor } = useTheme()
     const [stats, setStats] = useState<SellerStats>()
+    const [refreshing, setRefreshing] = useState(false)
+    const [canOrder, setCanOrder] = useState<boolean | null>(null)
     const [topreviews, setTopReviews] = useState<ReviewResponse[]>([])
-    const textColor = theme == "dark" ? "white" : "black"
-    const bgColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
     const getStats = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-seller-stats`, {
@@ -33,6 +34,23 @@ const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerR
                 }
             });
             return response.data;
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
+        }
+    }
+    const checkCanOrder = async () => {
+        try {
+            const token = await onGetUserToken!()
+            var url = `${API_URL}/check-can-request`
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                params: {
+                    sellerId: seller.sellerId
+                }
+            })
+            return response.data
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
@@ -57,21 +75,42 @@ const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerR
             setStats(result)
         }
     }
+    const handleCheck = async () => {
+        const result = await checkCanOrder()
+        if (!result.error) {
+            setCanOrder(result)
+        }
+    }
     const handleGetReviews = async () => {
         const result = await getTopReviews()
         if (!result.error) {
             setTopReviews(result.reviews)
         }
     }
-    useEffect(() => {
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        setStats(undefined)
+        setTopReviews([])
+        setCanOrder(null)
+        setRefreshing(false);
+
+        reset()
+    }, []);
+    const reset = () => {
         handleGetStats()
         handleGetReviews()
+        handleCheck()
+    }
+    useEffect(() => {
+        reset()
     }, [])
     return (
-        <ScrollView style={{ flex: 1 }}>
+        <ScrollView style={{ flex: 1 }} refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
             <SellerDetailComponent seller={seller} navigation={navigation} editing={false} />
             {stats ?
-                <View style={[styles.stats, { backgroundColor: bgColor }]}>
+                <View style={[styles.stats, { backgroundColor: foregroundColor }]}>
                     <View style={styles.leftStats}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                             <Text style={[{ color: textColor }, styles.rating]}>{stats.rating.toPrecision(2)}</Text>
@@ -80,12 +119,21 @@ const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerR
                         <Text style={{ color: textColor, fontSize: 12 }}>Avg. Rating</Text>
                     </View>
                     <View style={[styles.rightStats, { borderLeftColor: textColor }]}>
-                        <Text style={{ color: textColor, fontWeight: 'bold' }}>{stats.clients} {stats.clients == 1 ? "Client" : "Clients"}</Text>
-                        <Text style={{ color: textColor, fontWeight: 'bold' }}>{stats.reviews} {stats.reviews == 1 ? "Review" : "Reviews"}</Text>
-                        <Text style={{ color: textColor, fontWeight: 'bold' }}>{(stats.completionRate * 100).toFixed(1)}% Completion Rate</Text>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold'
+                        }}>{stats.clients} {stats.clients == 1 ? "Client" : "Clients"}</Text>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold'
+                        }}>{stats.reviews} {stats.reviews == 1 ? "Review" : "Reviews"}</Text>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold'
+                        }}>{(stats.completionRate * 100).toFixed(1)}% Completion Rate</Text>
                     </View>
                 </View>
-                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
             }
             <View style={{ marginHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
                 <Text style={{ color: textColor, fontWeight: 'bold' }}>Latest Reviews</Text>
@@ -94,8 +142,8 @@ const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerR
                 </TouchableOpacity>
             </View>
             {topreviews ?
-                <View>
-                    <ScrollView horizontal>
+                <View style={{ height: 200 }}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         <View style={{ width: 20 }} />
                         {topreviews.map((review, index) => (
                             <ReviewComponentShort key={index} review={review} navigation={navigation} isEnd={index == topreviews.length} />
@@ -104,16 +152,25 @@ const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerR
                     </ScrollView>
                 </View>
 
-                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                : <ActivityIndicator size="small" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
             }
             <View style={{ padding: 20 }}>
                 {editable ?
-                    <View>
+                    <View style={{gap:10}}>
                         <ColoredButton title={"Edit Seller"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('EditSeller')} />
                         <ColoredButton title={"Create Post"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate("CreatePost")} />
                     </View>
 
-                    : <ColoredButton title={"Create Order Request"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('OrderRequest', { sellerId: seller.sellerId })} />
+                    :
+                    canOrder == null ?
+                        <ActivityIndicator size="small" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
+                        :
+                        <View>
+                            {canOrder ?
+                                <ColoredButton title={"Create Order Request"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('OrderRequest', { sellerId: seller.sellerId })} /> :
+                                <Text style={{ textAlign: 'center', color: textColor, fontWeight: 'bold' }}>You can't make an order request to this seller now</Text>}
+
+                        </View>
                 }
             </View>
 
@@ -226,11 +283,8 @@ export default function SellerDetails({ navigation, route }: SellerDetailProps) 
     const [loading, setLoading] = useState(false)
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
-    const { theme } = useTheme()
-    const backgroundColor = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
-    const selectedColor = theme == "dark" ? "white" : "black"
+    const { theme, backgroundColor, textColor } = useTheme()
     const unselectedColor = theme == "dark" ? Colors.offWhite : Colors.darkGray
-
     const getSellerByOwnerId = async (userId: string) => {
         try {
             const result = await axios.get(`${API_URL}/get-seller-by-owner-id`, {
@@ -283,9 +337,6 @@ export default function SellerDetails({ navigation, route }: SellerDetailProps) 
 
     }, [sellerId])
 
-    if (loading) {
-        return <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
-    }
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"Seller Details"} showBackButton />
@@ -296,7 +347,7 @@ export default function SellerDetails({ navigation, route }: SellerDetailProps) 
                     renderScene={({ route }) => {
                         switch (route.key) {
                             case 'Details':
-                                return <DetailsRoute navigation={navigation} seller={seller} editable={editable} theme={theme ? theme : "dark"} />;
+                                return <DetailsRoute navigation={navigation} seller={seller} editable={editable} />;
                             case 'Posts':
                                 return <PostsRoute navigation={navigation} seller={seller} />;
                             default:
@@ -308,7 +359,7 @@ export default function SellerDetails({ navigation, route }: SellerDetailProps) 
                     renderTabBar={(props) => (
                         <TabBar
                             {...props}
-                            activeColor={selectedColor}
+                            activeColor={textColor}
                             inactiveColor={unselectedColor}
                             scrollEnabled={false}
                             indicatorStyle={{ backgroundColor: Colors.green }}
@@ -316,7 +367,7 @@ export default function SellerDetails({ navigation, route }: SellerDetailProps) 
                         />
                     )}
                 />
-                : <></>}
+                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />}
 
         </View>
     );

@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { MessageResponse } from "../types/MessageResponse"
 import axios from "axios"
 import { API_URL } from "../constants/ApiUri";
-import { useFocusEffect } from "@react-navigation/native";
-import { ActivityIndicator, FlatList, RefreshControl, View, Text, TouchableOpacity, Pressable, Vibration } from "react-native";
+import { ActivityIndicator, FlatList, RefreshControl, View, Vibration } from "react-native";
 import { useAuth } from "../app/context/AuthContext";
-import { useTheme } from "../app/context/ThemeContext";
 import { useSignalR } from "../app/context/SignalRContext";
 import ChatComponent from "./ChatComponent";
+import { useTheme } from "../app/context/ThemeContext";
+
 type CursorPage<T> = {
     items: T[];
     nextCursor?: string | null;
@@ -16,22 +16,29 @@ type CursorPage<T> = {
     hasPrev: boolean;
 };
 type FetchResult = CursorPage<MessageResponse> & { error?: boolean; msg?: string };
+
 const PAGE_LIMIT = 20;
 const mergeUnique = (base: MessageResponse[], add: MessageResponse[]) => {
     const seen = new Set(base.map(m => m.messageId));
     return [...base, ...add.filter(m => !seen.has(m.messageId))];
 };
-const sortByCreatedAsc = (arr: MessageResponse[]) =>
-    arr.slice().sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+// keep newest -> oldest (descending)
+const sortByCreatedDesc = (arr: MessageResponse[]) =>
+    arr.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
 export default function MessagesList({ conversationId, onSelect }: { conversationId: string, onSelect: (message: MessageResponse, x: number, y: number) => void }) {
     const { on, off } = useSignalR();
     const { onGetUserToken } = useAuth()
     const [messages, setMessages] = useState<MessageResponse[]>([]);
+    const {textColor} = useTheme()
     const [refreshing, setRefreshing] = useState(false);
     const [loadingOlder, setLoadingOlder] = useState(false);
     const loadingRef = useRef(false);
-    const nextRef = useRef<string | null>(null);
-    const prevRef = useRef<string | null>(null);
+    // IMPORTANT: with inverted list we treat nextCursor as "newer" pages (messages after)
+    // and prevCursor as "older" pages (messages before) — keep this consistent with API.
+    const nextRef = useRef<string | null>(null); // newer cursor
+    const prevRef = useRef<string | null>(null); // older cursor
+    // For inverted lists, offset 0 corresponds to the bottom (latest). So atBottom when offset <= pad
     const atBottomRef = useRef(true);
     const listRef = useRef<FlatList<MessageResponse>>(null);
 
@@ -74,11 +81,12 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
         }
     };
 
+    // ---- scroll capturing for inverted list ----
     const onScrollCapture = useCallback((e: any) => {
         const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
         const pad = 32; // slack
-        atBottomRef.current =
-            contentOffset.y + layoutMeasurement.height >= contentSize.height - pad;
+        // offset 0 is bottom (latest). So at bottom when offset is small.
+        atBottomRef.current = contentOffset.y <= pad;
     }, []);
 
     /** Initial load (no cursors) */
@@ -88,20 +96,24 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
 
         const result = await fetchMessages({ conversationId, limit: PAGE_LIMIT });
         if (!result.error) {
-            const sorted = sortByCreatedAsc(result.items);
+            // Keep newest -> oldest (descending) for inverted list
+            const sorted = sortByCreatedDesc(result.items);
             setMessages(sorted);
 
-            // New API: newest page at tail
-            nextRef.current = result.nextCursor ?? null; // likely null on first page
-            prevRef.current = result.prevCursor ?? null; // older pages available
+            // API cursors: nextCursor = newer pages, prevCursor = older pages (depending on your API)
+            nextRef.current = result.nextCursor ?? null;
+            prevRef.current = result.prevCursor ?? null;
 
-            // show the latest messages right away
-            requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: false }));
+            // For inverted list the visible "bottom" is offset 0, so scroll there.
+            requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: 0, animated: false }));
         }
         loadingRef.current = false;
     }, [conversationId]);
 
-    /** Get older messages (scroll up) -> use before=prevCursor */
+    /** Get older messages (user scrolled *up* toward the top of the screen in an inverted list)
+     * For our data shape (newest first), older messages belong at the end of the array, so we append them.
+     * Use `before=prevCursor` (older) as your API expects.
+     */
     const loadOlder = useCallback(async () => {
         if (loadingRef.current || !prevRef.current) return;
         loadingRef.current = true;
@@ -109,21 +121,25 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
         const result = await fetchMessages({
             conversationId,
             limit: PAGE_LIMIT,
-            before: prevRef.current,
+            before: prevRef.current, // older
         });
         if (!result.error) {
-            setMessages(prev => sortByCreatedAsc(mergeUnique(result.items, prev)));
-            prevRef.current = result.prevCursor ?? null; // becomes null when no more older pages
+            // append older messages to the end of the current array (base is current newest-first array)
+            setMessages(prev => {
+                const merged = mergeUnique(prev, result.items); // prev + older
+                return sortByCreatedDesc(merged);
+            });
+            prevRef.current = result.prevCursor ?? null;
         }
         setLoadingOlder(false);
         loadingRef.current = false;
     }, [conversationId]);
 
-    /** Get newer messages (pull-to-refresh or live update catch-up) -> use after=nextCursor */
-    // get newer messages (append)
+    /** Get newer messages (pull-to-refresh or catch-up) -> use after=nextCursor
+     * Newer messages should be merged _in front_ (they're the newest), so we prepend them.
+     */
     const loadNewer = useCallback(async () => {
         if (loadingRef.current || !nextRef.current) {
-            // still show a quick refresh spinner to indicate "checked"
             setRefreshing(false);
             return;
         }
@@ -131,10 +147,14 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
         const result = await fetchMessages({
             conversationId,
             limit: PAGE_LIMIT,
-            after: nextRef.current,
+            after: nextRef.current, // newer
         });
         if (!result.error) {
-            setMessages(prev => sortByCreatedAsc(mergeUnique(prev, result.items)));
+            setMessages(prev => {
+                // result.items are newer -> put them before existing items
+                const merged = mergeUnique(result.items, prev); // new + prev
+                return sortByCreatedDesc(merged);
+            });
             nextRef.current = result.nextCursor ?? null;
         }
         loadingRef.current = false;
@@ -145,11 +165,14 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
         loadInitial();
     }, [loadInitial]);
 
-    // detect near-top to load older (no inverted list)
+    // detect near-top to load older (inverted list -> large offset means near top visually)
     const onScroll = useCallback(async (e: any) => {
-        const y = e.nativeEvent.contentOffset.y;
-        if (y <= 40) {
-            // small threshold so we don’t spam
+        const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+        const threshold = 40;
+        // For inverted: offset 0 is bottom. When the offset becomes near the max (contentSize - layoutH),
+        // the user scrolled up to the visual top — load older (earlier) messages.
+        const distanceFromTop = contentSize.height - layoutMeasurement.height - contentOffset.y;
+        if (distanceFromTop <= threshold) {
             await loadOlder();
         }
     }, [loadOlder]);
@@ -157,15 +180,14 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
     const appendIncoming = useCallback((msg: MessageResponse) => {
         setMessages((prev) => {
             if (prev.some(m => m.messageId === msg.messageId)) return prev; // de-dupe
-            const next = [...prev, msg].sort(
-                (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-            );
-            return next;
+            // incoming is newer => put in front (newest-first array)
+            const next = [msg, ...prev];
+            return sortByCreatedDesc(next);
         });
-        // if user is at the bottom, scroll down to reveal the new message
+        // if user is at the bottom (offset ~0), scroll to reveal the new message (offset 0)
         requestAnimationFrame(() => {
             if (atBottomRef.current && listRef.current) {
-                listRef.current.scrollToEnd({ animated: true });
+                listRef.current.scrollToOffset({ offset: 0, animated: true });
             }
         });
     }, []);
@@ -183,6 +205,7 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
         setRefreshing(true);
         await loadNewer();
     }, [loadNewer]);
+
     useEffect(() => {
         const handler = (payload: MessageResponse) => {
             appendIncoming(payload);
@@ -203,15 +226,18 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
             off("MessageDeleted", deleteHandler)
         };
     }, [conversationId, on, off, appendIncoming]);
+
     const handleLongPress = (item: MessageResponse, e: any) => {
         const { pageX, pageY } = e.nativeEvent;
         Vibration.vibrate(30)
         onSelect(item, pageX, pageY);
     };
+
     return (
         <FlatList
             ref={listRef}
-            onScroll={e => { onScroll(e); onScrollCapture(e); }} // keep your existing onScroll if any
+            style={{paddingHorizontal:20}}
+            onScroll={e => { onScroll(e); onScrollCapture(e); }}
             scrollEventThrottle={16}
             data={messages}
             keyExtractor={(m) => m.messageId}
@@ -219,15 +245,15 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
             refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
-            ListHeaderComponent={
+            ListFooterComponent={
                 loadingOlder ? (
                     <View style={{ paddingVertical: 12 }}>
-                        <ActivityIndicator />
+                        <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     </View>
                 ) : null
             }
-            // Optional: keep scroll performance nice
             initialNumToRender={20}
+            inverted
             windowSize={10}
             removeClippedSubviews={true}
         />

@@ -6,4 +6,15 @@ export type ShipmentResponse={
     orderId:string;
     token:string;
     redirectUrl:string;
+    quantity:number;
+    height:number;
+    width:number;
+    length:number;
+    weight:number;
+    category:string;
+    courierCompany:string;
+    courierType:string;
+    orderNote:string|null;
+    originNote:string|null;
+    destinationNote:string|null;
 }

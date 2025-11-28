@@ -1,6 +1,6 @@
-import { View, Text, Button, Image, TextInput, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, Button, Image, TextInput, StyleSheet, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
 import { useAuth, User } from "../context/AuthContext";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker"
 import axios from "axios";
 import PhoneInputComponent from "../../components/PhoneInputComponent";
@@ -8,36 +8,101 @@ import ColoredButton from "../../components/ColoredButton";
 import TextInputComponent from "../../components/TextInputComponent";
 import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Pencil, Scroll } from "lucide-react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useTheme } from "../context/ThemeContext";
 import * as Burnt from "burnt"
 import TopBar from "../../components/TopBar";
 import { API_URL } from "../../constants/ApiUri";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import { useSignalR } from "../context/SignalRContext";
-
+import { UserResponse } from "../../types/UserResponse";
+import Colors from "../../constants/Colors";
+import ErrorComponent from "../../components/ErrorComponent";
+type Coord = { latitude: number; longitude: number };
+type AddressComponent = {
+    long_name: string;
+    short_name: string;
+    types: string[];
+};
 export default function Profile() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const { stop } = useSignalR();
     const { user, onGetUserData, onUserUpdate, onLogout } = useAuth()
+    const [userData, setUserData] = useState<UserResponse>()
     const [email, setEmail] = useState<string | undefined>("")
     const [password, setPassword] = useState<string | undefined>("")
+    const [location, setLocation] = useState<Coord | undefined>();
     const [phone, setPhone] = useState<string | undefined>("")
     const [userName, setUserName] = useState<string | undefined>("")
     const [selectedImage, setSelectedImage] = useState<string | undefined>("");
-    const { theme } = useTheme()
+    const [errMessage, setErrMessage] = useState("")
+    const [address, setAddress] = useState("")
+    const [postalCode, setPostalCode] = useState("")
+    const [inputHeight, setInputHeight] = useState(0)
+    const [geoAddress, setGeoAddress] = useState("")
+    const [loading, setLoading] = useState(false)
+    const { subtleBorderColor, borderColor, textColor } = useTheme()
     useEffect(() => {
-        if (user) {
-            setEmail(user.email)
-            setPhone(user.phone)
-            setUserName(user.userName)
-
-            setSelectedImage(user.pfp)
+        if (user && userData) {
+            setEmail(userData.email)
+            setPhone(userData.phone)
+            setUserName(userData.userName)
+            setSelectedImage(userData.pfp)
             setPassword(user.password)
-
         }
-    }, [user])
+    }, [user, userData])
+    const reverseGeocode = async (latitude: number, longitude: number) => {
+        try {
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyDg7Bxr3Z2iaOWilJGAPR3xrhgoFJinl9E`)
+            return response.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+    const get = (comp: AddressComponent[], type: string) =>
+        comp.find(c => c.types.includes(type))?.long_name;
+    const handleReverseGeocode = async (latitude: number, longitude: number) => {
+        const result = await reverseGeocode(latitude, longitude);
 
+        if (!result.error) {
+            const comp: AddressComponent[] = result.results[0].address_components;
+
+            const street = `${get(comp, "route") || ""} ${get(comp, "street_number") || ""}`.trim();
+            const sublocality = get(comp, "sublocality");
+            const district = get(comp, "administrative_area_level_3");
+            const city = get(comp, "administrative_area_level_2");
+            const province = get(comp, "administrative_area_level_1");
+            const postal = get(comp, "postal_code");
+            const country = get(comp, "country");
+
+            // Build clean string with no undefined or empty parts
+            const parts = [
+                street,
+                sublocality,
+                district,
+                city,
+                province ? `${province} ${postal || ""}`.trim() : null,
+                country
+            ];
+
+            const finalAddress = parts.filter(Boolean).join(", ");
+            setAddress(finalAddress);
+            setGeoAddress(finalAddress);
+            if (postal) {
+                setPostalCode(postal)
+            }
+        }
+    };
+    const getUserDataHandler = async () => {
+        const res = await onGetUserData!()
+        if (!res.error) {
+            setUserData(res)
+            handleReverseGeocode(res.latitude, res.longitude)
+        }
+    }
+    useEffect(() => {
+        getUserDataHandler()
+    }, [])
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
@@ -80,6 +145,11 @@ export default function Profile() {
         }
     }
     const handleUpload = async () => {
+        if (!userName || !email || !password || !phone || !postalCode || !address) {
+            setErrMessage("All forms must be filled")
+            return
+        }
+        setLoading(true)
         if (user?.userId) {
             let newUser: User = {
                 email: email,
@@ -88,8 +158,11 @@ export default function Profile() {
                 phone: phone,
                 userId: user.userId,
                 userName: userName,
-                role: user.role
-
+                role: user.role,
+                address: address,
+                postalCode: postalCode,
+                latitude: location?.latitude,
+                longitude: location?.longitude
             }
             const res = await updateUser(newUser)
             if (res.error) {
@@ -117,44 +190,123 @@ export default function Profile() {
                 })
             }
         }
+        setLoading(false)
     }
     const handleLogOut = async () => {
         await stop()
         onLogout!()
     }
+    useEffect(() => {
+        if (location) {
+            handleReverseGeocode(location.latitude, location.longitude)
+        }
+    }, [location])
+    useFocusEffect(
+        useCallback(() => {
+            getUserDataHandler()
+        }, [])
+    );
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <TopBar title={"Profile"} showBackButton={false} />
-            {user ?
-                <ScrollView>
-                    <View style={styles.formContainer}>
-                        <TouchableOpacity onPress={pickImageAsync}>
-                            <Image
-                                source={selectedImage && selectedImage !== "" ? { uri: selectedImage } : require('../../assets/default.jpg')}
-                                style={styles.pfp}
-                            />
-                            <View style={styles.pencil}>
-                                <Pencil size={20} color={"white"} />
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={50}>
+                {userData ?
+                    <ScrollView style={{ flex: 1 }}>
+                        <View style={styles.formContainer}>
+                            <View style={{ alignItems: 'center' }}>
+                                <TouchableOpacity onPress={pickImageAsync}>
+                                    <Image
+                                        source={{ uri: selectedImage }}
+                                        style={[styles.pfp, { backgroundColor: subtleBorderColor, borderColor: borderColor }]}
+                                    />
+                                    <View style={styles.pencil}>
+                                        <Pencil size={20} color={"white"} />
+                                    </View>
+                                </TouchableOpacity>
                             </View>
-                        </TouchableOpacity>
-                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%" }}>User Name</Text>
-                        <TextInputComponent autoCapitalize="none" placeholder="User Name" onChangeText={setUserName} value={userName} />
-                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%" }}>Email</Text>
-                        <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail} value={email} />
-                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%" }}>Password</Text>
-                        <TextInputComponent autoCapitalize="none" placeholder="Password" onChangeText={setPassword} value={password} secureTextEntry={true} />
-                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%" }}>Phone</Text>
-                        <PhoneInputComponent onPhoneChange={setPhone} defaultValue={user.phone ? user.phone : ""} />
-                        <ColoredButton title={"Save Changes"} style={{ backgroundColor: "#5CCFA3", width: "100%" }} onPress={handleUpload} />
-                        <ColoredButton title={"Log Out"} style={{ backgroundColor: "#F56565", width: "100%" }} onPress={() => handleLogOut() } />
-                    </View>
-                </ScrollView>
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: "bold",
+                                textAlign: "left",
+                                width: "100%"
+                            }}>User Name</Text>
+                            <TextInputComponent autoCapitalize="none" placeholder="User Name" onChangeText={setUserName} value={userName} />
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: "bold",
+                                textAlign: "left",
+                                width: "100%"
+                            }}>Email</Text>
+                            <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail} value={email} />
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: "bold",
+                                textAlign: "left",
+                                width: "100%"
+                            }}>Password</Text>
+                            <TextInputComponent autoCapitalize="none" placeholder="Password" onChangeText={setPassword} value={password} secureTextEntry={true} />
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: "bold",
+                                textAlign: "left",
+                                width: "100%"
+                            }}>Phone</Text>
+                            <PhoneInputComponent onPhoneChange={setPhone} defaultValue={userData.phone ? userData.phone : ""} />
+                            <View style={{ padding: 10, backgroundColor: subtleBorderColor, borderWidth: 1, borderColor: borderColor, borderRadius: 5 }}>
+                                <ColoredButton title={"Change location"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('SelectLocation', {
+                                    margin: false,
+                                    onSelectLocation: (coords) => {
+                                        setLocation(coords)
+                                    }
+                                })} />
+                                {geoAddress ?
+                                    <View style={{ marginTop: 10 }}>
+                                        <Text style={{ color: 'gray', fontWeight: 'bold' }}>Inferred Address:</Text>
+                                        <Text style={{ color: 'gray' }}>{geoAddress}</Text>
+                                        <Text style={{
+                                            color: textColor,
+                                            fontWeight: "bold",
+                                            marginTop: 10
+                                        }}>Postal Code</Text>
+                                        <TextInputComponent autoCapitalize="none" placeholder="Postal code" keyboardType="numeric" onChangeText={setPostalCode} value={postalCode} />
+                                        <Text style={{
+                                            color: textColor,
+                                            fontWeight: "bold",
+                                            marginTop: 10
+                                        }}>Address</Text>
+                                        <TextInputComponent style={{ height: inputHeight }} placeholder="Caption" onChangeText={setAddress} value={address} multiline
+                                            onContentSizeChange={(e) => {
+                                                const newHeight = e.nativeEvent.contentSize.height;
+                                                setInputHeight(Math.min(newHeight, 120));
+                                            }}
+                                        />
+                                    </View>
+                                    : <></>}
+                            </View>
+                            {errMessage ?
+                                <ErrorComponent errorsString={errMessage} />
+                                : <></>}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                < ColoredButton style={[{ backgroundColor: Colors.peach }, styles.button]} title={"Log Out"} onPress={() => handleLogOut()} isLoading={loading} />
+                                <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Save Changes"} onPress={() => handleUpload()} isLoading={loading} />
+                            </View>
+                        </View>
+                    </ScrollView>
+                    : <></>}
+            </KeyboardAvoidingView>
 
-                : <></>}
         </View>
     )
 }
 const styles = StyleSheet.create({
+    button: {
+        width: "48%",
+        height: 40,
+        padding: 10,
+    },
     pencil: {
         backgroundColor: '#31363F',
         width: 35,
@@ -171,8 +323,7 @@ const styles = StyleSheet.create({
         padding: 10,
         paddingTop: 25,
         gap: 10,
-        alignItems: 'center',
-        width: "100%"
+
     },
     textInput: {
         width: "100%",
@@ -184,6 +335,7 @@ const styles = StyleSheet.create({
     pfp: {
         borderRadius: 100,
         width: 100,
-        height: 100
+        height: 100,
+        borderWidth: 1
     }
 })

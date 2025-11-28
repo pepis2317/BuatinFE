@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
-import { View } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import TopBar from "../../components/TopBar";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
@@ -11,19 +11,24 @@ import TextInputComponent from "../../components/TextInputComponent";
 import ColoredButton from "../../components/ColoredButton";
 import Colors from "../../constants/Colors";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useTheme } from "../context/ThemeContext";
+import { Calendar } from "lucide-react-native";
+import ErrorComponent from "../../components/ErrorComponent";
 
 type AddStepProps = NativeStackScreenProps<RootStackParamList, "AddStep">;
 export default function AddStep({ navigation, route }: AddStepProps) {
     const { processId, previousStepId } = route.params
+    const { textColor, borderColor } = useTheme()
     const [loading, setLoading] = useState(false)
     const [showSuccessModal, setShowSuccessModal] = useState(false)
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
-    const [minDate, setMinDate] = useState<Date | null>(new Date())
+    const [minDate, setMinDate] = useState<Date | null>(null)
     const [showMinDate, setShowMinDate] = useState(false)
-    const [maxDate, setMaxDate] = useState<Date | null>(new Date())
+    const [maxDate, setMaxDate] = useState<Date | null>(null)
     const [showMaxDate, setShowMaxDate] = useState(false)
     const [amount, setAmount] = useState<number>(0)
+    const [errMessage, setErrMessage] = useState("")
     const { user } = useAuth()
     const addStep = async () => {
         try {
@@ -42,58 +47,145 @@ export default function AddStep({ navigation, route }: AddStepProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
-    const setMinimumDate = (event: any, selectedDate: any) => {
-        const utcDate = new Date(selectedDate)
-        const localDate = new Date(
-            utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
-        )
-        setMinDate(localDate)
-        setShowMinDate(false)
-    }
+    const setMinimumDate = (event: any, selectedDate: Date | undefined) => {
+        if (!selectedDate) return;
+        setMinDate(selectedDate);
+        setShowMinDate(false);
+    };
     const setMaximumDate = (event: any, selectedDate: any) => {
-        const utcDate = new Date(selectedDate)
-        const localDate = new Date(
-            utcDate.getTime() - utcDate.getTimezoneOffset() * 60000
-        )
-        setMaxDate(localDate)
-        setShowMaxDate(false)
+        if (!selectedDate) return;
+        setMaxDate(selectedDate);
+        setShowMaxDate(false);
     }
     const handleUpload = async () => {
-        if (title != '' && description != '' && amount > 0 && minDate != null && maxDate != null) {
-            setLoading(true)
-            const result = await addStep()
-            if (!result.error) {
-                setShowSuccessModal(true)
-            }
-            setLoading(false)
+        if (!title || !description || !minDate || !maxDate) {
+            setErrMessage("All forms must be filled")
+            return
         }
+        if (amount < 10000) {
+            setErrMessage("Amount must be greater than or equal to Rp.10.000")
+            return
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const min = new Date(minDate);
+        min.setHours(0, 0, 0, 0);
+
+        const max = new Date(maxDate);
+        max.setHours(0, 0, 0, 0);
+
+        if (min > max) {
+            setErrMessage("Invalid estimation date")
+            return
+        }
+
+        if (min < today || max < today) {
+            setErrMessage("Date must be somewhere in the future");
+            return;
+        }
+        setLoading(true)
+        const result = await addStep()
+        if (!result.error) {
+            setShowSuccessModal(true)
+        }
+        setLoading(false)
     }
     return (
         <View>
             <TopBar title="Add Step" showBackButton />
-            <ConfirmedModal onPress={() => navigation.goBack()} visible={showSuccessModal} message={"New step has been added"} />
-            <TextInputComponent placeholder="Title" onChangeText={setTitle} />
-            <TextInputComponent placeholder="Description" onChangeText={setDescription} />
-            <ColoredButton style={{ backgroundColor: Colors.green }} title={"Select min date"} onPress={() => setShowMinDate(true)} />
-            {showMinDate == true && minDate ?
-                <DateTimePicker
-                    value={minDate}
-                    mode="date"
-                    is24Hour={true}
-                    onChange={setMinimumDate}
-                />
-                : <></>}
-            <ColoredButton style={{ backgroundColor: Colors.green }} title={"Select max date"} onPress={() => setShowMaxDate(true)} />
-            {showMaxDate == true && maxDate ?
-                <DateTimePicker
-                    value={maxDate}
-                    mode="date"
-                    is24Hour={true}
-                    onChange={setMaximumDate}
-                />
-                : <></>}
-            <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
-            <ColoredButton style={{ backgroundColor: Colors.green }} title={"Add step"} onPress={() => handleUpload()} isLoading={loading} />
+            <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showSuccessModal} message={"New step has been added"} />
+            <View style={{ padding: 20, gap: 10 }}>
+                <View>
+                    <Text style={{
+                        color: textColor,
+                        fontWeight: 'bold',
+                        marginBottom: 10
+                    }}>Title</Text>
+                    <TextInputComponent placeholder="Title" onChangeText={setTitle} />
+                </View>
+                <View>
+                    <Text style={{
+                        color: textColor,
+                        fontWeight: 'bold',
+                        marginBottom: 10
+                    }}>Description</Text>
+                    <TextInputComponent placeholder="Description" onChangeText={setDescription} />
+                </View>
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    <View style={{ width: '45%' }}>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Min Estimate</Text>
+                        <TouchableOpacity style={[
+                            styles.date,
+                            { borderColor: borderColor }
+                        ]} onPress={() => setShowMinDate(true)}>
+                            <Calendar color={textColor} />
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: 'bold'
+                            }}>{minDate?.toLocaleDateString()}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ width: '45%' }}>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            marginBottom: 10
+                        }}>Max Estimate</Text>
+                        <TouchableOpacity style={[
+                            styles.date,
+                            { borderColor: borderColor }
+                        ]} onPress={() => setShowMaxDate(true)}>
+                            <Calendar color={textColor} />
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: 'bold'
+                            }}>{maxDate?.toLocaleDateString()}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                {showMinDate == true ?
+                    <DateTimePicker
+                        value={minDate ? minDate : new Date()}
+                        mode="date"
+                        is24Hour={true}
+                        onChange={setMinimumDate}
+                    />
+                    : <></>}
+                {showMaxDate == true ?
+                    <DateTimePicker
+                        value={maxDate ? maxDate : new Date()}
+                        mode="date"
+                        is24Hour={true}
+                        onChange={setMaximumDate}
+                    />
+                    : <></>}
+                <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
+                {errMessage ?
+                    <ErrorComponent errorsString={errMessage} />
+                    : <></>}
+                <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Add step"} onPress={() => handleUpload()} isLoading={loading} />
+            </View>
+
         </View>
     )
 }
+const styles = StyleSheet.create({
+    button: {
+        height: 40,
+        padding: 10,
+    },
+    date: {
+        padding: 15,
+        borderWidth: 1,
+        borderRadius: 10,
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center',
+    },
+})

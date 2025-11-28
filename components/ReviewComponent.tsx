@@ -10,13 +10,10 @@ import { useAuth } from "../app/context/AuthContext";
 import PfpComponent from "./PfpComponent";
 
 export default function ReviewComponent({ review, navigation, isSeller }: { review: ReviewResponse, navigation: any, isSeller: boolean }) {
-    const { theme } = useTheme()
+    const { foregroundColor , textColor } = useTheme()
     const { onGetUserToken, user } = useAuth()
     const [likes, setLikes] = useState(review.likes)
     const [liked, setLiked] = useState(review.liked)
-    const background = theme == "dark" ? Colors.darkGray : Colors.offWhite;
-    const textColor = theme == "dark" ? "white" : 'black'
-    var placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
     var likePost = async () => {
         try {
             const token = await onGetUserToken!()
@@ -71,7 +68,7 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
         }
     }
     return (
-        <View style={[styles.container, { backgroundColor: background, marginHorizontal: 20, marginBottom: 10 }]}>
+        <View style={[styles.container, { backgroundColor: foregroundColor , marginHorizontal: 20, marginBottom: 10 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <PfpComponent width={32} pfp={review.authorPfp} userId={review.authorId} navigation={navigation} />
@@ -117,14 +114,13 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
     )
 }
 export function ReviewComponentShort({ review, navigation, isEnd }: { review: ReviewResponse, navigation: any, isEnd: boolean }) {
-    const { theme } = useTheme()
-    const background = theme == "dark" ? Colors.darkGray : Colors.offWhite;
-    const textColor = theme == "dark" ? "white" : 'black'
+    const { foregroundColor, textColor} = useTheme()
+
     return (
         <View style={[styles.container, {
             width: 250,
             marginRight: isEnd ? 0 : 10,
-            backgroundColor: background
+            backgroundColor: foregroundColor
         }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <PfpComponent width={32} pfp={review.authorPfp} userId={""} navigation={navigation} />

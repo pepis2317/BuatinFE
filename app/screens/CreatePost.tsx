@@ -17,8 +17,7 @@ import { useTheme } from "../context/ThemeContext";
 type CreatePostProps = NativeStackScreenProps<RootStackParamList, "CreatePost">
 export default function CreatePost({ navigation, route }: CreatePostProps) {
     const { user } = useAuth()
-    const { theme } = useTheme()
-    const textColor = theme == "dark" ? "white" : "black"
+    const { textColor } = useTheme()
     const [images, setImages] = useState<string[]>([])
     const [caption, setCaption] = useState("")
     const [loading, setLoading] = useState(false)
@@ -76,13 +75,12 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
             }
             setLoading(false)
         }
-        console.log(user?.userId, caption, images.length)
     }
 
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"Create Post"} showBackButton />
-            <ConfirmedModal visible={showConfirmed} message={"Post Created"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showConfirmed} message={"Post Created"} onPress={() => navigation.goBack()} />
             <View style={styles.imagesContainer}>
                 <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
                     <View style={styles.addBorder}>
@@ -103,14 +101,17 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
                     ))}
                 </ScrollView>
             </View>
-            <ScrollView style={{ padding: 20, gap: 20 }}>
-                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Review</Text>
-                <TextInputComponent style={{ height: inputHeight }} placeholder="Caption" onChangeText={setCaption} multiline
-                    onContentSizeChange={(e) => {
-                        const newHeight = e.nativeEvent.contentSize.height;
-                        setInputHeight(Math.min(newHeight, 120));
-                    }}
-                />
+            <ScrollView style={{ padding: 20 }}>
+                <View style={{marginBottom:10}}>
+                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Review</Text>
+                    <TextInputComponent style={{ height: inputHeight }} placeholder="Caption" onChangeText={setCaption} multiline
+                        onContentSizeChange={(e) => {
+                            const newHeight = e.nativeEvent.contentSize.height;
+                            setInputHeight(Math.min(newHeight, 120));
+                        }}
+                    />
+                </View>
+
                 <ColoredButton title={"Create Post"} style={{ backgroundColor: "#5CCFA3", width: "100%" }} onPress={() => handleUpload()} isLoading={loading} />
             </ScrollView>
         </View>

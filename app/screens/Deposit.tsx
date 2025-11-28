@@ -10,15 +10,21 @@ import ColoredButton from "../../components/ColoredButton";
 import ConfirmedModal from "../../components/ConfirmedModal";
 import { useAuth } from "../context/AuthContext";
 import PaymentModal from "../../components/PaymentModal";
+import TopBar from "../../components/TopBar";
+import { useTheme } from "../context/ThemeContext";
+import Colors from "../../constants/Colors";
+import ErrorComponent from "../../components/ErrorComponent";
 
 type DepositProps = NativeStackScreenProps<RootStackParamList, "Deposit">
 export default function Deposit({ navigation, route }: DepositProps) {
+    const { textColor } = useTheme()
     const [snapUrl, setSnapUrl] = useState('')
     const [loading, setLoading] = useState(false)
     const [amount, setAmount] = useState(0)
     const [showPayment, setShowPayment] = useState(false)
     const [showSnapFailed, setShowSnapFailed] = useState(false)
     const [showSnapPaid, setShowSnapPaid] = useState(false)
+    const [errMessage, setErrMessage] = useState('')
     const { onGetUserToken } = useAuth()
     const deposit = async (amount: number) => {
         try {
@@ -36,6 +42,10 @@ export default function Deposit({ navigation, route }: DepositProps) {
         }
     }
     const handleSnapPay = async () => {
+        if(amount<10000){
+            setErrMessage("Amount must be greater than or equal to Rp10.000")
+            return
+        }
         setLoading(true)
         const result = await deposit(amount * 100)
         if (!result.error) {
@@ -49,12 +59,28 @@ export default function Deposit({ navigation, route }: DepositProps) {
         }
     }, [snapUrl])
     return (
-        <View>
-            <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
-            <ConfirmedModal onPress={() => navigation.goBack()} visible={showSnapPaid} message={"Step has been paid with snap"} />
-            <ConfirmedModal onPress={() => setShowSnapFailed(false)} visible={showSnapFailed} message={"Something went wrong with the snap payment"} />
-            <ColoredButton title={"Deposit"} onPress={() => handleSnapPay()} />
-            <PaymentModal showPayment={showPayment} snapUrl={snapUrl}
+        <View style={{ flex: 1 }}>
+            <TopBar title={"Deposit"} showBackButton />
+            <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showSnapPaid} message={"Step has been paid with snap"} />
+            <ConfirmedModal isFail={true} onPress={() => setShowSnapFailed(false)} visible={showSnapFailed} message={"Something went wrong with the snap payment"} />
+            <View style={{ padding: 20, gap: 10 }}>
+                <View>
+                    <Text style={{
+                        color: textColor,
+                        fontWeight: 'bold',
+                        marginBottom: 10
+                    }}>Amount</Text>
+                    <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
+                </View>
+                {errMessage ?
+                    <ErrorComponent errorsString={errMessage} />
+                    : <></>}
+                <ColoredButton title={"Deposit"} style={{ backgroundColor: Colors.green }} onPress={() => handleSnapPay()} isLoading={loading} />
+            </View>
+
+            <PaymentModal
+                showPayment={showPayment}
+                snapUrl={snapUrl}
                 closePaymentModal={() => setShowPayment(false)}
                 onSuccess={() => {
                     setShowPayment(false);
@@ -62,7 +88,7 @@ export default function Deposit({ navigation, route }: DepositProps) {
                 }} onFailed={() => {
                     setShowPayment(false);
                     setShowSnapFailed(true)
-                }} onLoadEnd={()=>setLoading(false)} />
+                }} onLoadEnd={() => setLoading(false)} />
         </View>
     )
 }

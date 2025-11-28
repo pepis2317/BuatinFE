@@ -1,19 +1,19 @@
-import { View, Image, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { View, Image, StyleSheet, Text, TouchableOpacity, Pressable } from "react-native";
 import { useEffect, useState } from "react";
 import { useTheme } from "../app/context/ThemeContext";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import Colors from "../constants/Colors";
 import { ProcessResponse } from "../types/ProcesssResponse";
-import PfpComponent from "./PfpComponent";
-export default function ProcessComponent({ process, navigation, isSeller }: { process: ProcessResponse, navigation: any, isSeller: boolean }) {
-    const { theme } = useTheme()
+import PfpComponent, { SellerPic } from "./PfpComponent";
+export default function ProcessComponent({ process, navigation, isSeller}: { process: ProcessResponse, navigation: any, isSeller: boolean}) {
+    const { textColor, subtleBorderColor } = useTheme()
     const [statusColor, setStatusColor] = useState(Colors.darkBorder)
-    var textColor = theme == "dark" ? "white" : "black"
 
     const handlenNavigate = () => {
         if (isSeller == true) {
             navigation.navigate('SellerProcessDetails', { processId: process.processId })
+
         } else {
             navigation.navigate('ProcessDetails', { processId: process.processId })
         }
@@ -26,20 +26,23 @@ export default function ProcessComponent({ process, navigation, isSeller }: { pr
         }
     }, [])
     return (
-        <TouchableOpacity style={[styles.container]} onPress={() => handlenNavigate()}>
+        <Pressable style={[styles.container, { borderColor: subtleBorderColor }]} onPress={() => handlenNavigate()}>
             <View style={styles.left}>
-                <PfpComponent width={50} pfp={isSeller?process.user.pfp:process.seller.sellerPicture} userId={""} navigation={navigation}/>
+                {isSeller ?
+                    <PfpComponent width={50} pfp={process.user.pfp} userId={process.user.userId} navigation={navigation} /> :
+                    <SellerPic width={50} pfp={process.seller.sellerPicture} sellerId={process.seller.sellerId} navigation={navigation} />
+                }
                 <View style={styles.leftContent}>
                     <Text style={{ color: textColor, fontWeight: "bold" }}>
                         {process.title}
                     </Text>
-                    <Text style={{ color: 'gray', fontSize:12}}>
-                        {isSeller? `Process for ${process.user.userName}`:`Process by ${process.seller.sellerName}`}
+                    <Text style={{ color: 'gray', fontSize: 12 }}>
+                        {isSeller ? `Process for ${process.user.userName}` : `Process by ${process.seller.sellerName}`}
                     </Text>
                     <Text style={[styles.comment, { color: statusColor }]}>{process.status}</Text>
                 </View>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     )
 }
 const styles = StyleSheet.create({
@@ -47,8 +50,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "flex-start",
         width: "100%",
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.darkGray,
+        borderBottomWidth: 1
     },
     left: {
         padding: 15,
@@ -68,7 +70,7 @@ const styles = StyleSheet.create({
     },
     comment: {
         flexShrink: 1,
-        fontSize:12,
+        fontSize: 12,
         flexWrap: "wrap",
     }
 });

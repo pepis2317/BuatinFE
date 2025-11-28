@@ -7,11 +7,9 @@ import { API_URL } from "../constants/ApiUri";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../app/context/ThemeContext";
 
-export default function StepsList({ processId, navigation, editable, renderHeader }: { processId: string, navigation: any, editable: boolean, renderHeader: () => any }) {
+export default function StepsList({ processId, navigation, editable, renderHeader, setLatestStep }: { processId: string, navigation: any, editable: boolean, renderHeader: () => any, setLatestStep: (step: StepResponse) => void }) {
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
-    const refreshRef = useRef(false)
-    const { theme } = useTheme()
     const [steps, setSteps] = useState<StepResponse[]>([])
     const [total, setTotal] = useState(0)
     const [refresh, setRefresh] = useState(false)
@@ -29,27 +27,25 @@ export default function StepsList({ processId, navigation, editable, renderHeade
         loadingRef.current = true;
         const result = await fetchSteps(page);
         if (!result.error) {
+            const newSteps = result.steps;
+            const lastStep = newSteps[newSteps.length - 1];
+
             if (replace) {
-                setSteps(result.steps)
+                setSteps(newSteps);
             } else {
-                setSteps(prev => [...prev, ...result.steps])
+                setSteps(prev => [...prev, ...newSteps]);
             }
+
+            setLatestStep(lastStep);
+
             setTotal(result.total);
         }
         loadingRef.current = false;
     };
     const handleRefresh = useCallback(async () => {
-        if (refreshRef.current) return
-        refreshRef.current = true
-        setRefresh(true)
-        try {
-            reset()
-        } finally {
-            setRefresh(false);
-            refreshRef.current = false;
-            setRefreshTick(t => t + 1);
-        }
+        reset()
     }, [handleFetch])
+    
     const loadMore = async () => {
         if (!loadingRef.current && steps.length < total) {
             loadingRef.current = true;
@@ -59,6 +55,7 @@ export default function StepsList({ processId, navigation, editable, renderHeade
     };
     const reset = async () => {
         pageRef.current = 1
+        setRefreshTick(0)
         await handleFetch(1, true)
     }
     useFocusEffect(
@@ -71,7 +68,7 @@ export default function StepsList({ processId, navigation, editable, renderHeade
             ListHeaderComponent={renderHeader}
             data={steps}
             keyExtractor={(item) => `${item.stepId}:${refreshTick}`}
-            renderItem={({ item }: { item: StepResponse }) => <StepComponent step={item} navigation={navigation} editable={editable} />}
+            renderItem={({ item, index }: { item: StepResponse, index:number }) => <StepComponent step={item} navigation={navigation} editable={editable} index={ index+1 } />}
             keyboardShouldPersistTaps="handled"
             onEndReached={loadMore}
             onEndReachedThreshold={0.2}
@@ -79,10 +76,7 @@ export default function StepsList({ processId, navigation, editable, renderHeade
                 <RefreshControl refreshing={refresh} onRefresh={handleRefresh} />
             }
             ListFooterComponent={
-                loadingRef.current ?
-                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
-                    :
-                    <View style={{ marginTop: 64 }} />
+                <View style={{ marginTop: 64 }} />
             }
         />
     )

@@ -1,33 +1,25 @@
-import axios from "axios";
-import { API_URL } from "../constants/ApiUri";
-import { CommentResponse } from "../types/CommentResponse";
-import { View, Image, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { useEffect, useState } from "react";
+import { View, StyleSheet, Text, Pressable } from "react-native";
 import { useTheme } from "../app/context/ThemeContext";
-import { Heart } from "lucide-react-native";
-import relativeTime from "dayjs/plugin/relativeTime";
-import dayjs from "dayjs";
-import Colors from "../constants/Colors";
-import { OrderRequestResponse } from "../types/OrderRequestResponse";
 import { ProcessResponse } from "../types/ProcesssResponse";
 import PfpComponent from "./PfpComponent";
-export default function ShippableComponent({ process, navigation}: { process: ProcessResponse, navigation: any }) {
-    const { theme } = useTheme()
-    var textColor = theme == "dark" ? "white" : "black"
+export default function ShippableComponent({ process, navigation}: { process: ProcessResponse, navigation: any}) {
+    const { textColor, subtleBorderColor } = useTheme()
     return (
-        <TouchableOpacity style={[styles.container]} onPress={() => navigation.navigate('CreateShipment', { processId: process.processId })}>
+        <Pressable style={[styles.container, { borderColor: subtleBorderColor }]} onPress={() => {
+            navigation.navigate('CreateShipment', { processId: process.processId })
+        }}>
             <View style={styles.left}>
-                <PfpComponent width={50} pfp={process.user.pfp} userId={""} navigation={navigation}/>
+                <PfpComponent width={50} pfp={process.user.pfp} userId={""} navigation={navigation} />
                 <View style={styles.leftContent}>
                     <Text style={{ color: textColor, fontWeight: "bold" }}>
                         {process.title}
                     </Text>
-                    <Text style={{ color: 'gray', fontSize:12}}>
+                    <Text style={{ color: 'gray', fontSize: 12 }}>
                         {`Create Shipping Order for ${process.user.userName}'s Product`}
                     </Text>
                 </View>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     )
 }
 const styles = StyleSheet.create({
@@ -35,8 +27,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "flex-start",
         width: "100%",
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.darkGray,
+        borderBottomWidth: 1
     },
     left: {
         padding: 15,
@@ -58,7 +49,7 @@ const styles = StyleSheet.create({
         flexShrink: 1,
         flexWrap: "wrap",
     },
-    
+
     pfp: {
         width: 55,
         aspectRatio: 1,

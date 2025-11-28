@@ -9,10 +9,8 @@ import { PostResponse } from "../types/PostResponse";
 import Colors from "../constants/Colors";
 
 export default function PostCard({ post, onPress }: { post: PostResponse, onPress: () => void }) {
-    const { theme } = useTheme()
+    const { theme, borderColor, subtleBorderColor} = useTheme()
     const { width } = Dimensions.get("window");
-    const placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
-    const iconColor = theme == "dark" ? Colors.darkBorder : Colors.lightBorder
     const numColumns = 3;
     const itemSize = width / numColumns;
     return (
@@ -25,8 +23,8 @@ export default function PostCard({ post, onPress }: { post: PostResponse, onPres
 
                     </View>
                     :
-                    <View style={[styles.thumbnail, { backgroundColor: placeholderColor }]} >
-                        <ImageIcon size={50} color={iconColor} />
+                    <View style={[styles.thumbnail, { backgroundColor: subtleBorderColor }]} >
+                        <ImageIcon size={50} color={borderColor} />
                     </View>
                 }
             </View>

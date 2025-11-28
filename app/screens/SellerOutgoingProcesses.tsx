@@ -22,9 +22,7 @@ type ProcessesProps = NativeStackScreenProps<RootStackParamList, "SellerOutgoing
 export default function SellerOutgoingProcesses({ navigation, route }: ProcessesProps) {
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
-    const { theme } = useTheme()
-    const backgroundColor = theme == "dark" ? Colors.darkBackground : Colors.lightBackground
-    const selectedColor = theme == "dark" ? "white" : "black"
+    const { theme, backgroundColor, textColor } = useTheme()
     const unselectedColor = theme == "dark" ? Colors.offWhite : Colors.darkGray
     const routes = [
         { key: 'Processes', title: 'Processes' },
@@ -32,7 +30,7 @@ export default function SellerOutgoingProcesses({ navigation, route }: Processes
     ];
     return (
         <View style={{ flex: 1 }}>
-            <TopBar title={"Outgoing Processes"} showBackButton/>
+            <TopBar title={"Processes"} showBackButton/>
             <TabView
                 style={{ flex: 1 }}
                 navigationState={{ index, routes }}
@@ -51,7 +49,7 @@ export default function SellerOutgoingProcesses({ navigation, route }: Processes
                 renderTabBar={(props) => (
                     <TabBar
                         {...props}
-                        activeColor={selectedColor}
+                        activeColor={textColor}
                         inactiveColor={unselectedColor}
                         scrollEnabled={false}
                         indicatorStyle={{ backgroundColor: Colors.green }}

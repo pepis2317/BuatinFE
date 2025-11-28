@@ -9,7 +9,7 @@ export default function TextInputComponent({ style, ...props }:Props) {
     const { theme } = useTheme()
     const base = theme == "dark" ? styles.darkTextInput : styles.lighTextInput
     return (
-        <TextInput style={[base, style, { fontSize: 16 }]} placeholderTextColor={theme == "dark" ? "#636C7C" : "#C4C4C4"} {...props} />
+        <TextInput style={[base, style, { fontSize: 16, padding:10 }]} placeholderTextColor={theme == "dark" ? "#636C7C" : "#C4C4C4"} {...props} />
     )
 }
 

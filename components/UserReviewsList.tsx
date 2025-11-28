@@ -13,7 +13,7 @@ export default function UserReviewsList({userId, navigation}:{userId:string, nav
     const {onGetUserToken} = useAuth()
     const [reviews, setReviews] = useState<ReviewResponse[]>([])
     const [total, setTotal] = useState(0)
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     const [refresh, setRefresh] = useState(false)
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
@@ -58,16 +58,19 @@ export default function UserReviewsList({userId, navigation}:{userId:string, nav
         refreshRef.current = true
         setRefresh(true)
         try {
-            pageRef.current = 1
-            await handleFetch(1, true)
+            reset()
         } finally {
             setRefresh(false);
             refreshRef.current = false;
         }
     }, [handleFetch])
+    const reset = async () => {
+        pageRef.current = 1
+        await handleFetch(1, true)
+    }
     useFocusEffect(
         useCallback(() => {
-            handleRefresh()
+            reset()
         }, [])
     );
     return (
@@ -83,7 +86,7 @@ export default function UserReviewsList({userId, navigation}:{userId:string, nav
             }
             ListFooterComponent={
                 loadingRef.current ?
-                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                    <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     :
                     <View style={{ marginTop: 64 }} />
             }

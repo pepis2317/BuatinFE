@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useTheme } from "../app/context/ThemeContext";
 
 export default function SellersList({ sellers, isLoading, onReachEnd }: { sellers: SellerResponse[], isLoading: boolean, onReachEnd: () => void }) {
-    const { theme } = useTheme()
+    const { textColor } = useTheme()
     return (
         <FlatList
             data={sellers}
@@ -17,6 +17,6 @@ export default function SellersList({ sellers, isLoading, onReachEnd }: { seller
             )}
             onEndReached={onReachEnd}
             onEndReachedThreshold={0.5}
-            ListFooterComponent={isLoading ? <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} /> : <View style={{ marginTop: 64 }} />} />
+            ListFooterComponent={isLoading ? <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} /> : <View style={{ marginTop: 64 }} />} />
     )
 }

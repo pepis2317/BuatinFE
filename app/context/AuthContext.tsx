@@ -8,7 +8,7 @@ import { API_URL } from "../../constants/ApiUri";
 interface AuthProps {
     user?: User | null
     authState?: { authenticated: boolean | null; }
-    onRegister?: (username: string, email: string, password: string, phone: string, postalCode: number, address: string, role: string) => Promise<any>
+    onRegister?: (username: string, email: string, password: string, phone: string, postalCode: number, address: string, role: string, latitude:number, longitude:number) => Promise<any>
     onLogin?: (email: string, password: string) => Promise<any>
     onLogout?: () => Promise<any>
     onUserUpdate?: (user: User) => Promise<any>
@@ -24,6 +24,10 @@ export interface User {
     userName?: string
     role?: string
     password?: string
+    address?: string
+    postalCode?: string
+    latitude?: number
+    longitude?: number
 }
 export const TOKEN_KEY = "access_token"
 const REFRESH_TOKEN_KEY = "refresh_token"
@@ -43,7 +47,7 @@ export default function AuthProvider({ children }: any) {
     const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
 
-    const register = async (username: string, email: string, password: string, phone: string, postalCode: number, address: string, role: string) => {
+    const register = async (username: string, email: string, password: string, phone: string, postalCode: number, address: string, role: string, latitude:number, longitude:number) => {
         try {
             const response = await axios.post(`${API_URL}/register-user`, {
                 UserName: username,
@@ -53,6 +57,8 @@ export default function AuthProvider({ children }: any) {
                 PostalCode: postalCode,
                 Address: address,
                 Role: role,
+                Latitude: latitude,
+                Longitude: longitude,
             })
             return response.data
         } catch (e) {

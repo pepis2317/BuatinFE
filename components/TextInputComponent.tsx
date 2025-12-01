@@ -15,7 +15,8 @@ export default function TextInputComponent({ style, ...props }:Props) {
 
 const styles = StyleSheet.create({
     formContainer: {
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         gap: 12,
         width: "100%"
     },
@@ -26,7 +27,8 @@ const styles = StyleSheet.create({
         color: 'white',
         width:"100%",
         height: 45,
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         borderRadius: 6
     },
     lighTextInput: {
@@ -36,7 +38,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor:'#D9D9D9',
         height: 45,
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         borderRadius: 6
     }
 })

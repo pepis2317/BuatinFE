@@ -25,6 +25,7 @@ const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerR
     const [topreviews, setTopReviews] = useState<ReviewResponse[]>([])
     const textColor = theme == "dark" ? "white" : "black"
     const bgColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
+
     const getStats = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-seller-stats`, {
@@ -37,6 +38,7 @@ const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerR
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const getTopReviews = async () => {
         try {
             const token = await onGetUserToken!()
@@ -51,25 +53,32 @@ const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerR
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleGetStats = async () => {
         const result = await getStats()
         if (!result.error) {
             setStats(result)
         }
     }
+
     const handleGetReviews = async () => {
         const result = await getTopReviews()
         if (!result.error) {
             setTopReviews(result.reviews)
         }
     }
+
     useEffect(() => {
         handleGetStats()
         handleGetReviews()
     }, [])
+
     return (
+
         <ScrollView style={{ flex: 1 }}>
+
             <SellerDetailComponent seller={seller} navigation={navigation} editing={false} />
+            
             {stats ?
                 <View style={[styles.stats, { backgroundColor: bgColor }]}>
                     <View style={styles.leftStats}>
@@ -106,20 +115,22 @@ const DetailsRoute = ({ seller, navigation, editable, theme }: { seller: SellerR
 
                 : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
             }
+
             <View style={{ padding: 20 }}>
                 {editable ?
                     <View>
-                        <ColoredButton title={"Edit Seller"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('EditSeller')} />
-                        <ColoredButton title={"Create Post"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate("CreatePost")} />
+                        <ColoredButton title={"Edit Seller"} style={{ backgroundColor: Colors.primary }} onPress={() => navigation.navigate('EditSeller')} />
+                        <ColoredButton title={"Create Post"} style={{ backgroundColor: Colors.primary }} onPress={() => navigation.navigate("CreatePost")} />
                     </View>
 
-                    : <ColoredButton title={"Create Order Request"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('OrderRequest', { sellerId: seller.sellerId })} />
+                    : <ColoredButton title={"Create Order Request"} style={{ backgroundColor: Colors.primary }} onPress={() => navigation.navigate('OrderRequest', { sellerId: seller.sellerId })} />
                 }
             </View>
 
         </ScrollView>
     )
 }
+
 type Cursor = {
     lastId: string | null
     lastCreatedAt: string | null
@@ -311,7 +322,7 @@ export default function SellerDetails({ navigation, route }: SellerDetailProps) 
                             activeColor={selectedColor}
                             inactiveColor={unselectedColor}
                             scrollEnabled={false}
-                            indicatorStyle={{ backgroundColor: Colors.green }}
+                            indicatorStyle={{ backgroundColor: Colors.primary }}
                             style={{ backgroundColor: backgroundColor }}
                         />
                     )}

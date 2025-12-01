@@ -15,6 +15,7 @@ import TopBar from "../../components/TopBar";
 import { API_URL } from "../../constants/ApiUri";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import { useSignalR } from "../context/SignalRContext";
+import colors from "../../constants/Colors";
 
 export default function Profile() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -26,6 +27,7 @@ export default function Profile() {
     const [userName, setUserName] = useState<string | undefined>("")
     const [selectedImage, setSelectedImage] = useState<string | undefined>("");
     const { theme } = useTheme()
+
     useEffect(() => {
         if (user) {
             setEmail(user.email)
@@ -39,36 +41,30 @@ export default function Profile() {
     }, [user])
 
     const pickImageAsync = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: true,
-            quality: 1,
-            aspect: [1, 1]
-        })
+        let result = await ImagePicker.launchImageLibraryAsync({ allowsEditing: true, quality: 1, aspect: [1, 1] })
         if (!result.canceled) {
             setSelectedImage(result.assets[0].uri);
         }
     }
+
     const updateUser = async (user: User) => {
         try {
             const filteredData = Object.fromEntries(
                 Object.entries(user).filter(([_, value]) => value !== null && value !== undefined)
             );
             const response = await axios.put(`${API_URL}/edit-user`, filteredData, {
-                headers: {
-                    "Content-Type": "application/json",
-                }
+                headers: { "Content-Type": "application/json", }
             })
             return response.data
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     const uploadPfp = async (formData: FormData) => {
         try {
             const response = await axios.post(`${API_URL}/upload-pfp`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                },
+                headers: { "Content-Type": "multipart/form-data" },
             });
 
             return response.data;
@@ -79,6 +75,7 @@ export default function Profile() {
             };
         }
     }
+
     const handleUpload = async () => {
         if (user?.userId) {
             let newUser: User = {
@@ -113,21 +110,29 @@ export default function Profile() {
                     title: "Success",
                     preset: "done",
                     message: "Profile Successfully Updated"
-
                 })
             }
         }
     }
+
     const handleLogOut = async () => {
         await stop()
         onLogout!()
     }
+
     return (
+
         <View>
+
+            {/* Top Bar */}
             <TopBar title={"Profile"} showBackButton={false} />
+
+
             {user ?
                 <ScrollView>
+
                     <View style={styles.formContainer}>
+
                         <TouchableOpacity onPress={pickImageAsync}>
                             <Image
                                 source={selectedImage && selectedImage !== "" ? { uri: selectedImage } : require('../../assets/default.jpg')}
@@ -137,17 +142,26 @@ export default function Profile() {
                                 <Pencil size={20} color={"white"} />
                             </View>
                         </TouchableOpacity>
-                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%" }}>User Name</Text>
+
+                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%", fontSize: 16 }}>User Name</Text>
                         <TextInputComponent autoCapitalize="none" placeholder="User Name" onChangeText={setUserName} value={userName} />
-                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%" }}>Email</Text>
+
+                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%", fontSize: 16 }}>Email</Text>
                         <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail} value={email} />
-                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%" }}>Password</Text>
+                        
+                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%", fontSize: 16 }}>Password</Text>
                         <TextInputComponent autoCapitalize="none" placeholder="Password" onChangeText={setPassword} value={password} secureTextEntry={true} />
-                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%" }}>Phone</Text>
+                        
+                        <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold", textAlign: "left", width: "100%", fontSize: 16 }}>Phone</Text>
                         <PhoneInputComponent onPhoneChange={setPhone} defaultValue={user.phone ? user.phone : ""} />
-                        <ColoredButton title={"Save Changes"} style={{ backgroundColor: "#5CCFA3", width: "100%" }} onPress={handleUpload} />
-                        <ColoredButton title={"Log Out"} style={{ backgroundColor: "#F56565", width: "100%" }} onPress={() => handleLogOut() } />
+                        
+                        <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', gap: 16, marginTop: 8}}>
+                            <ColoredButton title={"Log Out"} style={{ backgroundColor: colors.red, flex: 1}} onPress={() => handleLogOut() } />
+                            <ColoredButton title={"Save Changes"} style={{ backgroundColor: colors.primary, flex: 1}} onPress={handleUpload} />
+                        </View>
+
                     </View>
+
                 </ScrollView>
 
                 : <></>}
@@ -168,19 +182,19 @@ const styles = StyleSheet.create({
         top: 0
     },
     formContainer: {
-        padding: 10,
-        paddingTop: 25,
-        gap: 10,
+        padding: 16,
+        paddingTop: 24,
+        gap: 12,
         alignItems: 'center',
         width: "100%"
     },
-    textInput: {
-        width: "100%",
-        backgroundColor: "white",
-        height: 50,
-        padding: 10,
-        borderRadius: 5
-    },
+    // textInput: {
+    //     width: "100%",
+    //     backgroundColor: "white",
+    //     height: 50,
+    //     padding: 10,
+    //     borderRadius: 5
+    // },
     pfp: {
         borderRadius: 100,
         width: 100,

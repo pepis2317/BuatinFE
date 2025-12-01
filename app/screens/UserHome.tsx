@@ -133,6 +133,8 @@ export default function UserHome() {
                         numColumns={2}
                         columnWrapperStyle={{ marginBottom: 16, columnGap: COLUMN_GAP }}
                         showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+                        decelerationRate="normal"
                         keyExtractor={(seller) => seller.sellerId}
                         renderItem={({ item }) => (
                             <View style={styles.cardWrapper}>

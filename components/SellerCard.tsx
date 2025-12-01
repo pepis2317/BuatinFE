@@ -12,9 +12,13 @@ export default function SellerCard({ seller }: { seller: SellerResponse }) {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const placeholderColor = theme == "dark" ? Colors.darkGray : Colors.offWhite
     const iconColor = theme == "dark" ? Colors.darkBorder : Colors.lightBorder
+
     return (
         <TouchableOpacity style={theme == "dark" ? styles.seller : styles.lightSeller} onPress={() => navigation.navigate("SellerDetails", { sellerId: seller.sellerId })}>
-            <View style={{ width: "100%", padding: 5 }}>
+
+            <View style={{ width: "100%"}}>
+
+                {/* Seller Image */}
                 {seller.banner ?
                     <Image src={seller.banner} style={styles.thumbnail} />
                     :
@@ -22,28 +26,43 @@ export default function SellerCard({ seller }: { seller: SellerResponse }) {
                         <ImageIcon size={50} color={iconColor} />
                     </View>
                 }
+
+                {/* Seller Info */}
                 <View style={styles.info}>
+
+                    {/* Seller Name */}
                     <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.sellerName}</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Star fill={"gold"} size={16} color={"gold"} />
-                        <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.rating.toPrecision(2)}</Text>
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>  
+                        {/* Rating */}
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Star fill={"gold"} size={12} color={"gold"} />
+                            <Text style={theme == "dark" ? styles.darkText : styles.lightText}>{seller.rating} 5 • </Text> 
+                            {/* <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.rating.toPrecision(2)}</Text> */}
+                        </View>
+                        
+                        {/* Clients */}
+                        <Text style={theme == "dark" ? styles.darkText : styles.lightText}>{seller.clients}10 Clients</Text>
                     </View>
-                    <Text style={theme == "dark" ? styles.darkText : styles.lightText}>{seller.clients} Clients</Text>
+
                 </View>
+
             </View>
+
         </TouchableOpacity>
     )
 }
+
 const styles = StyleSheet.create({
     seller: {
         alignItems: "center",
-        width: "50%",
+        // width: "50%",
         overflow: 'hidden',
         position: 'relative',
     },
     lightSeller: {
         alignItems: "center",
-        width: "50%",
+        // width: "50%",
         overflow: 'hidden',
         position: 'relative',
     },
@@ -52,9 +71,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
-        height: 200,
-        borderRadius: 5,
-
+        height: 172,
+        borderRadius: 6,
     },
     darkTitle: {
         color: 'white',
@@ -65,15 +83,16 @@ const styles = StyleSheet.create({
         fontSize: 12
     },
     lightText: {
-        color: 'black'
+        color: 'black',
+        fontSize: 12
     },
     lightTitle: {
         color: 'black',
         fontWeight: 'bold',
     },
     info: {
-        marginTop: 5,
+        marginTop: 8,
         width: "100%",
-        gap: 2
+        gap: 4
     }
 });

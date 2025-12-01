@@ -141,7 +141,7 @@ export default function Chat({ navigation, route }: ChatProps) {
         if (!result.error) {
             setMessage('')
             setAttachments([])
-            setInputHeight(0)
+            setInputHeight(40);
         }
         setLoading(false)
     }
@@ -154,6 +154,7 @@ export default function Chat({ navigation, route }: ChatProps) {
             }
             setLoading(false)
             setMessage('')
+            setInputHeight(40);
         }
     }
     const pickFromFiles = async () => {
@@ -287,9 +288,12 @@ export default function Chat({ navigation, route }: ChatProps) {
                     styles.inputContainer,
                     { borderColor: borderColor }
                 ]}>
-                    <TouchableOpacity style={styles.attachmentsButton} onPress={() => pickFromFiles()}>
-                        <PlusCircle color={textColor} />
-                    </TouchableOpacity>
+                    {!editMessage ?
+                        <TouchableOpacity style={styles.attachmentsButton} onPress={() => pickFromFiles()}>
+                            <PlusCircle color={textColor} />
+                        </TouchableOpacity>
+                        : <></>}
+
 
                     <TextInput
                         multiline

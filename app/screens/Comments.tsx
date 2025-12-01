@@ -45,7 +45,7 @@ export default function Comments({ navigation, route }: CommentsDetailProps) {
                 setComments(prev => [result, ...prev]);
             }
             setMessage("")
-            setInputHeight(0)
+            setInputHeight(40)
             setMessageLoading(false)
         }
     }

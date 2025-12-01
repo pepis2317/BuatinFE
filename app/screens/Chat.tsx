@@ -199,12 +199,12 @@ export default function Chat({ navigation, route }: ChatProps) {
         setAnchor({ message: message, x: x, y: y });
     }
     useEffect(() => {
-        if (message == '' && attachments.length == 0) {
+        if (message == '') {
             setCanSend(false)
         } else {
             setCanSend(true)
         }
-    }, [message, attachments.length])
+    }, [message])
     return (
         <KeyboardAvoidingView style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -308,11 +308,11 @@ export default function Chat({ navigation, route }: ChatProps) {
                     />
 
                     {editMessage ?
-                        <TouchableOpacity style={styles.sendButton} onPress={() => handleEdit()} disabled={!canSend || loading}>
+                        <TouchableOpacity style={[styles.sendButton, { backgroundColor: canSend ? Colors.green : subtleBorderColor }]} onPress={() => handleEdit()} disabled={!canSend || loading}>
                             {loading ? <ActivityIndicator size="small" style={{ height: 20 }} color={textColor} /> : <Save color={"white"} size={20} />}
                         </TouchableOpacity>
                         :
-                        <TouchableOpacity style={styles.sendButton} onPress={() => handleSend()} disabled={!canSend || loading}>
+                        <TouchableOpacity style={[styles.sendButton, { backgroundColor: canSend ? Colors.green : subtleBorderColor }]} onPress={() => handleSend()} disabled={!canSend || loading}>
                             {loading ? <ActivityIndicator size="small" style={{ height: 20 }} color={textColor} /> : <Send color={"white"} size={20} />}
                         </TouchableOpacity>
                     }
@@ -370,7 +370,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: 40,
         aspectRatio: 1,
-        backgroundColor: Colors.green
     },
     backgroundStyle: {
         borderTopLeftRadius: 10,

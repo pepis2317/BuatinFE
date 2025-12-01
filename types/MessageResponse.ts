@@ -5,5 +5,5 @@ export type MessageResponse = {
     hasAttachments: boolean
     createdAt: string
     updatedAt: string | null
-    DeletedAt: string | null
+    deletedAt: string | null
 }

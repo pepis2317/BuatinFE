@@ -41,7 +41,7 @@ export default function ChatComponent({ item, handleLongPress }: { item: Message
         if (item.hasAttachments) {
             handleFetchAttachments()
         }
-    }, [])
+    }, [item.hasAttachments])
     return (
         <View style={[styles.container, item.senderId == user?.userId ? { alignItems: 'flex-end' } : {}, item.message != "" ? { marginVertical: 5 } : {}]}>
             {item.message != "" ?
@@ -51,33 +51,38 @@ export default function ChatComponent({ item, handleLongPress }: { item: Message
                     onLongPress={(e) => handleLongPress(item, e)}
                     delayLongPress={300}
                 >
-                    <Text style={[{ color: textColor }, item.senderId == user?.userId ? { textAlign: 'right', color: 'white' } : {}]}>{item.message}</Text>
+                    <Text style={[{ color: item.deletedAt ? 'gray' : textColor }, item.senderId == user?.userId ? { textAlign: 'right', color: item.deletedAt ? 'gray' : textColor  } : {}]}>{item.message}</Text>
                 </Pressable>
                 : <></>}
-            {!loading ?
-                attachments.map((attachment) => (
-                    <TouchableOpacity
-                        key={attachment.attachmentId}
-                        onPress={() => downloadAttachment(attachment)}
-                        disabled={downloadingId === attachment.attachmentId}
-                        style={[styles.attachment, { backgroundColor: subtleBorderColor, borderColor: borderColor }]}
-                    >
-                        <File color={Colors.green} size={30} />
-                        <Text style={{ color: textColor, marginTop: 10 }}>
-                            {decodeURIComponent(attachment.fileName)}
-                        </Text>
-                        {downloadingId === attachment.attachmentId ?
-                            <Text style={{ color: textColor }}>
-                                Downloading...
+            {item.hasAttachments ?
+                !loading ?
+                    attachments.map((attachment) => (
+                        <TouchableOpacity
+                            key={attachment.attachmentId}
+                            // onLongPress={(e) => handleLongPress(item, e)}
+                            onPress={() => downloadAttachment(attachment)}
+                            disabled={downloadingId === attachment.attachmentId}
+                            style={[styles.attachment, { backgroundColor: subtleBorderColor, borderColor: borderColor }]}
+                        >
+                            <File color={Colors.green} size={30} />
+                            <Text style={{ color: textColor, marginTop: 10 }}>
+                                {decodeURIComponent(attachment.fileName)}
                             </Text>
-                            : <></>}
-                    </TouchableOpacity>
-                ))
-                : <ActivityIndicator size="small" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />}
+                            {downloadingId === attachment.attachmentId ?
+                                <Text style={{ color: textColor }}>
+                                    Downloading...
+                                </Text>
+                                : <></>}
+                        </TouchableOpacity>
+                    ))
+                    : <ActivityIndicator size="small" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
+                : <></>}
 
             {item.message != "" ?
                 <Text style={{ color: 'gray', fontSize: 10, marginHorizontal: 5, marginTop: 1 }}>
-                    {item.updatedAt != null ? "(Edited) " + new Date(item.updatedAt).toLocaleTimeString() : new Date(item.createdAt).toLocaleTimeString()}
+                    {item.deletedAt != null ? "(Deleted) " + new Date(item.deletedAt).toLocaleTimeString() :
+                        item.updatedAt != null ? "(Edited) " + new Date(item.updatedAt).toLocaleTimeString() :
+                            new Date(item.createdAt).toLocaleTimeString()}
                 </Text>
                 : <></>}
 

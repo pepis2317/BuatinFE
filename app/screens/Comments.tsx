@@ -15,7 +15,7 @@ import CommentsList from "../../components/CommentsList";
 type CommentsDetailProps = NativeStackScreenProps<RootStackParamList, "Comments">;
 export default function Comments({ navigation, route }: CommentsDetailProps) {
     const { postId } = route.params
-    const { theme, borderColor, textColor } = useTheme()
+    const { theme, borderColor, textColor, subtleBorderColor } = useTheme()
     const { onGetUserToken } = useAuth()
     const [comments, setComments] = useState<CommentResponse[]>([])
     const [message, setMessage] = useState("")
@@ -80,7 +80,7 @@ export default function Comments({ navigation, route }: CommentsDetailProps) {
                             setInputHeight(Math.max(40, Math.min(newHeight, 120)));
                         }}
                     />
-                    <TouchableOpacity style={styles.sendButton} onPress={() => handlePost()}>
+                    <TouchableOpacity style={[styles.sendButton, { backgroundColor: message!="" ? Colors.green : subtleBorderColor }]} onPress={() => handlePost()} disabled={message==""}>
                         {messageLoading ? <ActivityIndicator size="small" style={{ height: 20 }} color={theme == "dark" ? "white" : "black"} /> : <Send color={"white"} size={20} />}
                     </TouchableOpacity>
                 </View>
@@ -101,7 +101,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: 40,
         aspectRatio: 1,
-        backgroundColor: Colors.green
     },
     backgroundStyle: {
         borderTopLeftRadius: 10,

@@ -26,11 +26,10 @@ const mergeUnique = (base: MessageResponse[], add: MessageResponse[]) => {
 const sortByCreatedDesc = (arr: MessageResponse[]) =>
     arr.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-export default function MessagesList({ conversationId, onSelect }: { conversationId: string, onSelect: (message: MessageResponse, x: number, y: number) => void }) {
+export default function MessagesList({ conversationId, onSelect, messages, setMessages }: { conversationId: string, onSelect: (message: MessageResponse, x: number, y: number) => void, messages: MessageResponse[], setMessages: React.Dispatch<React.SetStateAction<MessageResponse[]>> }) {
     const { on, off } = useSignalR();
     const { onGetUserToken } = useAuth()
-    const [messages, setMessages] = useState<MessageResponse[]>([]);
-    const {textColor} = useTheme()
+    const { textColor } = useTheme()
     const [refreshing, setRefreshing] = useState(false);
     const [loadingOlder, setLoadingOlder] = useState(false);
     const loadingRef = useRef(false);
@@ -236,7 +235,7 @@ export default function MessagesList({ conversationId, onSelect }: { conversatio
     return (
         <FlatList
             ref={listRef}
-            style={{paddingHorizontal:20}}
+            style={{ paddingHorizontal: 20 }}
             onScroll={e => { onScroll(e); onScrollCapture(e); }}
             scrollEventThrottle={16}
             data={messages}

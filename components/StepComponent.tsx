@@ -97,7 +97,7 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                             </View>
                         </View>
 
-                        <View style={[styles.status, { backgroundColor: subtleBorderColor}]}>
+                        <View style={[styles.status, { backgroundColor: subtleBorderColor }]}>
                             <Text style={{ color: statusColor, fontWeight: 'bold' }}>
                                 {step.status}
                             </Text>
@@ -111,11 +111,11 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                         }
 
                         {editable == false && step.status == "Submitted" ?
-                            <View style={[styles.paymentInfo, { backgroundColor: subtleBorderColor}]}>
+                            <View style={[styles.paymentInfo, { backgroundColor: subtleBorderColor }]}>
                                 <Text style={{ color: textColor, fontWeight: 'bold' }}>Price:</Text>
                                 <Text style={{ color: textColor, marginBottom: 10 }}>Rp.{step.price / 100}</Text>
                                 <View style={styles.buttonContainer}>
-                                    <ColoredButton title={"Accept & Pay step"} style={{ backgroundColor: Colors.green, width: '48%'}} onPress={() => navigation.navigate('AcceptAndPay', { stepId: step.stepId })} />
+                                    <ColoredButton title={"Accept & Pay step"} style={{ backgroundColor: Colors.green, width: '48%' }} onPress={() => navigation.navigate('AcceptAndPay', { stepId: step.stepId })} />
                                     <ColoredButton title={"Decline step"} style={{ backgroundColor: Colors.peach, width: '48%' }} onPress={() => handleDecline()} isLoading={loading} />
                                 </View>
                             </View>
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     paymentInfo: {
         padding: 20,
         paddingVertical: 10,
-        paddingTop:0
+        paddingTop: 0
     },
     buttonContainer: {
         flexDirection: 'row',

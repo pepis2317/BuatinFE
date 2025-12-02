@@ -74,6 +74,7 @@ export default function Chat({ navigation, route }: ChatProps) {
     const { subtleBorderColor, borderColor, textColor } = useTheme()
     const { onGetUserToken } = useAuth()
     const [message, setMessage] = useState('')
+    const [messages, setMessages] = useState<MessageResponse[]>([]);
     const [loading, setLoading] = useState(false)
     const [editMessage, setEditMessage] = useState<MessageResponse | null>(null)
     const [anchor, setAnchor] = useState<Anchor | null>(null);
@@ -245,7 +246,7 @@ export default function Chat({ navigation, route }: ChatProps) {
                     : <></>
                 }
             </Popover>
-            <MessagesList conversationId={conversationId} onSelect={onSelect} />
+            <MessagesList conversationId={conversationId} onSelect={onSelect} messages={messages}  setMessages={setMessages}/>
             <View>
                 <ScrollView
                     horizontal

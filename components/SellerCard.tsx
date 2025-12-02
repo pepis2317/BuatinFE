@@ -14,16 +14,16 @@ export default function SellerCard({ seller }: { seller: SellerResponse }) {
         <TouchableOpacity style={theme == "dark" ? styles.seller : styles.lightSeller} onPress={() => navigation.navigate("SellerDetails", { sellerId: seller.sellerId })}>
             <View style={{ width: "100%", padding: 5 }}>
                 {seller.banner ?
-                    <Image src={seller.banner} style={styles.thumbnail} />
+                    <Image src={seller.sellerPicture} style={styles.thumbnail} />
                     :
                     <View style={[styles.thumbnail, { backgroundColor: subtleBorderColor }]} >
                         <ImageIcon size={50} color={borderColor} />
                     </View>
                 }
                 <View style={styles.info}>
-                    <View style={{ flexDirection: 'row', alignItems:'flex-start', gap:5 }}>
-                        <Image src={seller.sellerPicture} style={[styles.sellerPic, { backgroundColor: subtleBorderColor, borderColor: borderColor }]} />
-                        <View style={{marginTop:-2}}>
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 5 }}>
+
+                        <View style={{ marginTop: -2 }}>
                             <Text ellipsizeMode="tail" numberOfLines={2} style={theme == "dark" ? styles.darkTitle : styles.lightTitle}>{seller.sellerName}</Text>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Star fill={"gold"} size={16} color={"gold"} />
@@ -41,9 +41,9 @@ export default function SellerCard({ seller }: { seller: SellerResponse }) {
 }
 const styles = StyleSheet.create({
     sellerPic: {
-        width: 32,
-        height: 32,
-        borderRadius: 32,
+        width: 90,
+        height: 90,
+        borderRadius: 5,
         borderWidth: 1
     },
     seller: {

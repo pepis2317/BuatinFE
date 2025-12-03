@@ -24,7 +24,7 @@ export default function ProcessComponent({ process, navigation, isSeller}: { pro
         } else if (process.status == "Cancelled") {
             setStatusColor(Colors.peach)
         }
-    }, [])
+    }, [process.status])
     return (
         <Pressable style={[styles.container, { borderColor: subtleBorderColor }]} onPress={() => handlenNavigate()}>
             <View style={styles.left}>

@@ -25,10 +25,7 @@ export function SellerPic({ width, pfp, sellerId, navigation }: { width: number,
     }
     return (
         <Pressable disabled={sellerId == ""} style={{ position: 'relative' }} onPress={() => handleNavigate()}>
-            <View style={{pointerEvents:'none',padding:5,backgroundColor:foregroundColor, width:20, aspectRatio:1, borderRadius:20, alignItems:'center', justifyContent:'center', position:'absolute',zIndex:10, top:0, left:0}}>
-                <Store color={Colors.green} size={16} />
-            </View>
-            <Image style={{ backgroundColor: subtleBorderColor, width: width, borderRadius: width, aspectRatio: 1, borderWidth: 1, borderColor: borderColor }} src={pfp ? pfp : ""} />
+            <Image style={{ backgroundColor: subtleBorderColor, width: width, borderRadius: 5, aspectRatio: 1, borderWidth: 1, borderColor: borderColor }} src={pfp ? pfp : ""} />
         </Pressable>
     )
 }

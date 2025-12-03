@@ -1,12 +1,6 @@
-import axios from "axios";
-import { API_URL } from "../constants/ApiUri";
-import { CommentResponse } from "../types/CommentResponse";
 import { View, Image, StyleSheet, Text, TouchableOpacity, Pressable } from "react-native";
 import { useEffect, useState } from "react";
 import { useTheme } from "../app/context/ThemeContext";
-import { Heart } from "lucide-react-native";
-import relativeTime from "dayjs/plugin/relativeTime";
-import dayjs from "dayjs";
 import Colors from "../constants/Colors";
 import { OrderRequestResponse } from "../types/OrderRequestResponse";
 import PfpComponent, { SellerPic } from "./PfpComponent";
@@ -19,7 +13,7 @@ export default function OrderRequestComponent({ request, navigation, respondable
         } else if (request.status == "Declined") {
             setStatusColor(Colors.peach)
         }
-    }, [])
+    }, [request.status])
     return (
         <Pressable style={[styles.container, { borderColor: subtleBorderColor }]} onPress={() => {
             navigation.navigate('OrderRequestDetails', { orderRequest: request, respondable: respondable })

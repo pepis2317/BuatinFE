@@ -13,6 +13,7 @@ import { API_URL } from "../../constants/ApiUri";
 import { useFocusEffect } from "@react-navigation/native";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import ConfirmedModal from "../../components/ConfirmedModal";
+import DeclineModal from "../../components/DeclineModal";
 
 type OrderRequestDetailsProps = NativeStackScreenProps<RootStackParamList, "OrderRequestDetails">
 export default function OrderRequestDetails({ navigation, route }: OrderRequestDetailsProps) {
@@ -22,13 +23,15 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
     const [answer, setAnswer] = useState(orderRequest.status)
     const [acceptConfirmation, setAcceptConfirmation] = useState(false)
     const [declineConfirmation, setDeclineConfirmation] = useState(false)
+    const [showDeclineModal, setShowDeclineModal] = useState(false)
     const [declined, setShowDeclined] = useState(false)
     const [images, setImages] = useState<string[]>([])
-    const respond = async (status: string) => {
+    const respond = async (status: string, reason: string | null) => {
         try {
             const res = await axios.put(`${API_URL}/respond-order-request`, {
                 requestId: orderRequest.requestId,
-                status: status
+                status: status,
+                declineReason: reason
             })
             return res.data
         } catch (e) {
@@ -43,11 +46,12 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
-    const handleDecline = async () => {
+    const handleDecline = async (reason: string) => {
         setLoading(true)
-        const result = await respond("Declined")
+        const result = await respond("Declined", reason)
         if (!result.error) {
             setAnswer("Declined")
+            setShowDeclineModal(false)
             setDeclineConfirmation(false)
             setShowDeclined(true)
         }
@@ -69,7 +73,8 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
                 setAcceptConfirmation(false)
                 navigation.navigate('CreateProcess', { requestId: orderRequest.requestId })
             }} onCancel={() => setAcceptConfirmation(false)} />
-            <ConfirmationModal visible={declineConfirmation} message={"Decline order request?"} onAccept={() => handleDecline()} onCancel={() => setDeclineConfirmation(false)} />
+            <DeclineModal onDecline={handleDecline} showModal={showDeclineModal} onClose={() => setShowDeclineModal(false)} />
+            {/* <ConfirmationModal visible={declineConfirmation} message={"Decline order request?"} onAccept={handleDecline} onCancel={() => setDeclineConfirmation(false)} /> */}
             <ConfirmedModal isFail={false} visible={declined} message={"Request Declined"} onPress={() => navigation.goBack()} />
             <View style={{ padding: 20 }}>
                 <View style={[
@@ -94,13 +99,23 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
                         {answer == 'Pending' ?
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <ColoredButton title={"Accept"} style={[{ backgroundColor: Colors.green }, styles.button]} isLoading={loading} onPress={() => setAcceptConfirmation(true)} />
-                                <ColoredButton title={"Decline"} style={[{ backgroundColor: Colors.peach }, styles.button]} isLoading={loading} onPress={() => setDeclineConfirmation(true)} />
+                                <ColoredButton title={"Decline"} style={[{ backgroundColor: Colors.peach }, styles.button]} isLoading={loading} onPress={() => setShowDeclineModal(true)} />
                             </View>
                             : <></>
                         }
 
                     </View>
                 }
+                {orderRequest.declineReason ?
+                    <View style={[styles.container, { borderColor: Colors.peach }]}>
+                        <Text style={{
+                            color: textColor,
+                            fontWeight: 'bold',
+                            fontSize: 16
+                        }}>Decline Reason</Text>
+                        <Text style={{ color: textColor }}>{orderRequest.declineReason}</Text>
+                    </View>
+                    : <></>}
             </View>
 
 

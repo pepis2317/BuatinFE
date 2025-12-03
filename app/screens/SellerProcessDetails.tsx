@@ -31,7 +31,6 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
     const [process, setProcess] = useState<ProcessResponse>()
     const [latestStep, setLatestStep] = useState<StepResponse>()
     const { theme, borderColor, backgroundColor, textColor, subtleBorderColor } = useTheme()
-    const createCompletionRef = useRef(false)
     const fetchRefund = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-refund-by-process-id?processId=${processId}`)
@@ -73,36 +72,28 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
         }
     }
     const handleCreateCompleteRequest = async () => {
-        createCompletionRef.current = true
+        if (completeRequest) {
+            return
+        }
         const result = await createCompleteRequest()
         if (!result.error) {
             setRequestCreated(true)
             setCompleteModal(false)
             setCompleteRequest(result)
-        }
-        createCompletionRef.current = false
-    }
-    const handleGetCompleteRequest = async () => {
-        const result = await fetchCompleteRequest()
-        if (!result.error) {
-            if (result) {
-                setCompleteRequest(result)
-            }
+            setCanComplete(false)
         }
     }
     const handleFetchProcess = async () => {
-        createCompletionRef.current = true
+
         const result = await fetchProcess()
         if (!result.error) {
             setProcess(result)
+            const completeRequest = await fetchCompleteRequest()
+            if (!completeRequest.error) {
+                setCompleteRequest(completeRequest)
+            }
         }
-        createCompletionRef.current = false
     }
-    useEffect(() => {
-        if (process) {
-            handleGetCompleteRequest()
-        }
-    }, [process])
     useEffect(() => {
         handleFetchProcess()
         handleGetRefund()
@@ -113,12 +104,12 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
         } else {
             setCanAdd(false)
         }
-        if (latestStep && latestStep.status == "Completed" && !(refund && refund.status == "Pending")) {
+        if (!completeRequest && (latestStep && latestStep.status == "Completed" && !(refund && refund.status == "Pending"))) {
             setCanComplete(true)
         } else {
             setCanComplete(false)
         }
-    }, [latestStep])
+    }, [latestStep, completeRequest, refund])
     const renderHeader = () => (
         <View>
             {process ?

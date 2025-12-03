@@ -8,4 +8,5 @@ export type OrderRequestResponse={
     sellerName:string
     buyerPictureUrl:string
     sellerPictureUrl:string
+    declineReason:string|null
 }

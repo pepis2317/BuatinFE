@@ -119,9 +119,7 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
             </TouchableOpacity>
             <View style={styles.info}>
                 <TouchableOpacity onPress={pickPictureAsync} disabled={!editing} style={styles.pictureContainer}>
-                    <View style={[styles.pfpBorder, { backgroundColor: backgroundColor }]}>
-                        <Image style={[styles.picture, { backgroundColor: subtleBorderColor }]} src={picture ? picture : ""} />
-                    </View>
+                    <Image style={[styles.picture, { backgroundColor: subtleBorderColor, borderColor:borderColor }]} src={picture ? picture : ""} />
 
                     {editing ?
                         <View style={[styles.pencil, { right: -5, top: -5 }]}>
@@ -182,17 +180,12 @@ const styles = StyleSheet.create({
         position: 'relative',
         width: 85,
     },
-    pfpBorder: {
-        width: 85,
-        aspectRatio: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 100,
-    },
     picture: {
         width: 80,
         aspectRatio: 1,
-        borderRadius: 80
+        borderRadius: 10,
+        borderWidth:1,
+        marginBottom:5
     },
     seller: {
         alignItems: "center",

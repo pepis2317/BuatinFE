@@ -23,6 +23,7 @@ export default function SelectLocation({ navigation, route }: SelectLocationProp
         }
         const location = await Location.getCurrentPositionAsync({});
         setLocation(location)
+        setCoords(location.coords)
     }
     const handleSetLocation = (e: any) => {
         setCoords(e.coordinates)

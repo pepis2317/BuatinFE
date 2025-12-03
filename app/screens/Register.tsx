@@ -147,6 +147,7 @@ export default function Register() {
             setCanSubmit(false)
         }
     }, [role, email, password, userName, phone, postalCode, address, sellerName, location])
+    useEffect(()=>{console.log(sellerName)},[sellerName])
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"Register"} showBackButton={true} />
@@ -227,7 +228,7 @@ export default function Register() {
                         {role == "Seller" ?
                             <View>
                                 <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold" }}>Seller Name</Text>
-                                <TextInputComponent autoCapitalize="none" placeholder="Seller Name" onChangeText={setSellerName} />
+                                <TextInputComponent autoCapitalize="none" placeholder="Seller Name" onChangeText={setSellerName} value={sellerName} />
                             </View>
                             : <></>
                         }

@@ -8,6 +8,7 @@ const colors = {
     darkGray:"#31363F",
     darkBorder:"#636C7C",
     green:"#5CCFA3",
+    darkGreen:"#569685",
     red:"#EF4444",
     peach:"#F56565",
 

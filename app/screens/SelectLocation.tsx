@@ -9,12 +9,15 @@ import ColoredButton from "../../components/ColoredButton";
 import TopBar from "../../components/TopBar";
 import Colors from "../../constants/Colors";
 import { MapPin } from "lucide-react-native";
+
 type SelectLocationProps = NativeStackScreenProps<RootStackParamList, "SelectLocation">
+
 export default function SelectLocation({ navigation, route }: SelectLocationProps) {
     const [location, setLocation] = useState<Location.LocationObject | undefined>()
     const [coords, setCoords] = useState<{ latitude: number, longitude: number }>()
     const { textColor } = useTheme()
     const { onSelectLocation, margin } = route.params
+
     const handleGetLocation = async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
@@ -25,27 +28,32 @@ export default function SelectLocation({ navigation, route }: SelectLocationProp
         setLocation(location)
         setCoords(location.coords)
     }
+
     const handleSetLocation = (e: any) => {
         setCoords(e.coordinates)
     }
+
     const handleSelect = () => {
         if (coords) {
             onSelectLocation({ latitude: coords.latitude, longitude: coords.longitude })
             navigation.goBack()
         }
-
     }
+
     useEffect(() => {
         handleGetLocation()
     }, [])
+
     return (
         <View style={{ flex: 1 }}>
-            <TopBar title={"Select location"} showBackButton />
+
+            <TopBar title={"Select Location"} showBackButton />
+            
             {location ?
                 <View style={{ flex: 1 }}>
                     <View style={{ flex: 1, position: 'relative' }}>
                         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', zIndex: 10, pointerEvents: 'none' }}>
-                            <MapPin color={Colors.green} size={32} />
+                            <MapPin color={Colors.secondary} size={32} />
                         </View>
 
                         <GoogleMaps.View cameraPosition={{
@@ -59,7 +67,7 @@ export default function SelectLocation({ navigation, route }: SelectLocationProp
                             onCameraMove={(e) => handleSetLocation(e)}
                         />
                     </View>
-                    <ColoredButton title={"Set Location"} style={{ marginBottom: margin ? 60 : 0, marginHorizontal: 20, marginTop: 10, backgroundColor: Colors.green }} onPress={() => handleSelect()} />
+                    <ColoredButton title={"Set Location"} style={{ marginBottom: margin ? 60 : 0, marginHorizontal: 20, marginTop: 10, backgroundColor: Colors.primary }} onPress={() => handleSelect()} />
                 </View>
 
                 :

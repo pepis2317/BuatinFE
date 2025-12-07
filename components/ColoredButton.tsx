@@ -13,11 +13,13 @@ export default function ColoredButton({ title, style, isLoading, ...rest }: Butt
     )
 }
 const styles = StyleSheet.create({
-    button: {
-        padding: 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 5
+    button:{
+        padding:16,
+        alignItems:'center',
+        justifyContent:'center',
+        borderRadius:8,
+        fontSize: 16,
+        fontWeight: "bold",
     }
 })
 

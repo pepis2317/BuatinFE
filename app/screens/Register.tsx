@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, Text, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
+import { View, StyleSheet, Text, KeyboardAvoidingView, ScrollView, Platform, TouchableOpacity } from "react-native";
 import PhoneInputComponent from "../../components/PhoneInputComponent";
 import { useAuth } from "../context/AuthContext";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -11,16 +11,18 @@ import { useNavigation } from "@react-navigation/native";
 import ErrorComponent from "../../components/ErrorComponent";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import TopBar from "../../components/TopBar";
-import Colors from "../../constants/Colors";
+import colors from "../../constants/Colors";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
 
 type Coord = { latitude: number; longitude: number };
+
 type AddressComponent = {
     long_name: string;
     short_name: string;
     types: string[];
 };
+
 export default function Register() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const [email, setEmail] = useState("")
@@ -39,6 +41,7 @@ export default function Register() {
     const [canSubmit, setCanSubmit] = useState(false)
     const { onRegister } = useAuth()
     const { textColor, subtleBorderColor, theme, borderColor } = useTheme()
+
     const reverseGeocode = async () => {
         if (location) {
             try {
@@ -49,8 +52,9 @@ export default function Register() {
             }
         }
     }
-    const get = (comp: AddressComponent[], type: string) =>
-        comp.find(c => c.types.includes(type))?.long_name;
+    
+    const get = (comp: AddressComponent[], type: string) => comp.find(c => c.types.includes(type))?.long_name;
+    
     const handleReverseGeocode = async () => {
         const result = await reverseGeocode();
 
@@ -83,7 +87,6 @@ export default function Register() {
         }
     };
 
-
     const register = async () => {
         if (role == "User") {
             if (!email || !password || !userName || !phone || !role || !postalCode || !address || !location) {
@@ -114,7 +117,6 @@ export default function Register() {
                 navigation.goBack()
             }
         }
-
     }
 
     const createSeller = async (userName: string, password: string, email: string, phone: string, role: string, postalCode: number, address: string, sellerName: string, lat: number, long: number) => {
@@ -136,9 +138,11 @@ export default function Register() {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     useEffect(() => {
         handleReverseGeocode()
     }, [location])
+
     useEffect(() => {
         if ((role == "User" && email && password && userName && phone && postalCode && address && location)
             || (role == "Seller" && email && password && userName && phone && postalCode && address && sellerName && location)) {
@@ -149,81 +153,113 @@ export default function Register() {
     }, [role, email, password, userName, phone, postalCode, address, sellerName, location])
     useEffect(()=>{console.log(sellerName)},[sellerName])
     return (
+
         <View style={{ flex: 1 }}>
+
+            {/* Top Bar */}
             <TopBar title={"Register"} showBackButton={true} />
+
             <KeyboardAvoidingView style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : "height"} // important
-                keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}>
+                keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+            >
+
                 <ScrollView >
+
+                    {/* Input Fields */}
                     <View style={styles.formContainer}>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: "bold"
-                        }}>User Name</Text>
-                        <TextInputComponent autoCapitalize="none" placeholder="User Name" onChangeText={setUserName} />
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: "bold"
-                        }}>Email</Text>
-                        <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail} />
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: "bold"
-                        }}>Phone</Text>
+
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Username</Text>
+					    <TextInputComponent autoCapitalize="none" placeholder="Username" onChangeText={setUserName}/>
+					
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Email</Text>
+                        <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail}/>
+
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Phone</Text>
                         <PhoneInputComponent defaultValue="" onPhoneChange={setPhone} />
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: "bold"
-                        }}>Password</Text>
-                        <TextInputComponent autoCapitalize="none" secureTextEntry={true} placeholder="Password" onChangeText={setPassword} />
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: "bold"
-                        }}>Role</Text>
+                    
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Password</Text>
+                        <TextInputComponent autoCapitalize="none" secureTextEntry={true} placeholder="Password" onChangeText={setPassword}/>
+
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Zip Code</Text>
+                        <TextInputComponent autoCapitalize="none" placeholder="Zip code" keyboardType="numeric" onChangeText={setPostalCode}/>
+
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Address</Text>
+                        <TextInputComponent autoCapitalize="none" placeholder="Address" onChangeText={setAddress}/>
+                        
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Role</Text>
                         <View style={theme == "dark" ? styles.DarkPickerContainer : styles.LightPickerContainer}>
-                            <Picker style={theme == "dark" ? { color: "white" } : { color: "black" }} dropdownIconColor={theme == "dark" ? Colors.darkerOffWhite : ""} selectedValue={role} onValueChange={(val) => val == "none" ? setRole("User") : setRole(val)} >
-                                <Picker.Item label="Select Role" value="none" />
+                            <Picker 
+                                mode="dropdown"
+                                style={theme == "dark" ? { color: "white" } : { color: "black" }} 
+                                dropdownIconColor={theme == "dark" ? colors.darkerOffWhite : ""} 
+                                selectedValue={role} 
+                                onValueChange={(val) => val == "none" ? setRole("User") : setRole(val)}
+                            >
+                                {role === "" && (
+                                    <Picker.Item
+                                        label="Select Role"
+                                        value="none"
+                                    />
+							    )}
                                 <Picker.Item label="User" value="User" />
                                 <Picker.Item label="Seller" value="Seller" />
                             </Picker>
                         </View>
-                        <View style={{ padding: 10, backgroundColor: subtleBorderColor, borderWidth: 1, borderColor: borderColor, borderRadius: 5 }}>
-                            <ColoredButton title={"Set location"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('SelectLocation', {
+                        
+                        {/* Set Location Button */}
+                        <TouchableOpacity 
+                            style={styles.locationButton}
+                            onPress={() => navigation.navigate('SelectLocation', {
+                                margin: true,
+                                onSelectLocation: (coords) => { setLocation(coords) }
+                            }
+                        )}>
+                            <Text style={{ fontSize: 14, fontWeight: "bold" }}>Set Location on Map</Text>
+                        </TouchableOpacity>
+
+                        <ColoredButton
+                            title={"Set Location"}
+                            style={{ backgroundColor: colors.secondary }}
+                            onPress={() => navigation.navigate('SelectLocation', {
                                 margin: true,
                                 onSelectLocation: (coords) => {
                                     setLocation(coords)
                                 }
-                            })} />
-                            {geoAddress ?
-                                <View style={{ marginTop: 10 }}>
-                                    <Text style={{
-                                        color: 'gray',
-                                        fontWeight: 'bold'
-                                    }}>Inferred Address:</Text>
-                                    <Text style={{ color: 'gray' }}>{geoAddress}</Text>
-                                    <Text style={{
-                                        color: textColor,
-                                        fontWeight: "bold",
-                                        marginTop: 10
-                                    }}>Postal Code</Text>
-                                    <TextInputComponent autoCapitalize="none" placeholder="Postal code" keyboardType="numeric" onChangeText={setPostalCode} value={postalCode} />
-                                    <Text style={{
-                                        color: textColor,
-                                        fontWeight: "bold",
-                                        marginTop: 10
-                                    }}>Address</Text>
-                                    <TextInputComponent style={{ height: inputHeight }} placeholder="Caption" onChangeText={setAddress} value={address} multiline
-                                        onContentSizeChange={(e) => {
-                                            const newHeight = e.nativeEvent.contentSize.height;
-                                            setInputHeight(Math.min(newHeight, 120));
-                                        }}
-                                    />
-                                </View>
-                                : <></>}
+                            })}
+                        />
 
-                        </View>
+                        {geoAddress ?
+                            <View style={{ marginTop: 10 }}>
 
+                                <Text style={{ color: 'gray', fontWeight: 'bold' }}>Inferred Address:</Text>
+                                <Text style={{ color: 'gray' }}>{geoAddress}</Text>
 
+                                <Text style={{ color: textColor, fontWeight: "bold", marginTop: 10 }}>Postal Code</Text>
+                                <TextInputComponent
+                                    autoCapitalize="none"
+                                    placeholder="Postal Code"
+                                    keyboardType="numeric"
+                                    onChangeText={setPostalCode}
+                                    value={postalCode}
+                                />
+
+                                <Text style={{color: textColor, fontWeight: "bold", marginTop: 10 }}>Address</Text>
+                                <TextInputComponent
+                                    style={{ height: inputHeight }}
+                                    placeholder="Address"
+                                    onChangeText={setAddress}
+                                    value={address}
+                                    multiline
+                                    onContentSizeChange={(e) => {
+                                        const newHeight = e.nativeEvent.contentSize.height;
+                                        setInputHeight(Math.min(newHeight, 120));
+                                    }}
+                                />
+                                
+                            </View>
+                            : <></>
+                        }
 
                         {role == "Seller" ?
                             <View>
@@ -234,42 +270,72 @@ export default function Register() {
                         }
                         {errMessage ? <ErrorComponent errorsString={errMessage} /> : <></>}
                         {canSubmit ?
-                            <ColoredButton title={"Register"} style={{ backgroundColor: Colors.green }} onPress={register} isLoading={loading} />
+                            <ColoredButton 
+                                title={"Register"}
+                                style={{ backgroundColor: colors.primary }}
+                                onPress={register}
+                                isLoading={loading}
+                            />
                             :
-                            <ColoredButton title={"Register"} style={{ backgroundColor: Colors.darkGray }} onPress={register} isLoading={loading} disabled={true} />
+                            <ColoredButton 
+                                title={"Register"}
+                                style={{ backgroundColor: colors.darkGray }}
+                                onPress={register}
+                                isLoading={loading}
+                                disabled={true}
+                            />
                         }
 
                     </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
 
+                </ScrollView>
+
+            </KeyboardAvoidingView>
 
         </View>
     )
 }
 const styles = StyleSheet.create({
     formContainer: {
-        padding: 15,
-        gap: 5,
-        paddingBottom: 100,
+        padding: 24,
+        gap: 12,
     },
+
     DarkPickerContainer: {
-        borderStyle: 'solid',
-        borderColor: '#636C7C',
-        borderWidth: 1,
-        borderRadius: 5,
-        width: '100%'
+        backgroundColor: "#1C1C1E",
+		borderRadius: 6,
+		paddingHorizontal: 12,
+		height: 45,
+		justifyContent: "center",
+		borderColor: "#636C7C",
+		borderWidth: 1,
     },
     LightPickerContainer: {
-        backgroundColor: 'white',
-        color: "black",
-        height: 50,
-        borderRadius: 5
+        backgroundColor: "Colors.white",
+		borderRadius: 6,
+		paddingHorizontal: 12,
+		height: 45,
+		justifyContent: "center",
+		borderColor: "#D9D9D9",
+		borderWidth: 1,
     },
-    textInput: {
-        backgroundColor: "white",
-        height: 50,
-        padding: 10,
-        borderRadius: 5
+
+    locationButton: {
+        width: "100%",
+		height: 48,
+		borderRadius: 8,
+		borderWidth: 1,
+		borderColor: "#ccc",
+		alignItems: "center",
+		justifyContent: "center",
+        backgroundColor:"#fff"
     },
+
+    // textInput: {
+    //     backgroundColor: "white",
+    //     height: 50,
+    //     padding: 10,
+    //     borderRadius: 5
+    // },
+
 })

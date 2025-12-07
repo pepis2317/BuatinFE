@@ -16,7 +16,8 @@
       "supportsTablet": true,
       "config": {
         "googleMapsApiKey": "AIzaSyDg7Bxr3Z2iaOWilJGAPR3xrhgoFJinl9E"
-      }
+      },
+      "bundleIdentifier": "com.pepis2317.BuatinFE"
     },
     "android": {
       "adaptiveIcon": {

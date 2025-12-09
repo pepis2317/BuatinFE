@@ -72,8 +72,6 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
             const result = await handleCreatePost(formData)
             if (!result.error) {
                 setShowConfirmed(true)
-            }else{
-                console.log("hah")
             }
             setLoading(false)
         }

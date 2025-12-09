@@ -18,6 +18,7 @@ export default function EditPost({ navigation, route }: EditProps) {
     const [loading, setLoading] = useState(false)
     const [showConfirmed, setShowConfirmed] = useState(false)
     const [inputHeight, setInputHeight] = useState(0)
+    const [showDeleted, setShowDeleted] = useState(false)
     const editPost = async () => {
         try {
             const response = await axios.put(`${API_URL}/edit-post`, {
@@ -28,6 +29,26 @@ export default function EditPost({ navigation, route }: EditProps) {
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
+    }
+    const deletePost = async () => {
+        try {
+            const response = await axios.delete(`${API_URL}/delete-post`, {
+                data: {
+                    postId: post.postId
+                }
+            })
+            return response.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
+        }
+    }
+    const handleDeletePost = async () => {
+        setLoading(true)
+        const result = await deletePost()
+        if(!result.error){
+            setShowDeleted(true)
+        }
+        setLoading(false)
     }
     const handleEditPost = async () => {
         setLoading(true)
@@ -43,7 +64,8 @@ export default function EditPost({ navigation, route }: EditProps) {
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"Edit Post"} showBackButton />
-            <ConfirmedModal isFail={false} visible={showConfirmed} message={"Review has been edited"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showConfirmed} message={"Post has been edited"} onPress={() => navigation.goBack()} />
+            <ConfirmedModal isFail={false} visible={showDeleted} message={"Post has been deleted"} onPress={() => navigation.pop(2)} />
             <ScrollView style={{ padding: 20, gap: 20 }}>
                 <Text style={{
                     color: textColor,
@@ -57,6 +79,7 @@ export default function EditPost({ navigation, route }: EditProps) {
                     }}
                 />
                 <ColoredButton onPress={() => handleEditPost()} style={{ backgroundColor: Colors.green, width: "100%", marginTop: 20 }} title={"Edit Post"} isLoading={loading} />
+                <ColoredButton onPress={() => handleDeletePost()} style={{ backgroundColor: Colors.peach, width: "100%", marginTop: 20 }} title={"Delete Post"} isLoading={loading} />
             </ScrollView>
         </View>
     )

@@ -13,7 +13,7 @@ import { RootStackParamList } from "../../constants/RootStackParams"
 import { USER_LOCATION_KEY } from "./Settings"
 import { useAuth } from "../context/AuthContext"
 import Colors from "../../constants/Colors"
-import ColoredButton from "../../components/ColoredButton"
+
 const COLUMN_GAP = 16;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const HORIZONTAL_PADDING = 16;

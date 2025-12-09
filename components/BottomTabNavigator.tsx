@@ -51,11 +51,14 @@ import UserReviews from '../app/screens/UserReviews';
 import SellerOutgoingProcesses from '../app/screens/SellerOutgoingProcesses';
 import SellerIncomingShipments from '../app/screens/SellerIncomingShipments';
 import SelectLocation from '../app/screens/SelectLocation';
+
 const UserTab = createBottomTabNavigator<RootStackParamList>()
+
 export function UserTabs() {
     const { theme } = useTheme()
     const bgColor = theme == "dark" ? Colors.darkGray : 'white'
     const iconColor = theme != "dark" ? 'black' : 'white'
+
     const homeTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
@@ -69,6 +72,7 @@ export function UserTabs() {
             <House color={iconColor} />
         ),
     };
+
     const processesTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
@@ -82,6 +86,7 @@ export function UserTabs() {
             <Anvil color={iconColor} />
         ),
     };
+
     const profileTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
@@ -94,6 +99,7 @@ export function UserTabs() {
             <User color={iconColor} />
         ),
     }
+
     const ShipmentsTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
@@ -106,6 +112,7 @@ export function UserTabs() {
             <Truck color={iconColor} />
         ),
     }
+
     const ChatTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
@@ -118,6 +125,7 @@ export function UserTabs() {
             <MessageCircle color={iconColor} />
         ),
     }
+
     return (
         <UserTab.Navigator screenOptions={{ animation: "none", tabBarButton: (props) => <Pressable {...(props as any)} android_ripple={{ color: 'transparent' }} /> }}>
             <UserTab.Screen name="HomeTab" component={HomeStackScreen} options={homeTabOptions} />
@@ -129,8 +137,8 @@ export function UserTabs() {
     );
 }
 
-
 const SellerTab = createBottomTabNavigator<RootStackParamList>();
+
 export function SellerTabs() {
     const { theme, toggleTheme } = useTheme()
     const bgColor = theme == "dark" ? Colors.darkGray : 'white'
@@ -148,6 +156,7 @@ export function SellerTabs() {
             <House color={iconColor} />
         ),
     };
+
     const processesTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
@@ -161,6 +170,7 @@ export function SellerTabs() {
             <Anvil color={iconColor} />
         ),
     };
+
     const profileTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
@@ -174,6 +184,7 @@ export function SellerTabs() {
             <User color={iconColor} />
         ),
     }
+
     const ShipmentsTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
@@ -186,6 +197,7 @@ export function SellerTabs() {
             <Truck color={iconColor} />
         ),
     }
+    
     const ChatTabOptions: BottomTabNavigationOptions = {
         headerShown: false,
         tabBarShowLabel: false,
@@ -198,6 +210,7 @@ export function SellerTabs() {
             <MessageCircle color={iconColor} />
         ),
     }
+
     return (
         <SellerTab.Navigator>
             <SellerTab.Screen name="HomeTab" component={HomeStackScreen} options={homeTabOptions} />
@@ -208,6 +221,7 @@ export function SellerTabs() {
         </SellerTab.Navigator>
     );
 }
+
 const ChatStack = createNativeStackNavigator<RootStackParamList>()
 function ChatStackScreen() {
     return (
@@ -217,6 +231,7 @@ function ChatStackScreen() {
         </ChatStack.Navigator>
     )
 }
+
 const ShipmentsStack = createNativeStackNavigator<RootStackParamList>()
 function ShipmentsStackScreen() {
     return (
@@ -272,6 +287,7 @@ function HomeStackScreen() {
         </HomeStack.Navigator>
     )
 }
+
 const ProcessesStack = createNativeStackNavigator<RootStackParamList>()
 function ProcessesStackScreen() {
     return (
@@ -292,6 +308,7 @@ function ProcessesStackScreen() {
         </ProcessesStack.Navigator>
     )
 }
+
 const SellerProcessesStack = createNativeStackNavigator<RootStackParamList>()
 function SellerProcessesStackScreen() {
     return (
@@ -317,6 +334,7 @@ function SellerProcessesStackScreen() {
         </SellerProcessesStack.Navigator>
     )
 }
+
 const ProfileStack = createNativeStackNavigator<RootStackParamList>();
 function ProfileStackScreen() {
     return (

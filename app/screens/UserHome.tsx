@@ -28,6 +28,7 @@ export default function UserHome() {
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(false)
     const [total, setTotal] = useState(0)
+
     const fetchSellers = async () => {
         try {
             let queryString = `/sellers-query?pageSize=2&pageNumber=${page}`
@@ -44,6 +45,7 @@ export default function UserHome() {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     const handleFetch = async () => {
         setLoading(true)
         const result = await fetchSellers()
@@ -55,6 +57,7 @@ export default function UserHome() {
         }
         setLoading(false)
     }
+
     const loadMore = () => {
         if (!loading && sellers.length < total) {
             setPage(prev => prev + 1)
@@ -88,19 +91,22 @@ export default function UserHome() {
                         <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
                             <Settings color={textColor} />
                         </TouchableOpacity>
+
                         <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
                             <Bell color={textColor} />
                         </TouchableOpacity>
+
                         <TouchableOpacity onPress={() => navigation.navigate("Wallet")}>
                             <Wallet color={textColor} />
                         </TouchableOpacity>
+
                         <TouchableOpacity onPress={() => navigation.navigate("SearchPage")}>
                             <Search color={textColor} />
                         </TouchableOpacity>
+                        
                     </View>
                 </View>
             </View>
-
             {user && user.role == "Seller" ?
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity style={styles.sellerHome} onPress={() => navigation.navigate("SellerDetails", { sellerId: null })}>
@@ -149,7 +155,7 @@ const styles = StyleSheet.create({
         right: 15,
         zIndex: 10,
         alignItems: 'center',
-        gap: 5
+        gap: 8
     },
     sellerHome: {
         backgroundColor: Colors.green,

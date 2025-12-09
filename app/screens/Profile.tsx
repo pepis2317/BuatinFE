@@ -198,6 +198,7 @@ export default function Profile() {
                     message: "Profile Successfully Updated"
 
                 })
+                await getUserDataHandler()
             }
         }
         setLoading(false)

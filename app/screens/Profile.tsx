@@ -18,12 +18,14 @@ import { useSignalR } from "../context/SignalRContext";
 import { UserResponse } from "../../types/UserResponse";
 import Colors from "../../constants/Colors";
 import ErrorComponent from "../../components/ErrorComponent";
+
 type Coord = { latitude: number; longitude: number };
 type AddressComponent = {
     long_name: string;
     short_name: string;
     types: string[];
 };
+
 export default function Profile() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const { stop } = useSignalR();
@@ -42,6 +44,7 @@ export default function Profile() {
     const [geoAddress, setGeoAddress] = useState("")
     const [loading, setLoading] = useState(false)
     const { subtleBorderColor, borderColor, textColor } = useTheme()
+
     useEffect(() => {
         if (user && userData) {
             setEmail(userData.email)
@@ -51,6 +54,7 @@ export default function Profile() {
             setPassword(user.password)
         }
     }, [user, userData])
+
     const reverseGeocode = async (latitude: number, longitude: number) => {
         try {
             const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyDg7Bxr3Z2iaOWilJGAPR3xrhgoFJinl9E`)
@@ -59,8 +63,9 @@ export default function Profile() {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
-    const get = (comp: AddressComponent[], type: string) =>
-        comp.find(c => c.types.includes(type))?.long_name;
+
+    const get = (comp: AddressComponent[], type: string) => comp.find(c => c.types.includes(type))?.long_name;
+    
     const handleReverseGeocode = async (latitude: number, longitude: number) => {
         const result = await reverseGeocode(latitude, longitude);
 
@@ -93,6 +98,7 @@ export default function Profile() {
             }
         }
     };
+    
     const getUserDataHandler = async () => {
         const res = await onGetUserData!()
         if (!res.error) {
@@ -103,6 +109,7 @@ export default function Profile() {
     useEffect(() => {
         getUserDataHandler()
     }, [])
+
     const pickImageAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
@@ -113,6 +120,7 @@ export default function Profile() {
             setSelectedImage(result.assets[0].uri);
         }
     }
+
     const updateUser = async (user: User) => {
         try {
             const filteredData = Object.fromEntries(
@@ -128,6 +136,7 @@ export default function Profile() {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     const uploadPfp = async (formData: FormData) => {
         try {
             const response = await axios.post(`${API_URL}/upload-pfp`, formData, {
@@ -144,6 +153,7 @@ export default function Profile() {
             };
         }
     }
+
     const handleUpload = async () => {
         if (!userName || !email || !password || !phone || !postalCode || !address) {
             setErrMessage("All forms must be filled")
@@ -193,22 +203,28 @@ export default function Profile() {
         }
         setLoading(false)
     }
+
     const handleLogOut = async () => {
         await stop()
         onLogout!()
     }
+
     useEffect(() => {
         if (location) {
             handleReverseGeocode(location.latitude, location.longitude)
         }
     }, [location])
+
     useFocusEffect(
         useCallback(() => {
             getUserDataHandler()
         }, [])
     );
+
     return (
-        <View style={{ flex: 1 }}>
+
+        <View style={{ flex: 1}}>
+
             <TopBar title={"Profile"} showBackButton={false} />
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
@@ -216,11 +232,12 @@ export default function Profile() {
                 keyboardVerticalOffset={35}>
                 {userData ?
                     <ScrollView style={{ flex: 1 }}>
+
                         <View style={styles.formContainer}>
+
                             <View style={{ alignItems: 'center' }}>
                                 <TouchableOpacity onPress={pickImageAsync}>
-                                    <Image
-                                        source={{ uri: selectedImage }}
+                                    <Image source={{ uri: selectedImage }}
                                         style={[styles.pfp, { backgroundColor: subtleBorderColor, borderColor: borderColor }]}
                                     />
                                     <View style={styles.pencil}>
@@ -228,56 +245,37 @@ export default function Profile() {
                                     </View>
                                 </TouchableOpacity>
                             </View>
-                            <Text style={{
-                                color: textColor,
-                                fontWeight: "bold",
-                                textAlign: "left",
-                                width: "100%"
-                            }}>User Name</Text>
+
+                            <Text style={{ color: textColor, fontWeight: "bold", textAlign: "left", width: "100%" }}>User Name</Text>
                             <TextInputComponent autoCapitalize="none" placeholder="User Name" onChangeText={setUserName} value={userName} />
-                            <Text style={{
-                                color: textColor,
-                                fontWeight: "bold",
-                                textAlign: "left",
-                                width: "100%"
-                            }}>Email</Text>
+                            
+                            <Text style={{ color: textColor, fontWeight: "bold", textAlign: "left", width: "100%" }}>Email</Text>
                             <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail} value={email} />
-                            <Text style={{
-                                color: textColor,
-                                fontWeight: "bold",
-                                textAlign: "left",
-                                width: "100%"
-                            }}>Password</Text>
+                            
+                            <Text style={{ color: textColor, fontWeight: "bold", textAlign: "left", width: "100%" }}>Password</Text>
                             <TextInputComponent autoCapitalize="none" placeholder="Password" onChangeText={setPassword} value={password} secureTextEntry={true} />
-                            <Text style={{
-                                color: textColor,
-                                fontWeight: "bold",
-                                textAlign: "left",
-                                width: "100%"
-                            }}>Phone</Text>
+                            
+                            <Text style={{ color: textColor, fontWeight: "bold", textAlign: "left", width: "100%" }}>Phone</Text>
                             <PhoneInputComponent onPhoneChange={setPhone} defaultValue={userData.phone ? userData.phone : ""} />
-                            <View style={{ padding: 10, backgroundColor: subtleBorderColor, borderWidth: 1, borderColor: borderColor, borderRadius: 5 }}>
-                                <ColoredButton title={"Change location"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('SelectLocation', {
+                            
+                            <View style={{ padding: 16, backgroundColor: subtleBorderColor, borderWidth: 1, borderColor: borderColor, borderRadius: 5, marginTop: 8 }}>
+
+                                <ColoredButton title={"Change Location"} style={[{ backgroundColor: Colors.primary }, styles.button]} onPress={() => navigation.navigate('SelectLocation', {
                                     margin: false,
                                     onSelectLocation: (coords) => {
                                         setLocation(coords)
                                     }
                                 })} />
+
                                 {geoAddress ?
-                                    <View style={{ marginTop: 10 }}>
+                                    <View style={{ marginTop: 16, gap: 8 }}>
                                         <Text style={{ color: 'gray', fontWeight: 'bold' }}>Inferred Address:</Text>
                                         <Text style={{ color: 'gray' }}>{geoAddress}</Text>
-                                        <Text style={{
-                                            color: textColor,
-                                            fontWeight: "bold",
-                                            marginTop: 10
-                                        }}>Postal Code</Text>
+                                        
+                                        <Text style={{ color: textColor, fontWeight: "bold" }}>Postal Code</Text>
                                         <TextInputComponent autoCapitalize="none" placeholder="Postal code" keyboardType="numeric" onChangeText={setPostalCode} value={postalCode} />
-                                        <Text style={{
-                                            color: textColor,
-                                            fontWeight: "bold",
-                                            marginTop: 10
-                                        }}>Address</Text>
+                                        
+                                        <Text style={{ color: textColor, fontWeight: "bold" }}>Address</Text>
                                         <TextInputComponent style={{ height: inputHeight }} placeholder="Caption" onChangeText={setAddress} value={address} multiline
                                             onContentSizeChange={(e) => {
                                                 const newHeight = e.nativeEvent.contentSize.height;
@@ -286,13 +284,15 @@ export default function Profile() {
                                         />
                                     </View>
                                     : <></>}
+
                             </View>
                             {errMessage ?
                                 <ErrorComponent errorsString={errMessage} />
                                 : <></>}
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                < ColoredButton style={[{ backgroundColor: Colors.peach }, styles.button]} title={"Log Out"} onPress={() => handleLogOut()} isLoading={loading} />
-                                <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Save Changes"} onPress={() => handleUpload()} isLoading={loading} />
+
+                            <View style={{ flexDirection: 'row', gap: 16, justifyContent: 'space-between' }}>
+                                < ColoredButton style={[{ backgroundColor: Colors.red }, styles.button]} title={"Log Out"} onPress={() => handleLogOut()} isLoading={loading} />
+                                <ColoredButton style={[{ backgroundColor: Colors.primary }, styles.button]} title={"Save"} onPress={() => handleUpload()} isLoading={loading} />
                             </View>
                         </View>
                     </ScrollView>
@@ -304,9 +304,9 @@ export default function Profile() {
 }
 const styles = StyleSheet.create({
     button: {
-        width: "48%",
-        height: 40,
-        padding: 10,
+        height: 45,
+        flex: 1,
+        padding: 12,
     },
     pencil: {
         backgroundColor: '#31363F',
@@ -321,17 +321,9 @@ const styles = StyleSheet.create({
         top: 0
     },
     formContainer: {
-        padding: 10,
-        paddingTop: 25,
-        gap: 10,
-
-    },
-    textInput: {
-        width: "100%",
-        backgroundColor: "white",
-        height: 50,
-        padding: 10,
-        borderRadius: 5
+        padding: 16,
+        paddingTop: 24,
+        gap: 8,
     },
     pfp: {
         borderRadius: 100,

@@ -18,6 +18,7 @@ import { SellerStats } from "../../types/Stats";
 import { Star } from "lucide-react-native";
 import { ReviewResponse } from "../../types/ReviewResponse";
 import { ReviewComponentShort } from "../../components/ReviewComponent";
+import { useFocusEffect } from "@react-navigation/native";
 
 const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse, navigation: any, editable: boolean }) => {
     const { onGetUserToken } = useAuth()
@@ -217,10 +218,13 @@ const PostsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation
         if (!loading && hasMore) handleFetch(cursor.lastId, cursor.lastCreatedAt);
     }, [loading, hasMore, cursor, handleFetch]);
     const onRefresh = useCallback(() => {
+        reset()
+    }, [handleFetch]);
+    const reset = async ()=>{
         setRefresh(true);
         setPosts([]);
-        handleFetch(null, null);
-    }, [handleFetch]);
+        await handleFetch(null, null);
+    }
     const fetchPosts = async (lastPostId: string | null, lastCreatedAt: string | null) => {
         try {
             const token = await onGetUserToken!()
@@ -238,6 +242,11 @@ const PostsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     };
+    useFocusEffect(
+        useCallback(() => {
+            reset()
+        }, [])
+    );
     return (
         <View style={{ flex: 1 }}>
             {posts.length > 0 ?

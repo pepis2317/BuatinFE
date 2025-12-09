@@ -331,7 +331,6 @@ export default function Chat({ navigation, route }: ChatProps) {
     const handleSend = async () => {
         if (attachments.length == 0) {
             var messageId = Crypto.randomUUID();
-            console.log(messageId)
             const msg: MessageResponse = {
                 messageId: messageId,
                 message: message,
@@ -344,17 +343,15 @@ export default function Chat({ navigation, route }: ChatProps) {
             }
             
             appendIncoming(msg)
-            
+            setMessage('')
+            setAttachments([])
+            setInputHeight(40);
             const formData = new FormData();
             formData.append("messageId", messageId);
             formData.append("conversationId", conversationId);
             formData.append("text", message);
-            const result = await sendMessage(formData)
-            if (!result.error) {
-                setMessage('')
-                setAttachments([])
-                setInputHeight(40);
-            }
+            await sendMessage(formData)
+            
         } else {
             setLoading(true)
             const formData = new FormData();

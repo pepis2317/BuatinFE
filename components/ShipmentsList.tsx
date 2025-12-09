@@ -35,6 +35,7 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleFetch = async (page = pageRef.current, replace: boolean) => {
         if (loadingRef.current) return;
         loadingRef.current = true;
@@ -49,6 +50,7 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
         }
         loadingRef.current = false;
     }
+
     const loadMore = async () => {
         if (!loadingRef.current && shipments.length < total) {
             loadingRef.current = true;
@@ -56,6 +58,7 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
             await handleFetch(pageRef.current, false);
         }
     }
+
     const handleRefresh = useCallback(async () => {
         if (refreshRef.current) return
         refreshRef.current = true
@@ -67,6 +70,7 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
             refreshRef.current = false;
         }
     }, [handleFetch])
+
     const reset = async () => {
         pageRef.current = 1
         await handleFetch(1, true)
@@ -76,9 +80,10 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
             reset()
         }, [])
     );
+
     if (shipments.length == 0 && !loadingRef.current) {
         return (
-            <View style={{ padding: 20, alignItems: 'center' }}>
+            <View style={{ padding: 32, alignItems: 'center' }}>
                 <Text style={{ color: 'gray' }}>No Incoming Shipments Yet</Text>
             </View>
         )

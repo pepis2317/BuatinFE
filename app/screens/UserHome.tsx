@@ -70,25 +70,16 @@ export default function UserHome() {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'UserHome'>>();
     return (
-        <View style={{ flex: 1 }}>
-            <View style={{
-                marginTop: 10,
-                paddingBottom: 10,
-                paddingLeft: 15,
-                paddingRight: 15,
-                elevation: 2
-            }}>
-                <View style={{
-                    flexDirection: "row",
-                    alignItems: 'center',
+        <View style={{ flex: 1, paddingHorizontal: 16 }}>
 
-                    justifyContent: 'space-between',
-                    backgroundColor: theme == "dark" ? "#222831" : "white",
-                }}>
-                    <Text style={{ color: textColor, fontWeight: "bold", fontSize: 20 }}>
-                        Buatin
-                    </Text>
-                    <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+            {/* Top Bar */}
+            <View style={{ elevation: 2, paddingTop: 32, paddingBottom: 16}}>
+                
+                <View style={{ flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme == "dark" ? "#222831" : "white", }}>
+                    
+                    <Text style={{ color: textColor, fontWeight: "bold", fontSize: 24 }}>Buatin</Text>
+
+                    <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
 
                         <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
                             <Settings color={textColor} />

@@ -1,8 +1,8 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, KeyboardAvoidingView, Platform } from "react-native";
 import TopBar from "../../components/TopBar";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StepResponse } from "../../types/StepResponse";
 import { API_URL } from "../../constants/ApiUri";
 import axios from "axios";
@@ -192,91 +192,103 @@ export default function EditStep({ navigation, route }: EditStepProps) {
             <ConfirmedModal isFail={false} visible={showCompletedModal} message={"Step data has been completed"} onPress={() => navigation.goBack()} />
             <ConfirmationModal visible={showCancelModal} message={"Cancel the step? funds will be refunded to the buyer"} onAccept={() => handleCancel()} onCancel={() => setShowCancelModal(false)} />
             {step != null ?
-                <View style={{ padding: 20, gap: 10 }}>
-                    <View>
-                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Title</Text>
-                        <TextInputComponent value={step?.title} onChangeText={(text) => handleChange("title", text)} />
-                    </View>
-                    <View>
-                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Description</Text>
-                        <TextInputComponent value={step?.description} onChangeText={(text) => handleChange("description", text)} />
-                    </View>
 
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <View style={{ width: '45%' }}>
-                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Min Estimate</Text>
-                            <TouchableOpacity style={[styles.date, { borderColor: borderColor }]} onPress={() => setShowMinDate(true)}>
-                                <Calendar color={textColor} />
-                                <Text style={{ color: textColor, fontWeight: 'bold' }}>
-                                    {minimumDate?.toLocaleDateString()}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={{ width: '45%' }}>
-                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Max Estimate</Text>
-                            <TouchableOpacity style={[styles.date, { borderColor: borderColor }]} onPress={() => setShowMaxDate(true)}>
-                                <Calendar color={textColor} />
-                                <Text style={{ color: textColor, fontWeight: 'bold' }}>
-                                    {maximumDate?.toLocaleDateString()}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    {showMinDate == true && minimumDate ?
-                        <DateTimePicker
-                            value={minimumDate}
-                            mode="date"
-                            is24Hour={true}
-                            onChange={setMinDate}
-                        />
-                        : <></>}
-                    {showMaxDate == true && maximumDate ?
-                        <DateTimePicker
-                            value={maximumDate}
-                            mode="date"
-                            is24Hour={true}
-                            onChange={setMaxDate}
-                        />
-                        : <></>}
-                    {errMessage ?
-                        <ErrorComponent errorsString={errMessage} />
-                        : <></>}
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        {step.status != "Submitted" ? < ColoredButton style={[{ backgroundColor: Colors.peach }, styles.button]} title={"Cancel Step"} onPress={() => setShowCancelModal(true)} isLoading={loading} /> : <></>}
-                        <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Save Changes"} onPress={() => handleUpdate()} isLoading={loading} />
-                    </View>
-                    {step.status == "Working" ?
-                        <View>
-                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Step Completion Proof</Text>
-                            <View style={styles.imagesContainer}>
-                                <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
-                                    <View style={styles.addBorder}>
-                                        <PlusSquare color={"#5CCFA3"} size={32} />
-                                    </View>
-                                </TouchableOpacity>
-                                <ScrollView horizontal>
-                                    {images.map((uri, index) => (
-                                        <View key={index} >
-                                            <Image
-                                                source={{ uri }}
-                                                style={{ width: 150, height: 150 }}
-                                            />
-                                            <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
-                                                <X size={20} color={"white"} />
-                                            </TouchableOpacity>
-                                        </View>
-                                    ))}
-                                </ScrollView>
+                <KeyboardAvoidingView
+                    style={{ flex: 1 }}
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    keyboardVerticalOffset={35}>
+                    <ScrollView>
+                        <View style={{ padding: 20, gap: 10 }}>
+                            <View>
+                                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Title</Text>
+                                <TextInputComponent value={step?.title} onChangeText={(text) => handleChange("title", text)} />
                             </View>
-                            {images.length > 0 ?
-                                <ColoredButton style={{ backgroundColor: Colors.green }} title={"Complete Step"} onPress={() => handleComplete()} isLoading={loading} disabled={false} />
-                                :
-                                <ColoredButton style={{ backgroundColor: Colors.darkGray }} title={"Complete Step"} onPress={() => handleComplete()} isLoading={loading} disabled={true} />
-                            }
+                            <View>
+                                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Description</Text>
+                                <TextInputComponent value={step?.description} style={{height:120}}multiline onChangeText={(text) => handleChange("description", text)} />
+                            </View>
+
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <View style={{ width: '45%' }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Min Estimate</Text>
+                                    <TouchableOpacity style={[styles.date, { borderColor: borderColor }]} onPress={() => setShowMinDate(true)}>
+                                        <Calendar color={textColor} />
+                                        <Text style={{ color: textColor, fontWeight: 'bold' }}>
+                                            {minimumDate?.toLocaleDateString()}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+
+                                <View style={{ width: '45%' }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Max Estimate</Text>
+                                    <TouchableOpacity style={[styles.date, { borderColor: borderColor }]} onPress={() => setShowMaxDate(true)}>
+                                        <Calendar color={textColor} />
+                                        <Text style={{ color: textColor, fontWeight: 'bold' }}>
+                                            {maximumDate?.toLocaleDateString()}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            {showMinDate == true && minimumDate ?
+                                <DateTimePicker
+                                    value={minimumDate}
+                                    mode="date"
+                                    is24Hour={true}
+                                    onChange={setMinDate}
+                                />
+                                : <></>}
+                            {showMaxDate == true && maximumDate ?
+                                <DateTimePicker
+                                    value={maximumDate}
+                                    mode="date"
+                                    is24Hour={true}
+                                    onChange={setMaxDate}
+                                />
+                                : <></>}
+                            {errMessage ?
+                                <ErrorComponent errorsString={errMessage} />
+                                : <></>}
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                {step.status != "Submitted" ? < ColoredButton style={[{ backgroundColor: Colors.peach }, styles.button]} title={"Cancel Step"} onPress={() => setShowCancelModal(true)} isLoading={loading} /> : <></>}
+                                <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Save Changes"} onPress={() => handleUpdate()} isLoading={loading} />
+                            </View>
+                            {step.status == "Working" ?
+                                <View>
+                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Step Completion Proof</Text>
+                                    <View style={styles.imagesContainer}>
+                                        <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
+                                            <View style={styles.addBorder}>
+                                                <PlusSquare color={"#5CCFA3"} size={32} />
+                                            </View>
+                                        </TouchableOpacity>
+                                        <ScrollView horizontal>
+                                            {images.map((uri, index) => (
+                                                <View key={index} >
+                                                    <Image
+                                                        source={{ uri }}
+                                                        style={{ width: 150, height: 150 }}
+                                                    />
+                                                    <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
+                                                        <X size={20} color={"white"} />
+                                                    </TouchableOpacity>
+                                                </View>
+                                            ))}
+                                        </ScrollView>
+                                    </View>
+                                    {images.length > 0 ?
+                                        <ColoredButton style={{ backgroundColor: Colors.green }} title={"Complete Step"} onPress={() => handleComplete()} isLoading={loading} disabled={false} />
+                                        :
+                                        <ColoredButton style={{ backgroundColor: Colors.darkGray }} title={"Complete Step"} isLoading={loading} disabled={true} />
+                                    }
+                                </View>
+                                : <></>}
                         </View>
-                        : <></>}
-                </View>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+
+
+
+
                 : <></>}
 
         </View>

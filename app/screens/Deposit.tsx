@@ -14,6 +14,8 @@ import TopBar from "../../components/TopBar";
 import { useTheme } from "../context/ThemeContext";
 import Colors from "../../constants/Colors";
 import ErrorComponent from "../../components/ErrorComponent";
+import * as SecureStore from 'expo-secure-store'
+import * as Crypto from 'expo-crypto'
 
 type DepositProps = NativeStackScreenProps<RootStackParamList, "Deposit">
 export default function Deposit({ navigation, route }: DepositProps) {
@@ -25,12 +27,14 @@ export default function Deposit({ navigation, route }: DepositProps) {
     const [showSnapFailed, setShowSnapFailed] = useState(false)
     const [showSnapPaid, setShowSnapPaid] = useState(false)
     const [errMessage, setErrMessage] = useState('')
+    const [hasPressedDeposit, setHasPressedDeposit] = useState(false)
     const { onGetUserToken } = useAuth()
-    const deposit = async (amount: number) => {
+    const deposit = async (amount: number, key: string) => {
         try {
             const token = await onGetUserToken!()
             const response = await axios.post(`${API_URL}/deposit-funds`, {
-                amount: amount
+                amount: amount,
+                idempotencyKey: key
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -42,16 +46,42 @@ export default function Deposit({ navigation, route }: DepositProps) {
         }
     }
     const handleSnapPay = async () => {
-        if(amount<10000){
+        if (amount < 10000) {
             setErrMessage("Amount must be greater than or equal to Rp10.000")
             return
         }
         setLoading(true)
-        const result = await deposit(amount * 100)
+        setHasPressedDeposit(true)
+
+        let idempotencyKey = await SecureStore.getItemAsync("deposit-key")
+
+        if (!idempotencyKey) {
+            idempotencyKey = Crypto.randomUUID()
+            console.log(idempotencyKey)
+            await SecureStore.setItemAsync("deposit-key", idempotencyKey)
+        }
+
+        const result = await deposit(amount * 100, idempotencyKey)
+
         if (!result.error) {
-            setSnapUrl(result.redirectUrl)
+            if (result.paymentStatus == "Posted") {
+                setShowSnapPaid(true)
+                await SecureStore.deleteItemAsync("deposit-key")
+            } else {
+                setSnapUrl(result.redirectUrl)
+            }
         }
         setLoading(false)
+    }
+    const handleSuccessPayment = async () => {
+        await SecureStore.deleteItemAsync("deposit-key")
+        setShowPayment(false);
+        setShowSnapPaid(true)
+    }
+    const handleFailedPayment = async () => {
+        await SecureStore.deleteItemAsync("deposit-key")
+        setShowPayment(false);
+        setShowSnapFailed(true)
     }
     useEffect(() => {
         if (snapUrl != '') {
@@ -75,20 +105,17 @@ export default function Deposit({ navigation, route }: DepositProps) {
                 {errMessage ?
                     <ErrorComponent errorsString={errMessage} />
                     : <></>}
-                <ColoredButton title={"Deposit"} style={{ backgroundColor: Colors.green }} onPress={() => handleSnapPay()} isLoading={loading} />
+                <ColoredButton title={hasPressedDeposit?"Check Payment Status":"Deposit"} style={{ backgroundColor: Colors.green }} onPress={() => handleSnapPay()} isLoading={loading} />
             </View>
 
             <PaymentModal
                 showPayment={showPayment}
                 snapUrl={snapUrl}
                 closePaymentModal={() => setShowPayment(false)}
-                onSuccess={() => {
-                    setShowPayment(false);
-                    setShowSnapPaid(true)
-                }} onFailed={() => {
-                    setShowPayment(false);
-                    setShowSnapFailed(true)
-                }} onLoadEnd={() => setLoading(false)} />
+                onSuccess={() => handleSuccessPayment()}
+                onFailed={() => handleFailedPayment()} 
+                onLoadEnd={() => setLoading(false)} 
+            />
         </View>
     )
 }

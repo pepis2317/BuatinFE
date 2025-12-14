@@ -64,12 +64,7 @@ export default function EditReviewReview({ navigation, route }: EditProps) {
                     fontWeight: 'bold',
                     marginBottom: 10
                 }}>Review</Text>
-                <TextInputComponent style={{ height: inputHeight }} value={reviewMessage} placeholder="Review" onChangeText={setReviewMessage} multiline
-                    onContentSizeChange={(e) => {
-                        const newHeight = e.nativeEvent.contentSize.height;
-                        setInputHeight(Math.min(newHeight, 120));
-                    }}
-                />
+                <TextInputComponent style={{ height: 120 }} value={reviewMessage} placeholder="Review" onChangeText={setReviewMessage} multiline/>
                 <ColoredButton onPress={() => handleEditReview()} style={{ backgroundColor: Colors.green, width: "100%" }} title={"Edit Review"} isLoading={loading} />
             </View>
 

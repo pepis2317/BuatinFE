@@ -213,7 +213,7 @@ export default function Profile() {
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                keyboardVerticalOffset={50}>
+                keyboardVerticalOffset={35}>
                 {userData ?
                     <ScrollView style={{ flex: 1 }}>
                         <View style={styles.formContainer}>

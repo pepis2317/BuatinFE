@@ -20,7 +20,6 @@ export default function ReviewSeller({ navigation, route }: ReviewSellerProps) {
     const [rating, setRating] = useState(0)
     const [review, setReview] = useState("")
     const [loading, setLoading] = useState(false)
-    const [inputHeight, setInputHeight] = useState(0)
     const [showCompleted, setShowCompleted] = useState(false)
     const { textColor } = useTheme()
     const reviewUser = async (review: string, rating: number) => {
@@ -56,12 +55,7 @@ export default function ReviewSeller({ navigation, route }: ReviewSellerProps) {
                 <Stars onChange={setRating} />
                 <View style={{width:"100%"}}>
                     <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Review</Text>
-                    <TextInputComponent style={{ height: inputHeight, width:"100%" }} placeholder="Review" onChangeText={setReview} multiline
-                        onContentSizeChange={(e) => {
-                            const newHeight = e.nativeEvent.contentSize.height;
-                            setInputHeight(Math.min(newHeight, 120));
-                        }}
-                    />
+                    <TextInputComponent style={{ height: 120, width:"100%" }} placeholder="Review" onChangeText={setReview} multiline/>
                 </View>
 
                 <ColoredButton title={"Create Review"} onPress={() => handleReview()} style={{ backgroundColor: Colors.green, width: '100%' }} isLoading={loading} />

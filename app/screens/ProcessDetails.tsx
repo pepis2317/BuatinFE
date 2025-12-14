@@ -74,18 +74,15 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
             setRefund(result)
         }
     }
-    const handleGetCompleteRequest = async () => {
-        const result = await fetchCompleteRequest()
-        if (!result.error) {
-            if (result) {
-                setCompleteRequest(result)
-            }
-        }
-    }
-    const handleGetProcess = async () => {
+    const handleFetchProcess = async () => {
+
         const result = await fetchProcess()
         if (!result.error) {
             setProcess(result)
+            const completeRequest = await fetchCompleteRequest()
+            if (!completeRequest.error) {
+                setCompleteRequest(completeRequest)
+            }
         }
     }
     const handleAccept = async () => {
@@ -107,15 +104,15 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
         }
         respondCompletionRef.current = false
     }
-    useEffect(() => {
-        if (process) {
-            handleGetCompleteRequest()
-        }
-    }, [process])
-    useEffect(() => {
-        handleGetProcess()
+    const reset = async () =>{
+        handleFetchProcess()
         handleGetRefund()
-    }, [])
+    }
+    useFocusEffect(
+        useCallback(() => {
+            reset()
+        }, [])
+    );
     useEffect(() => {
         if (process && process.status == "In Progress" && !(refund && refund.status == "Pending")) {
             setCanRefund(true)

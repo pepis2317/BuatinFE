@@ -59,7 +59,7 @@ export default function CreateRefundRequest({ navigation, route }: CreateRefundP
                         fontWeight: 'bold',
                         marginBottom: 10
                     }}>Message</Text>
-                    <TextInputComponent placeholder="Message" onChangeText={setMessage} />
+                    <TextInputComponent placeholder="Message" multiline style={{height:120}} onChangeText={setMessage} />
                 </View>
 
                 <ColoredButton title={"Create refund request"} style={{ backgroundColor: Colors.green }} onPress={() => handlePost()} isLoading={loading} />

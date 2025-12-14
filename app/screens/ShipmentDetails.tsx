@@ -28,6 +28,7 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
     const [shipment, setShipment] = useState<ShipmentResponse>()
     const [rates, setRates] = useState<BiteshipRatesResponse>()
     const [tracking, setTracking] = useState<BiteshipTrackResponse>()
+    const [hasPressedSnap, setHasPressedSnap] = useState(false)
     const [courierType, setCourierType] = useState('')
     const [orderNote, setOrderNote] = useState('')
     const [errMessage, setErrMessage] = useState('')
@@ -88,7 +89,7 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
         }
     }
     const handleWalletPay = async () => {
-        if(!courierType){
+        if (!courierType) {
             setErrMessage("Courier type must be selected")
             return
         }
@@ -105,19 +106,22 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
         }
     }
     const handleSnapPay = async () => {
-        if(!courierType){
+        if (!courierType) {
             setErrMessage("Courier type must be selected")
             return
         }
         if (rates) {
             const price = rates.pricing.find(r => r.courier_service_code == courierType)
             if (price) {
-                setLoading(true)
+                setHasPressedSnap(true)
                 const result = await snapPay(price.price)
                 if (!result.error) {
-                    setSnapUrl(result.redirectUrl)
+                    if (result.paymentStatus == "Posted") {
+                        setShowSnapPaid(true)
+                    } else {
+                        setSnapUrl(result.redirectUrl)
+                    }
                 }
-                setLoading(false)
             }
         }
     }
@@ -243,7 +247,7 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
                                                 <TouchableOpacity key={index} style={[styles.service, { backgroundColor: subtleBorderColor }, courierType == item.courier_service_code ? { borderWidth: 1, borderColor: Colors.green } : {}]} onPress={() => setCourierType(item.courier_service_code)}>
                                                     <Text style={{ color: textColor, fontWeight: 'bold' }}>{item.courier_service_name}</Text>
                                                     <Text style={{ color: textColor }}>{item.description}</Text>
-                                                    <Text style={{ color: textColor }}>Rp.{item.shipping_fee}</Text>
+                                                    <Text style={{ color: textColor }}>Rp.{Number(item.shipping_fee).toLocaleString("id-ID")}</Text>
                                                 </TouchableOpacity>
                                             ))}
                                         </View>
@@ -257,8 +261,8 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
                                         {errMessage ?
                                             <ErrorComponent errorsString={errMessage} />
                                             : <></>}
-                                        <ColoredButton title={"Pay with Snap"} onPress={() => handleSnapPay()} style={{ backgroundColor: Colors.green }} isLoading={loading}/>
-                                        <ColoredButton title={"Pay with Wallet"} onPress={() => handleWalletPay()} style={{ backgroundColor: Colors.green }} isLoading={loading} />
+                                        <ColoredButton title={hasPressedSnap?"Check Payment Status":"Pay with Snap"} onPress={() => handleSnapPay()} style={{ backgroundColor: Colors.green }} />
+                                        {hasPressedSnap?<></>:<ColoredButton title={"Pay with Wallet"} onPress={() => handleWalletPay()} style={{ backgroundColor: Colors.green }} isLoading={loading} />}
                                     </View>
                                 </View>
 

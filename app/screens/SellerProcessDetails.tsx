@@ -17,6 +17,7 @@ import { Menu } from "lucide-react-native";
 import Popover from "react-native-popover-view";
 import { RefundResponse } from "../../types/RefundResponse";
 import ConfirmationModal from "../../components/ConfirmationModal";
+import { useFocusEffect } from "@react-navigation/native";
 
 type SellerProcessDetailsProps = NativeStackScreenProps<RootStackParamList, "SellerProcessDetails">;
 export default function SellerProcessDetails({ navigation, route }: SellerProcessDetailsProps) {
@@ -94,10 +95,16 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
             }
         }
     }
-    useEffect(() => {
+
+    const reset = async () =>{
         handleFetchProcess()
         handleGetRefund()
-    }, [])
+    }
+    useFocusEffect(
+        useCallback(() => {
+            reset()
+        }, [])
+    );
     useEffect(() => {
         if (!latestStep || latestStep.status == "Completed" || latestStep.status == "Cancelled" || latestStep.status == "Declined") {
             setCanAdd(true)

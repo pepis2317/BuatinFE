@@ -100,8 +100,8 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }>
                 {user ?
-                    <View style={{ alignItems: 'center', marginTop:20, marginBottom:10 }}>
-                        <Image style={[styles.pfp,{backgroundColor:subtleBorderColor, borderColor:borderColor}]} src={user.pfp} />
+                    <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 10 }}>
+                        <Image style={[styles.pfp, { backgroundColor: subtleBorderColor, borderColor: borderColor }]} src={user.pfp} />
                         <Text style={[styles.usernameText, { color: textColor }]}>{user.userName}</Text>
                     </View>
                     :
@@ -139,7 +139,9 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
                                     ))}
                                     <View style={{ width: 20 }} />
                                 </ScrollView> :
-                                <Text style={{ color: textColor, marginLeft: 20 }} >No reviews yet</Text>
+                                <View style={{ backgroundColor: foregroundColor, marginHorizontal: 20, padding: 10, borderRadius: 10 }}>
+                                    <Text style={{ color: textColor }}>No Reviews Yet</Text>
+                                </View>
                             : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                         }
                     </View>
@@ -187,6 +189,6 @@ const styles = StyleSheet.create({
         width: 70,
         borderRadius: 70,
         aspectRatio: 1,
-        borderWidth:1
+        borderWidth: 1
     }
 })

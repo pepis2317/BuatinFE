@@ -52,7 +52,7 @@ export default function Comments({ navigation, route }: CommentsDetailProps) {
     return (
         <KeyboardAvoidingView style={{ flex: 1, position: 'relative' }}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={50}>
+            keyboardVerticalOffset={35}>
             <TopBar title="Comments" showBackButton />
             <View style={{ flex: 1 }}>
                 <CommentsList

@@ -13,7 +13,12 @@ import { RootStackParamList } from "../../constants/RootStackParams"
 import { USER_LOCATION_KEY } from "./Settings"
 import { useAuth } from "../context/AuthContext"
 import Colors from "../../constants/Colors"
-import ColoredButton from "../../components/ColoredButton"
+
+const COLUMN_GAP = 16;
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const HORIZONTAL_PADDING = 16;
+
+const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - COLUMN_GAP) / 2;
 
 const COLUMN_GAP = 16;
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -81,12 +86,10 @@ export default function UserHome() {
 
     return (
         <View style={{ flex: 1, paddingHorizontal: 16 }}>
-
             {/* Top Bar */}
-            <View style={{ elevation: 2, paddingTop: 32, paddingBottom: 16}}>
-                
+            <View style={{ elevation: 2, paddingVertical: 16 }}>
                 <View style={{ flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme == "dark" ? "#222831" : "white", }}>
-                    
+
                     <Text style={{ color: textColor, fontWeight: "bold", fontSize: 24 }}>Buatin</Text>
 
                     <View style={{ flexDirection: 'row', gap: 16, alignItems: 'center' }}>
@@ -108,20 +111,17 @@ export default function UserHome() {
                         </TouchableOpacity>
                         
                     </View>
-
+                </View>
+            </View>
+            {user && user.role == "Seller" ?
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.sellerHome} onPress={() => navigation.navigate("SellerDetails", { sellerId: null })}>
+                        <Store color={'white'} />
+                    </TouchableOpacity>
                 </View>
 
-                {user && user.role == "Seller" ?
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.sellerHome} onPress={() => navigation.navigate("SellerDetails", { sellerId: null })}>
-                            <Store color={'white'} />
-                        </TouchableOpacity>
-                    </View>
-
                 : <></>}
-                
-            </View>
-            
+
             <View style={styles.FlatListContainer}>
                 {sellers.length > 0 ?
                     <FlatList

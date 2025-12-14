@@ -47,7 +47,7 @@ export default function Login() {
 
 				{/* Header Section */}
 				<View style={styles.headingContainer}>
-					<Text style={styles.headingText}>Getting Started</Text>
+					<Text style={[styles.headingText, {color:textColor}]}>Getting Started</Text>
 					<Text style={ styles.headingText2}>Create an account or log in to explore</Text>
 				</View>
 
@@ -59,7 +59,7 @@ export default function Login() {
 				{/* Login Button */}
 				<ColoredButton
 					title={"Log In"}
-					style={{ backgroundColor: colors.primary, width: "100%", fontsize: 16, fontWeight: "bold" }}
+					style={{ backgroundColor: colors.green, width: "100%", fontsize: 16, fontWeight: "bold" }}
 					onPress={!loading ? login : () => {}}
 					isLoading={loading}
 				/>
@@ -75,7 +75,7 @@ export default function Login() {
 
 				{/* Sign Up Button */}
 				<TouchableOpacity style={styles.signupButton} onPress={() => navigation.navigate("Register")}>
-					<Text style={styles.signupButtonText}>Sign Up</Text>
+					<Text style={[styles.signupButtonText, {color:textColor}]}>Sign Up</Text>
 				</TouchableOpacity>
 
 				{/* Additional Link

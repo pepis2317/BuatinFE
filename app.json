@@ -62,7 +62,8 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "df0140e0-6c8b-4b38-93c9-e2c8b9b774d5"
+        "projectId": "df0140e0-6c8b-4b38-93c9-e2c8b9b774d5",
+        "googleMapsApiKey": "AIzaSyDg7Bxr3Z2iaOWilJGAPR3xrhgoFJinl9E"
       }
     }
   }

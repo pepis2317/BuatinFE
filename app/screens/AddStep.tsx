@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import TopBar from "../../components/TopBar";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
@@ -93,84 +93,94 @@ export default function AddStep({ navigation, route }: AddStepProps) {
         setLoading(false)
     }
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <TopBar title="Add Step" showBackButton />
             <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showSuccessModal} message={"New step has been added"} />
-            <View style={{ padding: 20, gap: 10 }}>
-                <View>
-                    <Text style={{
-                        color: textColor,
-                        fontWeight: 'bold',
-                        marginBottom: 10
-                    }}>Title</Text>
-                    <TextInputComponent placeholder="Title" onChangeText={setTitle} />
-                </View>
-                <View>
-                    <Text style={{
-                        color: textColor,
-                        fontWeight: 'bold',
-                        marginBottom: 10
-                    }}>Description</Text>
-                    <TextInputComponent placeholder="Description" onChangeText={setDescription} />
-                </View>
-                <View style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                }}>
-                    <View style={{ width: '45%' }}>
-                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Min Estimate</Text>
-                        <TouchableOpacity style={[
-                            styles.date,
-                            { borderColor: borderColor }
-                        ]} onPress={() => setShowMinDate(true)}>
-                            <Calendar color={textColor} />
+
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={35}>
+                <ScrollView>
+                    <View style={{ padding: 20, gap: 10 }}>
+                        <View>
                             <Text style={{
                                 color: textColor,
-                                fontWeight: 'bold'
-                            }}>{minDate?.toLocaleDateString()}</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{ width: '45%' }}>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Max Estimate</Text>
-                        <TouchableOpacity style={[
-                            styles.date,
-                            { borderColor: borderColor }
-                        ]} onPress={() => setShowMaxDate(true)}>
-                            <Calendar color={textColor} />
+                                fontWeight: 'bold',
+                                marginBottom: 10
+                            }}>Title</Text>
+                            <TextInputComponent placeholder="Title" onChangeText={setTitle} />
+                        </View>
+                        <View>
                             <Text style={{
                                 color: textColor,
-                                fontWeight: 'bold'
-                            }}>{maxDate?.toLocaleDateString()}</Text>
-                        </TouchableOpacity>
+                                fontWeight: 'bold',
+                                marginBottom: 10
+                            }}>Description</Text>
+                            <TextInputComponent placeholder="Description" multiline style={{ height: 120 }} onChangeText={setDescription} />
+                        </View>
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                        }}>
+                            <View style={{ width: '45%' }}>
+                                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Min Estimate</Text>
+                                <TouchableOpacity style={[
+                                    styles.date,
+                                    { borderColor: borderColor }
+                                ]} onPress={() => setShowMinDate(true)}>
+                                    <Calendar color={textColor} />
+                                    <Text style={{
+                                        color: textColor,
+                                        fontWeight: 'bold'
+                                    }}>{minDate?.toLocaleDateString()}</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{ width: '45%' }}>
+                                <Text style={{
+                                    color: textColor,
+                                    fontWeight: 'bold',
+                                    marginBottom: 10
+                                }}>Max Estimate</Text>
+                                <TouchableOpacity style={[
+                                    styles.date,
+                                    { borderColor: borderColor }
+                                ]} onPress={() => setShowMaxDate(true)}>
+                                    <Calendar color={textColor} />
+                                    <Text style={{
+                                        color: textColor,
+                                        fontWeight: 'bold'
+                                    }}>{maxDate?.toLocaleDateString()}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        {showMinDate == true ?
+                            <DateTimePicker
+                                value={minDate ? minDate : new Date()}
+                                mode="date"
+                                is24Hour={true}
+                                onChange={setMinimumDate}
+                            />
+                            : <></>}
+                        {showMaxDate == true ?
+                            <DateTimePicker
+                                value={maxDate ? maxDate : new Date()}
+                                mode="date"
+                                is24Hour={true}
+                                onChange={setMaximumDate}
+                            />
+                            : <></>}
+                        <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
+                        {errMessage ?
+                            <ErrorComponent errorsString={errMessage} />
+                            : <></>}
+                        <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Add step"} onPress={() => handleUpload()} isLoading={loading} />
                     </View>
-                </View>
-                {showMinDate == true ?
-                    <DateTimePicker
-                        value={minDate ? minDate : new Date()}
-                        mode="date"
-                        is24Hour={true}
-                        onChange={setMinimumDate}
-                    />
-                    : <></>}
-                {showMaxDate == true ?
-                    <DateTimePicker
-                        value={maxDate ? maxDate : new Date()}
-                        mode="date"
-                        is24Hour={true}
-                        onChange={setMaximumDate}
-                    />
-                    : <></>}
-                <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
-                {errMessage ?
-                    <ErrorComponent errorsString={errMessage} />
-                    : <></>}
-                <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Add step"} onPress={() => handleUpload()} isLoading={loading} />
-            </View>
+                </ScrollView>
+
+            </KeyboardAvoidingView>
+
 
         </View>
     )

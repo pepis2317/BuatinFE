@@ -226,9 +226,10 @@ export default function Profile() {
         <View style={{ flex: 1}}>
 
             <TopBar title={"Profile"} showBackButton={false} />
-
-            <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={50}>
-                
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={35}>
                 {userData ?
                     <ScrollView style={{ flex: 1 }}>
 

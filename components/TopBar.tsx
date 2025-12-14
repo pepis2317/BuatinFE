@@ -40,8 +40,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: Colors.offWhite,
         backgroundColor: 'white',
-        paddingTop: 32,
-        paddingBottom: 16,
+        paddingVertical:16,
         gap: 16,
         elevation:2
     },
@@ -60,7 +59,7 @@ const styles = StyleSheet.create({
     },
     backButton:{
         position:'absolute',
-        paddingTop:16,
+        paddingVertical:16,
         left:24
     }
 })

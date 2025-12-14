@@ -28,8 +28,8 @@ export default function DeclineModal({ onDecline, showModal, onClose }: { onDecl
             onRequestClose={onClose}
         >
             <View style={[styles.modalStyle, { backgroundColor: subtleBorderColor }]}>
-                <Text style={{ color: textColor, marginBottom: 10, marginTop: 20, fontWeight:'bold' }}>Please provide decline reason</Text>
-                <TextInputComponent onChangeText={setReason} placeholder="Reason"/>
+                <Text style={{ color: textColor, marginBottom: 10, fontWeight:'bold' }}>Please provide decline reason</Text>
+                <TextInputComponent onChangeText={setReason} multiline style={{height:120}} placeholder="Reason"/>
                 {errMessage!=""?<ErrorComponent errorsString={errMessage}/>:<></>}
                 <View style={{ flexDirection: 'row', gap: 0, width: "100%", justifyContent: 'space-between', marginTop:10}}>
                     <ColoredButton title={"Cancel"} style={{ backgroundColor: Colors.green, width: '48%' }} onPress={onClose} disabled={loading} />
@@ -43,10 +43,10 @@ export default function DeclineModal({ onDecline, showModal, onClose }: { onDecl
 const styles = StyleSheet.create({
     modalStyle: {
         position: 'absolute',
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: 'flex-start',
+        
         borderRadius: 10,
-        height: '50%',
+
         width: '80%',
         left: '50%',
         top: '50%',

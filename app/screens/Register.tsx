@@ -179,14 +179,7 @@ export default function Register() {
                         <PhoneInputComponent defaultValue="" onPhoneChange={setPhone} />
                     
                         <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Password</Text>
-                        <TextInputComponent autoCapitalize="none" secureTextEntry={true} placeholder="Password" onChangeText={setPassword}/>
-
-                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Zip Code</Text>
-                        <TextInputComponent autoCapitalize="none" placeholder="Zip code" keyboardType="numeric" onChangeText={setPostalCode}/>
-
-                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Address</Text>
-                        <TextInputComponent autoCapitalize="none" placeholder="Address" onChangeText={setAddress}/>
-                        
+                        <TextInputComponent autoCapitalize="none" secureTextEntry={true} placeholder="Password" onChangeText={setPassword}/>  
                         <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Role</Text>
                         <View style={theme == "dark" ? styles.DarkPickerContainer : styles.LightPickerContainer}>
                             <Picker 
@@ -218,16 +211,6 @@ export default function Register() {
                             <Text style={{ fontSize: 14, fontWeight: "bold" }}>Set Location on Map</Text>
                         </TouchableOpacity>
 
-                        <ColoredButton
-                            title={"Set Location"}
-                            style={{ backgroundColor: colors.secondary }}
-                            onPress={() => navigation.navigate('SelectLocation', {
-                                margin: true,
-                                onSelectLocation: (coords) => {
-                                    setLocation(coords)
-                                }
-                            })}
-                        />
 
                         {geoAddress ?
                             <View style={{ marginTop: 10 }}>

@@ -250,6 +250,7 @@ function SellerShipmentsStackScreen() {
             <SellerShipmentsStack.Screen name="SellerIncomingShipments" component={SellerIncomingShipments} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="Shippable" component={Shippable} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="UserReviews" component={UserReviews} options={{ headerShown: false }} />
+            <SellerShipmentsStack.Screen name="EditReview" component={EditReview} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="Comments" component={Comments} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="ReviewUser" component={ReviewUser} options={{ headerShown: false }} />
             <SellerShipmentsStack.Screen name="CreateShipment" component={CreateShipment} options={{ headerShown: false }} />
@@ -305,6 +306,7 @@ function ProcessesStackScreen() {
             <ProcessesStack.Screen name="ReviewSeller" component={ReviewSeller} options={{ headerShown: false }} />
             <ProcessesStack.Screen name="PostDetails" component={PostDetails} options={{ headerShown: false }} />
             <ProcessesStack.Screen name="ReviewUser" component={ReviewUser} options={{ headerShown: false }} />
+            <ProcessesStack.Screen name="EditReview" component={EditReview} options={{ headerShown: false }} />
         </ProcessesStack.Navigator>
     )
 }
@@ -326,6 +328,7 @@ function SellerProcessesStackScreen() {
             <SellerProcessesStack.Screen name="AddStep" component={AddStep} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="ReviewUser" component={ReviewUser} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="UserDetails" component={UserDetails} options={{ headerShown: false }} />
+            <SellerProcessesStack.Screen name="EditReview" component={EditReview} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="UserReviews" component={UserReviews} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="PostDetails" component={PostDetails} options={{ headerShown: false }} />
             <SellerProcessesStack.Screen name="SellerDetails" component={SellerDetails} options={{ headerShown: false }} />

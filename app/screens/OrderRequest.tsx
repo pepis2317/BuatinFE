@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import TopBar from "../../components/TopBar";
-import { Modal, ScrollView, Text, View, StyleSheet, Dimensions, TouchableOpacity, Image } from "react-native";
+import { Modal, ScrollView, Text, View, StyleSheet, Dimensions, TouchableOpacity, Image, Platform, KeyboardAvoidingView } from "react-native";
 import axios from "axios";
 import { API_URL } from "../../constants/ApiUri";
 import { useState } from "react";
@@ -106,50 +106,57 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
         <View style={{ flex: 1 }}>
             <TopBar title="Create Order Request" showBackButton />
             <ConfirmedModal isFail={false} visible={modalVisible} message={"Request has been created"} onPress={() => navigation.goBack()} />
-            <ScrollView style={{ flex: 1, padding: 20 }}>
-                <View style={{ gap: 10 }}>
-                    <View>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Images (optional)</Text>
-                        <View style={styles.imagesContainer}>
-                            <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
-                                <View style={styles.addBorder}>
-                                    <PlusSquare color={Colors.green} size={32} />
-                                </View>
-                            </TouchableOpacity>
-                            <ScrollView horizontal>
-                                {images.map((uri, index) => (
-                                    <View key={index} >
-                                        <Image
-                                            source={{ uri }}
-                                            style={{ width: 150, height: 150 }}
-                                        />
-                                        <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
-                                            <X size={20} color={"white"} />
-                                        </TouchableOpacity>
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={35}>
+                <ScrollView>
+                    <View style={{ gap: 10, padding:20, paddingVertical:10 }}>
+                        <View>
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: 'bold',
+                                marginBottom: 10
+                            }}>Images (optional)</Text>
+                            <View style={styles.imagesContainer}>
+                                <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
+                                    <View style={styles.addBorder}>
+                                        <PlusSquare color={Colors.green} size={32} />
                                     </View>
-                                ))}
-                            </ScrollView>
+                                </TouchableOpacity>
+                                <ScrollView horizontal>
+                                    {images.map((uri, index) => (
+                                        <View key={index} >
+                                            <Image
+                                                source={{ uri }}
+                                                style={{ width: 150, height: 150 }}
+                                            />
+                                            <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
+                                                <X size={20} color={"white"} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    ))}
+                                </ScrollView>
+                            </View>
                         </View>
+                        <View>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom:10 }}>Title</Text>
+                            <TextInputComponent placeholder="Title" onChangeText={setTitle} />
+                        </View>
+                        <View>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom:10 }}>Message</Text>
+                            <TextInputComponent placeholder="Message" multiline style={{height:120}} onChangeText={setMessage} />
+                        </View>
+                        {errMessage ?
+                            <ErrorComponent errorsString={errMessage} />
+                            : <></>}
+                        <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green, marginTop: 10 }} />
                     </View>
-                    <View>
-                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Title</Text>
-                        <TextInputComponent placeholder="Title" onChangeText={setTitle} />
-                    </View>
-                    <View>
-                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Message</Text>
-                        <TextInputComponent placeholder="Message" onChangeText={setMessage} />
-                    </View>
-                    {errMessage ?
-                        <ErrorComponent errorsString={errMessage} />
-                        : <></>}
-                    <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green, marginTop: 10 }}/>
-                </View>
 
-            </ScrollView>
+                </ScrollView>
+
+            </KeyboardAvoidingView>
+
         </View>
     )
 }

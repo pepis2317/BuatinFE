@@ -53,7 +53,6 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
     }
     const handleUpload = async () => {
         if (user?.userId && caption && images.length > 0) {
-
             setLoading(true)
             const formData = new FormData();
             formData.append("authorId", user.userId)
@@ -103,13 +102,8 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
             </View>
             <ScrollView style={{ padding: 20 }}>
                 <View style={{marginBottom:10}}>
-                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Review</Text>
-                    <TextInputComponent style={{ height: inputHeight }} placeholder="Caption" onChangeText={setCaption} multiline
-                        onContentSizeChange={(e) => {
-                            const newHeight = e.nativeEvent.contentSize.height;
-                            setInputHeight(Math.min(newHeight, 120));
-                        }}
-                    />
+                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Caption</Text>
+                    <TextInputComponent onChangeText={setCaption} multiline placeholder="Caption"/>
                 </View>
 
                 <ColoredButton title={"Create Post"} style={{ backgroundColor: "#5CCFA3", width: "100%" }} onPress={() => handleUpload()} isLoading={loading} />

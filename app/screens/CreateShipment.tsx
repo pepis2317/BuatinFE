@@ -73,7 +73,7 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                keyboardVerticalOffset={50}>
+                keyboardVerticalOffset={35}>
                 <ScrollView
                     contentContainerStyle={{ padding: 20, gap: 10 }}
                     showsVerticalScrollIndicator={false}>
@@ -91,7 +91,7 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
                             fontWeight: 'bold',
                             marginBottom: 10
                         }}>Description</Text>
-                        <TextInputComponent placeholder="Description" onChangeText={setDescription} />
+                        <TextInputComponent placeholder="Description" multiline onChangeText={setDescription} />
                     </View>
                     <View>
                         <Text style={{

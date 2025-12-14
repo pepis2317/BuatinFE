@@ -82,6 +82,7 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                         <View style={{ padding: 15, paddingVertical: 10 }}>
                             <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16, marginBottom: 5 }}>{step.title}</Text>
                             <Text style={{ color: textColor, fontSize: 12 }}>{step.description}</Text>
+                            <Text style={{ color: textColor, marginBottom: 10 }}>Rp.{Number(step.price / 100).toLocaleString("id-ID")}</Text>
                         </View>
                         {overdue && step.status == "Working" ?
                             <View style={{ backgroundColor: subtleBorderColor, paddingVertical: 10, paddingHorizontal: 20 }}>
@@ -112,8 +113,6 @@ export default function StepComponent({ step, navigation, editable, index }: { s
 
                         {editable == false && step.status == "Submitted" ?
                             <View style={[styles.paymentInfo, { backgroundColor: subtleBorderColor }]}>
-                                <Text style={{ color: textColor, fontWeight: 'bold' }}>Price:</Text>
-                                <Text style={{ color: textColor, marginBottom: 10 }}>Rp.{step.price / 100}</Text>
                                 <View style={styles.buttonContainer}>
                                     <ColoredButton title={"Accept & Pay step"} style={{ backgroundColor: Colors.green, width: '48%' }} onPress={() => navigation.navigate('AcceptAndPay', { stepId: step.stepId })} />
                                     <ColoredButton title={"Decline step"} style={{ backgroundColor: Colors.peach, width: '48%' }} onPress={() => handleDecline()} isLoading={loading} />

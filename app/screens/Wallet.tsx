@@ -61,7 +61,7 @@ export default function Wallet({ navigation, route }: WalletProps) {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
                 <View style={{ padding: 20, gap: 10, alignItems: 'center' }}>
-                    <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 32 }}>Rp. {balance / 100}</Text>
+                    <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 32 }}>Rp.{Number(balance / 100).toLocaleString("id-ID")}</Text>
                     <ColoredButton title={"Deposit funds"} style={{ backgroundColor: Colors.green, width: '100%' }} onPress={() => navigation.navigate('Deposit')} />
                     <ColoredButton title={"Withdraw funds"} style={{ backgroundColor: Colors.green, width: '100%' }} onPress={() => navigation.navigate('Withdraw')} />
                 </View>

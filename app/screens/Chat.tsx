@@ -345,7 +345,7 @@ export default function Chat({ navigation, route }: ChatProps) {
             appendIncoming(msg)
             setMessage('')
             setAttachments([])
-            setInputHeight(40);
+            setInputHeight(45);
             const formData = new FormData();
             formData.append("messageId", messageId);
             formData.append("conversationId", conversationId);
@@ -365,7 +365,7 @@ export default function Chat({ navigation, route }: ChatProps) {
             if (!result.error) {
                 setMessage('')
                 setAttachments([])
-                setInputHeight(40);
+                setInputHeight(45);
             }
             setLoading(false)
 
@@ -380,7 +380,7 @@ export default function Chat({ navigation, route }: ChatProps) {
             }
             setLoading(false)
             setMessage('')
-            setInputHeight(40);
+            setInputHeight(45);
         }
     }
     const pickFromFiles = async () => {
@@ -435,7 +435,7 @@ export default function Chat({ navigation, route }: ChatProps) {
     return (
         <KeyboardAvoidingView style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={50}>
+            keyboardVerticalOffset={35}>
             <TopBar title={"Conversations"} showBackButton />
             <Popover
                 popoverStyle={{
@@ -556,8 +556,7 @@ export default function Chat({ navigation, route }: ChatProps) {
                         onChangeText={setMessage}
                         onContentSizeChange={(e) => {
                             const newHeight = e.nativeEvent.contentSize.height;
-                            // clamp height between min and max (40 -> 120)
-                            setInputHeight(Math.max(40, Math.min(newHeight, 120)));
+                            setInputHeight(Math.max(45, Math.min(newHeight, 120)));
                         }}
                     />
 

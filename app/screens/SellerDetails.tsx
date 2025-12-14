@@ -143,6 +143,7 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
                 </TouchableOpacity>
             </View>
             {topreviews ?
+                topreviews.length > 0?
                 <View style={{ height: 200 }}>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         <View style={{ width: 20 }} />
@@ -152,7 +153,9 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
                         <View style={{ width: 20 }} />
                     </ScrollView>
                 </View>
-
+                :<View style={{backgroundColor: foregroundColor, marginHorizontal:20, padding:10, borderRadius:10}}>
+                    <Text style={{color:textColor}}>No Reviews Yet</Text>
+                </View>
                 : <ActivityIndicator size="small" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
             }
             <View style={{ padding: 20 }}>
@@ -161,7 +164,6 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
                         <ColoredButton title={"Edit Seller"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('EditSeller')} />
                         <ColoredButton title={"Create Post"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate("CreatePost")} />
                     </View>
-
                     :
                     canOrder == null ?
                         <ActivityIndicator size="small" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />

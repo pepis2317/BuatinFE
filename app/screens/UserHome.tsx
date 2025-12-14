@@ -20,6 +20,12 @@ const HORIZONTAL_PADDING = 16;
 
 const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - COLUMN_GAP) / 2;
 
+const COLUMN_GAP = 16;
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const HORIZONTAL_PADDING = 16;
+
+const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - COLUMN_GAP) / 2;
+
 export default function UserHome() {
     const { user } = useAuth()
     const { theme, textColor } = useTheme()
@@ -77,6 +83,7 @@ export default function UserHome() {
     }, [])
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'UserHome'>>();
+
     return (
         <View style={{ flex: 1, paddingHorizontal: 16 }}>
             {/* Top Bar */}

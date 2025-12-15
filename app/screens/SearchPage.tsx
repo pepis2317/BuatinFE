@@ -1,6 +1,6 @@
 
 import { ArrowLeft } from "lucide-react-native";
-import { View, StyleSheet, TouchableOpacity, TextInput, FlatList, RefreshControl, ActivityIndicator } from "react-native";
+import { View, StyleSheet, TouchableOpacity, TextInput, FlatList, RefreshControl, ActivityIndicator, Dimensions } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -13,6 +13,12 @@ import SellerCard from "../../components/SellerCard";
 import { API_URL } from "../../constants/ApiUri";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import Colors from "../../constants/Colors";
+
+const COLUMN_GAP = 16;
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const HORIZONTAL_PADDING = 16;
+
+const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - COLUMN_GAP) / 2;
 
 export default function SearchPage() {
     const { textColor, theme } = useTheme()
@@ -39,6 +45,7 @@ export default function SearchPage() {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     const handleFetch = async () => {
         setLoading(true)
         const result = await fetchSellers()
@@ -50,24 +57,27 @@ export default function SearchPage() {
         }
         setLoading(false)
     }
+
     const loadMore = () => {
         if (!loading && sellers.length < total) {
             setPage(prev => prev + 1)
         }
     };
+
     const handleSearch = () => {
         if (searchTerm != "") {
             setSellers([])
             setPage(1)
             handleFetch()
         }
-
     }
+
     useEffect(() => {
         if (sellers.length <= total) {
             handleFetch();
         }
     }, [page]);
+
     const onRefresh = useCallback(() => {
         setLoading(true)
         setRefresh(true)
@@ -75,11 +85,13 @@ export default function SearchPage() {
         setSellers([])
     }, [])
 
-
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    
     return (
         <View>
+
             <View style={styles.topBar}>
+
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <ArrowLeft color={textColor} />
                 </TouchableOpacity>
@@ -92,15 +104,23 @@ export default function SearchPage() {
                     onChangeText={setSearchTerm}
                     onEndEditing={handleSearch}
                 />
+
             </View>
-            {sellers.length > 0 ?
-                <FlatList
+
+            <View style={styles.FlatListContainer}>
+                {sellers.length > 0 ?
+                    <FlatList
                     data={sellers}
                     numColumns={2}
-                    contentContainerStyle={{ gap: 5 }}
+                    columnWrapperStyle={{ marginBottom: 16, columnGap: COLUMN_GAP }}
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                    decelerationRate="normal"
                     keyExtractor={(seller) => seller.sellerId}
                     renderItem={({ item }) => (
-                        <SellerCard seller={item} />
+                        <View style={styles.cardWrapper}>
+                            <SellerCard seller={item} />
+                        </View>
                     )}
                     onEndReached={loadMore}
                     onEndReachedThreshold={0.5}
@@ -109,22 +129,27 @@ export default function SearchPage() {
                     }
                     ListFooterComponent={
                         loading ?
-                            <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
-                            :
-                            <View style={{ marginTop: 64 }} />
+                        <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                        :
+                        <View style={{ marginTop: 64 }} />
                     } /> : <></>
-            }
+                }
+            </View>
         </View>
     )
 }
+
 const styles = StyleSheet.create({
     topBar: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 10,
-        gap: 10
+        paddingTop: 32,
+        paddingBottom: 16, 
+        paddingHorizontal: 16,
+        gap: 16
     },
+
     darkTextInput: {
         borderStyle: 'solid',
         borderColor: '#636C7C',
@@ -145,5 +170,14 @@ const styles = StyleSheet.create({
         color: "black",
         borderWidth: 1,
         borderColor: '#D9D9D9'
-    }
+    },
+
+    FlatListContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cardWrapper: {
+        width: CARD_WIDTH,
+    },
 })

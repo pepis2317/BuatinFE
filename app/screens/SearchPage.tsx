@@ -110,29 +110,29 @@ export default function SearchPage() {
             <View style={styles.FlatListContainer}>
                 {sellers.length > 0 ?
                     <FlatList
-                    data={sellers}
-                    numColumns={2}
-                    columnWrapperStyle={{ marginBottom: 16, columnGap: COLUMN_GAP }}
-                    showsHorizontalScrollIndicator={false}
-                    showsVerticalScrollIndicator={false}
-                    decelerationRate="normal"
-                    keyExtractor={(seller) => seller.sellerId}
-                    renderItem={({ item }) => (
-                        <View style={styles.cardWrapper}>
-                            <SellerCard seller={item} />
-                        </View>
-                    )}
-                    onEndReached={loadMore}
-                    onEndReachedThreshold={0.5}
-                    refreshControl={
-                        <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
-                    }
-                    ListFooterComponent={
-                        loading ?
-                        <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
-                        :
-                        <View style={{ marginTop: 64 }} />
-                    } /> : <></>
+                        data={sellers}
+                        numColumns={2}
+                        columnWrapperStyle={{ marginBottom: 16, columnGap: COLUMN_GAP }}
+                        showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+                        decelerationRate="normal"
+                        keyExtractor={(seller) => seller.sellerId}
+                        renderItem={({ item }) => (
+                            <View style={styles.cardWrapper}>
+                                <SellerCard seller={item} />
+                            </View>
+                        )}
+                        onEndReached={loadMore}
+                        onEndReachedThreshold={0.5}
+                        refreshControl={
+                            <RefreshControl refreshing={refresh} onRefresh={onRefresh} />
+                        }
+                        ListFooterComponent={
+                            loading ?
+                            <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />
+                            :
+                            <View style={{ marginTop: 64 }} />
+                        } /> : <></>
                 }
             </View>
         </View>
@@ -156,15 +156,17 @@ const styles = StyleSheet.create({
         width: "90%",
         borderWidth: 1,
         color: 'white',
-        height: 40,
-        padding: 10,
+        height: 45,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         borderRadius: 100
     },
     lightTextInput: {
         borderStyle: 'solid',
         width: "90%",
-        height: 40,
-        padding: 10,
+        height: 45,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         borderRadius: 100,
         backgroundColor: 'white',
         color: "black",

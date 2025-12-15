@@ -164,10 +164,8 @@ return (
 		
 		<TopBar title={"Settings"} showBackButton={true} />
       	
-		<View>
-        	<View style={theme == "dark" ? styles.darkOption : styles.lightOption}>
+        <View style={theme == "dark" ? styles.darkOption : styles.lightOption}>
           	<Text style={theme == "dark" ? { color: "white" } : {}}>Change Theme</Text>
-          	
 			<Switch
             	trackColor={{ false: "#767577", true: colors.green }}
             	thumbColor={"white"}
@@ -177,52 +175,47 @@ return (
         </View>
 
         <View style={theme == "dark" ? styles.darkOption : styles.lightOption}>
-        	<Text style={theme == "dark" ? { color: "white" } : {}}>Toggle Location Sharing
-          </Text>
-          <Switch
-            trackColor={{ false: "#767577", true: "#5CCFA3" }}
-            thumbColor={"white"}
-            onValueChange={handleLocationToggle}
-            value={isSaved}
-          />
+        	<Text style={theme == "dark" ? { color: "white" } : {}}>Location Sharing</Text>
+          	<Switch
+            	trackColor={{ false: "#767577", true: colors.green }}
+            	thumbColor={"white"}
+            	onValueChange={handleLocationToggle}
+            	value={isSaved}
+          	/>
         </View>
 
         <View style={theme == "dark" ? styles.darkOption : styles.lightOption}>
-          <Text style={theme == "dark" ? { color: "white" } : {}}>
-            Enable Notifications
-          </Text>
-          <Switch
-            trackColor={{ false: "#767577", true: "#5CCFA3" }}
-            thumbColor={"white"}
-            onValueChange={toggleNotif}
-            value={notifEnabled}
-            disabled={notifBusy}
-          />
+          	<Text style={theme == "dark" ? { color: "white" } : {}}>Enable Notifications</Text>
+          	<Switch
+				trackColor={{ false: "#767577", true: colors.green }}
+				thumbColor={"white"}
+				onValueChange={toggleNotif}
+				value={notifEnabled}
+				disabled={notifBusy}
+          	/>
         </View>
-      </View>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  darkOption: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 10,
-    paddingLeft: 15,
-    paddingRight: 15,
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderColor: "#31363F",
-  },
-  lightOption: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 10,
-    paddingLeft: 15,
-    paddingRight: 15,
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderColor: "#D9D9D9",
-  },
+	darkOption: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		paddingHorizontal: 24,
+		paddingVertical: 12,
+		alignItems: "center",
+		borderBottomWidth: 1,
+		borderColor: colors.darkGray,
+  	},
+  	lightOption: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		paddingHorizontal: 24,
+		paddingVertical: 12,
+		alignItems: "center",
+		borderBottomWidth: 1,
+		borderColor: colors.offWhite,
+  	},	
 });

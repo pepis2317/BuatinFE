@@ -43,7 +43,7 @@ export default function Login() {
 
 	  		<View style={styles.formContainer}>
 
-                <Icon svg width={100} height={100} marginTop={24}/>
+                <Icon svg width={128} height={128} />
 
 				{/* Header Section */}
 				<View style={styles.headingContainer}>
@@ -59,7 +59,7 @@ export default function Login() {
 				{/* Login Button */}
 				<ColoredButton
 					title={"Log In"}
-					style={{ backgroundColor: colors.green, width: "100%", fontsize: 16, fontWeight: "bold" }}
+					style={{ backgroundColor: colors.primary, width: "100%", fontsize: 16, fontWeight: "bold" }}
 					onPress={!loading ? login : () => {}}
 					isLoading={loading}
 				/>
@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     },
 
     headingContainer: {
-		marginTop: 24,
 		marginBottom: 8,
 		alignItems: "center",
 		gap: 8

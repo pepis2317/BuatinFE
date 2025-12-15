@@ -80,8 +80,9 @@ export default function UserHome() {
 
     return (
         <View style={{ flex: 1, paddingHorizontal: 16 }}>
+
             {/* Top Bar */}
-            <View style={{ elevation: 2, paddingVertical: 16 }}>
+            <View style={{ elevation: 2, paddingVertical: 16, marginTop: 16}}>
                 <View style={{ flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme == "dark" ? "#222831" : "white", }}>
 
                     <Text style={{ color: textColor, fontWeight: "bold", fontSize: 24 }}>Buatin</Text>

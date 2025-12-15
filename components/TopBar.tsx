@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
         paddingTop: 32,
         paddingBottom: 16,
         gap: 16,
+        elevation: 2
     },
 
     lightTopBar: {
@@ -40,10 +41,11 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: Colors.offWhite,
         backgroundColor: 'white',
-        paddingVertical:16,
-        gap: 16,
+        paddingTop: 32,
+        paddingBottom: 16,
         elevation:2
     },
+
     darkTitle: {
         color: "white",
         fontWeight: 'bold',
@@ -59,7 +61,8 @@ const styles = StyleSheet.create({
     },
     backButton:{
         position:'absolute',
-        paddingVertical:16,
+        paddingTop: 32,
+        paddingBottom: 16,
         left:24
     }
 })

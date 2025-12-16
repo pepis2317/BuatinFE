@@ -16,6 +16,7 @@ import { ReviewComponentShort } from "../../components/ReviewComponent";
 import { useAuth } from "../context/AuthContext";
 
 type UserDetailsProps = NativeStackScreenProps<RootStackParamList, "UserDetails">
+
 export default function UserDetails({ navigation, route }: UserDetailsProps) {
     const { userId } = route.params
     const { onGetUserToken } = useAuth()
@@ -25,6 +26,7 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
     const [stats, setStats] = useState<UserStats>()
     const [topreviews, setTopReviews] = useState<ReviewResponse[]>([])
     const [loading, setLoading] = useState(false)
+
     const fetchUser = async () => {
         try {
             const result = await axios.get(`${API_URL}/get-user/${userId}`)
@@ -33,6 +35,7 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     const getStats = async (userId: string) => {
         try {
             const response = await axios.get(`${API_URL}/get-user-stats`, {
@@ -45,6 +48,7 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const getTopReviews = async () => {
         try {
             const token = await onGetUserToken!()
@@ -59,12 +63,14 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleGetReviews = async () => {
         const result = await getTopReviews()
         if (!result.error) {
             setTopReviews(result.reviews)
         }
     }
+
     const handleFetch = async () => {
         setLoading(true)
         const result = await fetchUser()
@@ -77,6 +83,7 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
         }
         setLoading(false)
     }
+
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
         setUser(undefined)
@@ -85,16 +92,21 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
         reset()
         setRefreshing(false);
     }, []);
+
     const reset = () => {
         handleFetch()
         handleGetReviews()
     }
+
     useEffect(() => {
         reset()
     }, [])
+
     return (
         <View style={{ flex: 1 }}>
+
             <TopBar title={"Profile"} showBackButton={true} />
+            
             <ScrollView style={{ flex: 1 }}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

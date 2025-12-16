@@ -14,6 +14,7 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
     const { onGetUserToken, user } = useAuth()
     const [likes, setLikes] = useState(review.likes)
     const [liked, setLiked] = useState(review.liked)
+
     var likePost = async () => {
         try {
             const token = await onGetUserToken!()
@@ -29,6 +30,7 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
+
     var unlikePost = async () => {
         try {
             const token = await onGetUserToken!()
@@ -45,6 +47,7 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
+
     var likeHandler = async () => {
         if (!liked) {
             var res = await likePost()
@@ -60,6 +63,7 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
             }
         }
     }
+
     const handleNavigate = () => {
         if (isSeller) {
             navigation.navigate('EditReview', { review: review, isSeller: true })
@@ -67,6 +71,7 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
             navigation.navigate('EditReview', { review: review, isSeller: false })
         }
     }
+    
     return (
         <View style={[styles.container, { backgroundColor: foregroundColor , marginHorizontal: 20, marginBottom: 10 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -113,16 +118,15 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
         </View>
     )
 }
+
 export function ReviewComponentShort({ review, navigation, isEnd }: { review: ReviewResponse, navigation: any, isEnd: boolean }) {
     const { foregroundColor, textColor} = useTheme()
 
     return (
-        <View style={[styles.container, {
-            width: 250,
-            marginRight: isEnd ? 0 : 10,
-            backgroundColor: foregroundColor
-        }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+        <View style={[styles.container, {maxWidth: 240, marginRight: isEnd ? 0 : 16, backgroundColor: foregroundColor, borderRadius: 10}]}>
+            
+            {/* Profile, Name, Last Edited */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <PfpComponent width={32} pfp={review.authorPfp} userId={""} navigation={navigation} />
                 <View>
                     <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { userId: review.authorId })}>
@@ -130,33 +134,38 @@ export function ReviewComponentShort({ review, navigation, isEnd }: { review: Re
                     </TouchableOpacity>
                     <Text style={{ color: textColor, fontSize: 12 }}>{review.updatedAt ? "(Edited) " + new Date(review.updatedAt).toDateString() : new Date(review.createdAt).toDateString()}</Text>
                 </View>
-
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ color: textColor, fontWeight: 'bold' }}>{review.rating}</Text>
+
+            {/* Rating */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                <Text style={{ color: textColor, fontWeight: 'bold', marginRight: 4}}>{review.rating}</Text>
                 <Star fill={'gold'} color={'gold'} size={16} />
             </View>
-            <View style={{ flex: 1, justifyContent: 'space-between' }}>
+
+            {/* Review */}
+            <View style={{ flex: 1, justifyContent: 'space-between'}}>
                 <Text numberOfLines={3}
                     ellipsizeMode="tail"
                     style={{ color: textColor, }}>{review.review}</Text>
-                <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 12 }}>{review.likes} {review.likes != 1 ? "likes" : "like"}    {review.comments} {review.comments != 1 ? "Comments" : "Comment"}</Text>
+                <Text style={{ color: Colors.darkGray, fontSize: 12 }}>{review.likes} {review.likes != 1 ? "likes" : "like"}    {review.comments} {review.comments != 1 ? "Comments" : "Comment"}</Text>
             </View>
-
 
         </View>
     )
 }
+
 const styles = StyleSheet.create({
     reaction: {
         flexDirection: 'row',
-        gap: 5,
+        gap: 8,
         alignItems: 'center'
     },
+
     container: {
-        padding: 10,
+        padding: 16,
         borderRadius: 5,
     },
+
     pfp: {
         width: 32,
         aspectRatio: 1,

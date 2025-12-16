@@ -91,7 +91,7 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
                             fontWeight: 'bold',
                             marginBottom: 10
                         }}>Description</Text>
-                        <TextInputComponent placeholder="Description" multiline onChangeText={setDescription} />
+                        <TextInputComponent placeholder="Description" multiline style={{height:120}} onChangeText={setDescription} />
                     </View>
                     <View>
                         <Text style={{

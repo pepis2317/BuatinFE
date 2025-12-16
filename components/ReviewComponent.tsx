@@ -8,6 +8,29 @@ import axios from "axios";
 import { API_URL } from "../constants/ApiUri";
 import { useAuth } from "../app/context/AuthContext";
 import PfpComponent from "./PfpComponent";
+import colors from "../constants/Colors";
+
+const formatEditedDate = (date: string | number | Date) => {
+        const d = new Date(date);
+
+        const weekday = new Intl.DateTimeFormat("en-GB", {
+            weekday: "short",
+        }).format(d);
+
+        const day = new Intl.DateTimeFormat("en-GB", {
+            day: "2-digit",
+        }).format(d);
+
+        const month = new Intl.DateTimeFormat("en-GB", {
+            month: "short",
+        }).format(d);
+
+        const year = new Intl.DateTimeFormat("en-GB", {
+            year: "numeric",
+        }).format(d);
+
+        return `${weekday}, ${day} ${month} ${year}`;
+};
 
 export default function ReviewComponent({ review, navigation, isSeller }: { review: ReviewResponse, navigation: any, isSeller: boolean }) {
     const { foregroundColor , textColor } = useTheme()
@@ -73,15 +96,21 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
     }
     
     return (
-        <View style={[styles.container, { backgroundColor: foregroundColor , marginHorizontal: 20, marginBottom: 10 }]}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <View style={[styles.container, { backgroundColor: foregroundColor, marginBottom: 16 }]}>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                {/* Profile & Name */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <PfpComponent width={32} pfp={review.authorPfp} userId={review.authorId} navigation={navigation} />
                     <View>
                         <TouchableOpacity onPress={()=> navigation.navigate('UserDetails', {userId:review.authorId})}>
                             <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16 }}>{review.authorName}</Text>
                         </TouchableOpacity>
-                        <Text style={{ color: textColor, fontSize: 12 }}>{review.updatedAt ? "(Edited) " + new Date(review.updatedAt).toDateString() : new Date(review.createdAt).toDateString()}</Text>
+                        <Text style={{ color: colors.darkGray, fontSize: 12 }}>
+                        {review.updatedAt
+                            ? `Edited ${formatEditedDate(review.updatedAt)}`
+                            : formatEditedDate(review.createdAt)}
+                        </Text>
                     </View>
                 </View>
                 {review.authorId == user?.userId ?
@@ -89,14 +118,17 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
                         <Pencil size={20} color={textColor} />
                     </TouchableOpacity> : <></>}
 
+                {/* Rating */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                    <Text style={{ color: textColor, fontWeight: 'bold' }}>{review.rating}</Text>
+                    <Star fill={'gold'} color={'gold'} size={16} />
+                </View>
             </View>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ color: textColor, fontWeight: 'bold' }}>{review.rating}</Text>
-                <Star fill={'gold'} color={'gold'} size={16} />
-            </View>
-
+            
+            {/* Review */}
             <Text style={{ color: textColor }}>{review.review}</Text>
+
+            {/* Like & Comment */}
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
                 {liked ?
                     <TouchableOpacity style={styles.reaction} onPress={() => likeHandler()}>
@@ -132,7 +164,11 @@ export function ReviewComponentShort({ review, navigation, isEnd }: { review: Re
                     <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { userId: review.authorId })}>
                         <Text style={{ color: textColor, fontWeight: 'bold' }}>{review.authorName}</Text>
                     </TouchableOpacity>
-                    <Text style={{ color: textColor, fontSize: 12 }}>{review.updatedAt ? "(Edited) " + new Date(review.updatedAt).toDateString() : new Date(review.createdAt).toDateString()}</Text>
+                    <Text style={{ color: colors.darkGray, fontSize: 12 }}>
+                        {review.updatedAt
+                            ? `Edited ${formatEditedDate(review.updatedAt)}`
+                            : formatEditedDate(review.createdAt)}
+                        </Text>
                 </View>
             </View>
 
@@ -163,7 +199,7 @@ const styles = StyleSheet.create({
 
     container: {
         padding: 16,
-        borderRadius: 5,
+        borderRadius: 10,
     },
 
     pfp: {

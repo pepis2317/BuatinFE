@@ -14,7 +14,10 @@ import ConfirmedModal from "../../components/ConfirmedModal";
 import { PlusSquare, X } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import ErrorComponent from "../../components/ErrorComponent";
+import colors from "../../constants/Colors";
+
 type OrderRequestProps = NativeStackScreenProps<RootStackParamList, "OrderRequest">
+
 export default function OrderRequest({ navigation, route }: OrderRequestProps) {
     const { sellerId } = route.params
     const { textColor } = useTheme()
@@ -25,6 +28,7 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
     const [errMessage, setErrMessage] = useState("")
     const [images, setImages] = useState<string[]>([])
     const { onGetUserToken } = useAuth()
+
     const createOrderRequest = async (message: string, title: string) => {
         try {
             const token = await onGetUserToken!()
@@ -42,6 +46,7 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
@@ -58,9 +63,11 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
             setImages((prevImages) => [...prevImages, result.assets[0].uri]);
         }
     }
+
     const removeImage = (index: number) => {
         setImages((prevImages) => prevImages.filter((_, i) => i !== index));
     }
+
     const handleUploadImage = async (formData: FormData) => {
         try {
             const result = await axios.post(`${API_URL}/upload-image`, formData, {
@@ -71,6 +78,7 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     const handleCreateRequest = async () => {
         if (!title || !message) {
             setErrMessage("Mandatory forms must be filled")
@@ -104,53 +112,61 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
 
     return (
         <View style={{ flex: 1 }}>
+
             <TopBar title="Create Order Request" showBackButton />
+
             <ConfirmedModal isFail={false} visible={modalVisible} message={"Request has been created"} onPress={() => navigation.goBack()} />
+
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 keyboardVerticalOffset={35}>
+
                 <ScrollView>
-                    <View style={{ gap: 10, padding:20, paddingVertical:10 }}>
-                        <View>
-                            <Text style={{
-                                color: textColor,
-                                fontWeight: 'bold',
-                                marginBottom: 10
-                            }}>Images (optional)</Text>
-                            <View style={styles.imagesContainer}>
-                                <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
-                                    <View style={styles.addBorder}>
-                                        <PlusSquare color={Colors.green} size={32} />
-                                    </View>
-                                </TouchableOpacity>
-                                <ScrollView horizontal>
-                                    {images.map((uri, index) => (
-                                        <View key={index} >
-                                            <Image
-                                                source={{ uri }}
-                                                style={{ width: 150, height: 150 }}
-                                            />
-                                            <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
-                                                <X size={20} color={"white"} />
-                                            </TouchableOpacity>
-                                        </View>
-                                    ))}
-                                </ScrollView>
-                            </View>
+                    <View style={{ gap: 10, padding: 24, paddingVertical: 24}}>
+
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold'}}>Images </Text>
+                            <Text style={{ color: colors.darkGray}}>(optional)</Text>
                         </View>
-                        <View>
-                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom:10 }}>Title</Text>
+
+                        <View style={styles.imagesContainer}>
+                            {/* Add Image */}
+                            <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
+                                <View style={styles.addBorder}>
+                                    <PlusSquare color={Colors.primary} size={32} />
+                                </View>
+                            </TouchableOpacity>
+
+                            {/* Image Preview */}
+                            <ScrollView horizontal>
+                                {images.map((uri, index) => (
+                                    <View key={index} >
+                                        <Image
+                                            source={{ uri }}
+                                            style={{ width: 150, height: 150 }}
+                                        />
+                                        <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
+                                            <X size={20} color={"white"} />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                            </ScrollView>
+                        </View>
+
+                        <View style={{ gap: 8}}>
+                            <Text style={{ color: textColor, fontWeight: 'bold' }}>Title</Text>
                             <TextInputComponent placeholder="Title" onChangeText={setTitle} />
                         </View>
-                        <View>
-                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom:10 }}>Message</Text>
+
+                        <View style={{ gap: 8 }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold' }}>Message</Text>
                             <TextInputComponent placeholder="Message" multiline style={{height:120}} onChangeText={setMessage} />
                         </View>
                         {errMessage ?
                             <ErrorComponent errorsString={errMessage} />
                             : <></>}
-                        <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green, marginTop: 10 }} />
+                        <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green}} />
                     </View>
 
                 </ScrollView>
@@ -162,10 +178,9 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
 }
 const styles = StyleSheet.create({
     imagesContainer: {
-        height: 150,
         flexDirection: 'row',
         borderStyle: 'solid',
-        borderColor: '#31363F',
+        borderColor: colors.offWhite,
         borderBottomWidth: 1
     },
     addBorder: {
@@ -173,22 +188,21 @@ const styles = StyleSheet.create({
         height: "100%",
         justifyContent: 'center',
         borderStyle: 'dashed',
-        borderColor: '#5CCFA3',
-        borderRadius: 5,
+        borderColor: colors.primary,
+        borderRadius: 10,
         borderWidth: 1,
         alignItems: 'center',
 
     },
     addImageButton: {
-        padding: 15,
-        height: 150,
-        width: 100,
+        padding: 16,
+        height: 160,
+        width: 120,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
         borderStyle: 'solid',
         borderColor: '#31363F',
-        borderRightWidth: 1
     },
 
     removeImageButton: {

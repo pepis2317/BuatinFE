@@ -261,11 +261,13 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
                                         {errMessage ?
                                             <ErrorComponent errorsString={errMessage} />
                                             : <></>}
-                                        <ColoredButton title={hasPressedSnap?"Check Payment Status":"Pay with Snap"} onPress={() => handleSnapPay()} style={{ backgroundColor: Colors.green }} />
-                                        {hasPressedSnap?<></>:<ColoredButton title={"Pay with Wallet"} onPress={() => handleWalletPay()} style={{ backgroundColor: Colors.green }} isLoading={loading} />}
+                                        {rates ?
+                                            <View>
+                                                <ColoredButton title={hasPressedSnap ? "Check Payment Status" : "Pay with Snap"} onPress={() => handleSnapPay()} style={{ backgroundColor: Colors.green }} />
+                                                {hasPressedSnap ? <></> : <ColoredButton title={"Pay with Wallet"} onPress={() => handleWalletPay()} style={{ backgroundColor: Colors.green }} isLoading={loading} />}
+                                            </View> : <></>}
                                     </View>
                                 </View>
-
                                 : <></>}
                         </View>
                         : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />}

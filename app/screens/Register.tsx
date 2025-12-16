@@ -166,21 +166,22 @@ export default function Register() {
 
                 <ScrollView >
 
-                    {/* Input Fields */}
                     <View style={styles.formContainer}>
 
-                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Username</Text>
+                        {/* Input Fields */}
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold" }}>Username</Text>
 					    <TextInputComponent autoCapitalize="none" placeholder="Username" onChangeText={setUserName}/>
 					
-                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Email</Text>
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold" }}>Email</Text>
                         <TextInputComponent autoCapitalize="none" placeholder="Email" onChangeText={setEmail}/>
 
-                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Phone</Text>
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold" }}>Phone</Text>
                         <PhoneInputComponent defaultValue="" onPhoneChange={setPhone} />
                     
-                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Password</Text>
-                        <TextInputComponent autoCapitalize="none" secureTextEntry={true} placeholder="Password" onChangeText={setPassword}/>  
-                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold", fontSize: 16}}>Role</Text>
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold" }}>Password</Text>
+                        <TextInputComponent autoCapitalize="none" secureTextEntry={true} placeholder="Password" onChangeText={setPassword}/> 
+
+                        <Text style={{color: theme == "dark" ? "white" : "black", fontWeight: "bold" }}>Role</Text>
                         <View style={theme == "dark" ? styles.DarkPickerContainer : styles.LightPickerContainer}>
                             <Picker 
                                 mode="dropdown"
@@ -213,12 +214,12 @@ export default function Register() {
 
 
                         {geoAddress ?
-                            <View style={{ marginTop: 10 }}>
+                            <View style={{ gap: 8 }}>
 
                                 <Text style={{ color: 'gray', fontWeight: 'bold' }}>Inferred Address:</Text>
                                 <Text style={{ color: 'gray' }}>{geoAddress}</Text>
 
-                                <Text style={{ color: textColor, fontWeight: "bold", marginTop: 10 }}>Postal Code</Text>
+                                <Text style={{ color: textColor, fontWeight: "bold" }}>Postal Code</Text>
                                 <TextInputComponent
                                     autoCapitalize="none"
                                     placeholder="Postal Code"
@@ -227,7 +228,7 @@ export default function Register() {
                                     value={postalCode}
                                 />
 
-                                <Text style={{color: textColor, fontWeight: "bold", marginTop: 10 }}>Address</Text>
+                                <Text style={{color: textColor, fontWeight: "bold" }}>Address</Text>
                                 <TextInputComponent
                                     style={{ height: inputHeight }}
                                     placeholder="Address"
@@ -245,24 +246,25 @@ export default function Register() {
                         }
 
                         {role == "Seller" ?
-                            <View>
+                            <View style={{ gap: 8, marginTop: 8}}>
                                 <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold" }}>Seller Name</Text>
                                 <TextInputComponent autoCapitalize="none" placeholder="Seller Name" onChangeText={setSellerName} value={sellerName} />
                             </View>
                             : <></>
                         }
+
                         {errMessage ? <ErrorComponent errorsString={errMessage} /> : <></>}
                         {canSubmit ?
                             <ColoredButton 
                                 title={"Register"}
-                                style={{ backgroundColor: colors.primary }}
+                                style={{ backgroundColor: colors.primary, marginTop: 8 }}
                                 onPress={register}
                                 isLoading={loading}
                             />
                             :
                             <ColoredButton 
                                 title={"Register"}
-                                style={{ backgroundColor: colors.darkGray }}
+                                style={{ backgroundColor: colors.darkGray, marginTop: 8}}
                                 onPress={register}
                                 isLoading={loading}
                                 disabled={true}
@@ -280,8 +282,8 @@ export default function Register() {
 }
 const styles = StyleSheet.create({
     formContainer: {
-        padding: 24,
-        gap: 12,
+        padding: 16,
+        gap: 8,
     },
 
     DarkPickerContainer: {

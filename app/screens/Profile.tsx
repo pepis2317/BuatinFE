@@ -258,7 +258,7 @@ export default function Profile() {
                             <Text style={{ color: textColor, fontWeight: "bold", textAlign: "left", width: "100%" }}>Phone</Text>
                             <PhoneInputComponent onPhoneChange={setPhone} defaultValue={userData.phone ? userData.phone : ""} />
                             
-                            <View style={{ padding: 16, backgroundColor: subtleBorderColor, borderWidth: 1, borderColor: borderColor, borderRadius: 5, marginTop: 8 }}>
+                            <View style={{ padding: 16, backgroundColor: subtleBorderColor, borderWidth: 1, borderColor: borderColor, borderRadius: 10, marginTop: 8 }}>
 
                                 <ColoredButton title={"Change Location"} style={[{ backgroundColor: Colors.primary }, styles.button]} onPress={() => navigation.navigate('SelectLocation', {
                                     margin: false,

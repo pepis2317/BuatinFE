@@ -111,7 +111,7 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
     const date = new Date(seller.createdAt)
 
     return (
-        <View style={{ marginBottom: -40}}>
+        <View style={{ marginBottom: -36}}>
 
             <ConfirmedModal isFail={false} visible={showSuccess} message={"Seller data has been updated"} onPress={() => navigation.goBack()}/>
 
@@ -158,7 +158,7 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
                         {hasChanged == true ? <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.green }} isLoading={loading} onPress={() => handleUpdateData()} /> : <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.darkBackground }} disabled />}
                     </View> :
                     <View>
-                        <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 24, marginBottom: 8 }}>{sellerName}</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 24, marginBottom: 2 }}>{sellerName}</Text>
                         <Text style={{ color: Colors.darkGray, marginBottom: 8, fontSize: 12 }}>Est. {date.toLocaleDateString('en-GB')}</Text>
                         <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 6 }}>About</Text>
                         <View style={[styles.defaultDescriptionContainer, { backgroundColor: foregroundColor }]}>

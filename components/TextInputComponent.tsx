@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         height: 45,
         paddingHorizontal: 16,
         paddingVertical: 8,
-        borderRadius: 6
+        borderRadius: 8
     },
     lighTextInput: {
         backgroundColor: 'white',
@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
         height: 45,
         paddingHorizontal: 16,
         paddingVertical: 8,
-        borderRadius: 6
+        borderRadius: 8
     }
 })

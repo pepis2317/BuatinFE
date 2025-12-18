@@ -10,7 +10,7 @@ import { RootStackParamList } from "../../constants/RootStackParams";
 import TextInputComponent from "../../components/TextInputComponent";
 import { useSignalR } from "../context/SignalRContext";
 import colors from "../../constants/Colors";
-import Icon from "../../assets/icon.svg";
+import Icon from '../../assets/icon.svg';
 
 export default function Login() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'Login'>>();
@@ -59,7 +59,7 @@ export default function Login() {
 				{/* Login Button */}
 				<ColoredButton
 					title={"Log In"}
-					style={{ backgroundColor: colors.primary, width: "100%", fontsize: 16, fontWeight: "bold" }}
+					style={{ backgroundColor: colors.green, width: "100%", fontsize: 16, fontWeight: "bold" }}
 					onPress={!loading ? login : () => {}}
 					isLoading={loading}
 				/>

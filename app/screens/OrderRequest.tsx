@@ -127,7 +127,7 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
 
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{ color: textColor, fontWeight: 'bold'}}>Images </Text>
-                            <Text style={{ color: colors.darkGray}}>(optional)</Text>
+                            <Text style={{ color: colors.darkBorder}}>(optional)</Text>
                         </View>
 
                         <View style={styles.imagesContainer}>
@@ -166,7 +166,7 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
                         {errMessage ?
                             <ErrorComponent errorsString={errMessage} />
                             : <></>}
-                        <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green}} />
+                        <ColoredButton title={"Create Request"} onPress={() => handleCreateRequest()} isLoading={loading} style={{ backgroundColor: Colors.green, marginTop: 8}} />
                     </View>
 
                 </ScrollView>
@@ -176,24 +176,26 @@ export default function OrderRequest({ navigation, route }: OrderRequestProps) {
         </View>
     )
 }
+
 const styles = StyleSheet.create({
     imagesContainer: {
         flexDirection: 'row',
         borderStyle: 'solid',
-        borderColor: colors.offWhite,
+        borderColor: colors.darkBorder,
         borderBottomWidth: 1
     },
+
     addBorder: {
         width: "100%",
         height: "100%",
         justifyContent: 'center',
         borderStyle: 'dashed',
-        borderColor: colors.primary,
+        borderColor: colors.darkBorder,
         borderRadius: 10,
         borderWidth: 1,
         alignItems: 'center',
-
     },
+
     addImageButton: {
         padding: 16,
         height: 160,

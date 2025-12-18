@@ -258,9 +258,9 @@ export default function Profile() {
                             <Text style={{ color: textColor, fontWeight: "bold", textAlign: "left", width: "100%" }}>Phone</Text>
                             <PhoneInputComponent onPhoneChange={setPhone} defaultValue={userData.phone ? userData.phone : ""} />
                             
-                            <View style={{ padding: 16, backgroundColor: subtleBorderColor, borderWidth: 1, borderColor: borderColor, borderRadius: 10, marginTop: 8 }}>
+                            <View style={{ padding: 16, backgroundColor: subtleBorderColor, borderWidth: 1, borderColor: borderColor, borderRadius: 10, marginVertical: 8 }}>
 
-                                <ColoredButton title={"Change Location"} style={[{ backgroundColor: Colors.primary }, styles.button]} onPress={() => navigation.navigate('SelectLocation', {
+                                <ColoredButton title={"Change Location"} style={[{ backgroundColor: Colors.green }, styles.button]} onPress={() => navigation.navigate('SelectLocation', {
                                     margin: false,
                                     onSelectLocation: (coords) => {
                                         setLocation(coords)
@@ -292,7 +292,7 @@ export default function Profile() {
 
                             <View style={{ flexDirection: 'row', gap: 16, justifyContent: 'space-between' }}>
                                 < ColoredButton style={[{ backgroundColor: Colors.red }, styles.button]} title={"Log Out"} onPress={() => handleLogOut()} isLoading={loading} />
-                                <ColoredButton style={[{ backgroundColor: Colors.primary }, styles.button]} title={"Save"} onPress={() => handleUpload()} isLoading={loading} />
+                                <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Save"} onPress={() => handleUpload()} isLoading={loading} />
                             </View>
                         </View>
                     </ScrollView>

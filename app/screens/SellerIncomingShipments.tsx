@@ -5,6 +5,7 @@ import TopBar from "../../components/TopBar"
 import ShipmentsList from "../../components/ShipmentsList"
 
 type ShipmentsProps = NativeStackScreenProps<RootStackParamList, "SellerIncomingShipments">
+
 export default function SellerIncomingShipments({ navigation, route }: ShipmentsProps) {
     return (
         <View style={{flex:1}}>

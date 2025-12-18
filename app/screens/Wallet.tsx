@@ -74,7 +74,7 @@ export default function Wallet({ navigation, route }: WalletProps) {
                 <View style={{ padding: 24, gap: 16 }}>
 
                     <View style={{ gap: 8}}>
-                        <Text style={{fontSize: 14}}>Current Balance:</Text>
+                        <Text style={{fontSize: 14, color: textColor}}>Current Balance:</Text>
                         <TextInputComponent editable={false} >
                             <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16 }}>Rp {Number(balance / 100).toLocaleString("id-ID")},00</Text>
                         </TextInputComponent>

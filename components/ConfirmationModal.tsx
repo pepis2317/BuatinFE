@@ -31,6 +31,7 @@ export default function ConfirmationModal({visible, message, onAccept, onCancel 
         </Modal>
     )
 }
+
 const styles = StyleSheet.create({
     modalStyle: {
         justifyContent: 'center',

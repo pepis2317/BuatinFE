@@ -8,6 +8,7 @@ import { TabBar, TabView } from "react-native-tab-view";
 import ProcessesList from "../../components/ProcessesList";
 import OrderRequestsList from "../../components/OrderRequestsList";
 import { Anvil } from "lucide-react-native";
+
 const ProcessesRoute = ({ navigation }: { navigation: any }) => {
     return (
         <View>
@@ -15,6 +16,7 @@ const ProcessesRoute = ({ navigation }: { navigation: any }) => {
         </View>
     )
 }
+
 const IncomingRequestsRoute = ({ navigation }: { navigation: any }) => {
     return (
         <OrderRequestsList isSeller={true} navigation={navigation} />
@@ -22,6 +24,7 @@ const IncomingRequestsRoute = ({ navigation }: { navigation: any }) => {
 }
 
 type SellerProcessesProps = NativeStackScreenProps<RootStackParamList, "SellerProcesses">;
+
 export default function SellerProcesses({ navigation, route }: SellerProcessesProps) {
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
@@ -31,13 +34,16 @@ export default function SellerProcesses({ navigation, route }: SellerProcessesPr
         { key: 'Ongoing', title: 'Ongoing Processes' },
         { key: 'Incoming', title: 'Incoming Requests' },
     ];
+
     return (
         <View style={{ flex: 1 }}>
+
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SellerOutgoingProcesses')}>
                 <Anvil color={"white"} />
             </TouchableOpacity>
+
             <TabView
-                style={{ flex: 1 }}
+                style={{ flex: 1, marginTop: 24 }}
                 navigationState={{ index, routes }}
                 renderScene={({ route }) => {
                     switch (route.key) {

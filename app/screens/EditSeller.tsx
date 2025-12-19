@@ -8,12 +8,16 @@ import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import { SellerResponse } from "../../types/SellerResponse";
 import SellerDetailComponent from "../../components/SellerDetailComponent";
+import ConfirmedModal from "../../components/ConfirmedModal";
 
 type EditSellerProps = NativeStackScreenProps<RootStackParamList, "EditSeller">
-export default function EditSeller({ navigation, route }: EditSellerProps) {
+
+export default function EditSeller({ navigation, route }:EditSellerProps) {
     const { user } = useAuth()
     const [seller, setSeller] = useState<SellerResponse>()
     const [loading, setLoading] = useState(false)
+    const [showSuccess, setShowSuccess] = useState(false);
+
     const getSeller = async (userId: string) => {
         try {
             const result = await axios.get(`${API_URL}/get-seller-by-owner-id`, {
@@ -37,15 +41,34 @@ export default function EditSeller({ navigation, route }: EditSellerProps) {
             setLoading(false)
         }
     }
+
     useEffect(() => {
         handleGetSeller()
     }, [])
+    
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"Edit Seller"} showBackButton />
+
+            <ConfirmedModal
+                isFail={false}
+                visible={showSuccess}
+                onPress={() => {
+                    setShowSuccess(false)
+                }}
+                message="Seller details is successfully updated!"
+            />
+
             {!loading && seller ?
                 <View>
-                    <SellerDetailComponent seller={seller} navigation={navigation} editing={true}/>
+                    <SellerDetailComponent
+                        seller={seller}
+                        navigation={navigation}
+                        editing={true}
+                        onEditSuccess ={() => 
+                            setShowSuccess(true)
+                        }
+                    />
                 </View>
                 : <></>
             }

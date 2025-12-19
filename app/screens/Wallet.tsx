@@ -80,10 +80,9 @@ export default function Wallet({ navigation, route }: WalletProps) {
                         </TextInputComponent>
                     </View>
 
-
                     <View style={{flexDirection: 'row', gap: '16'}}>
-                        <ColoredButton title={"Deposit"} style={{ backgroundColor: Colors.primary, flex: 1 }} onPress={() => navigation.navigate('Deposit')} />
-                        <ColoredButton title={"Withdraw"} style={{ backgroundColor: Colors.primary, flex: 1}} onPress={() => navigation.navigate('Withdraw')} />
+                        <ColoredButton title={"Deposit"} style={{ backgroundColor: Colors.green, flex: 1 }} onPress={() => navigation.navigate('Deposit')} />
+                        <ColoredButton title={"Withdraw"} style={{ backgroundColor: Colors.green, flex: 1}} onPress={() => navigation.navigate('Withdraw')} />
                     </View>
                 </View>
             </ScrollView>

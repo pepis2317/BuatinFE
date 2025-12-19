@@ -50,7 +50,7 @@ export default function Deposit({ navigation, route }: DepositProps) {
 
     const handleSnapPay = async () => {
         if (amount < 10000) {
-            setErrMessage("Amount must be greater than or equal to Rp10.000")
+            setErrMessage("Amount must be greater than or equal to Rp 10.000,00")
             return
         }
         setLoading(true)

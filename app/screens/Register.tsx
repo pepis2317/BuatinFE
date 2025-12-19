@@ -253,7 +253,7 @@ export default function Register() {
                             : <></>
                         }
 
-                        {errMessage ? <ErrorComponent errorsString={errMessage} /> : <></>}
+                        {errMessage ? <View style={{ marginVertical: 12}}><ErrorComponent errorsString={errMessage} /></View> : <></>}
                         {canSubmit ?
                             <ColoredButton 
                                 title={"Register"}

@@ -12,7 +12,7 @@ import ConfirmedModal from "./ConfirmedModal";
 import { SellerResponse } from "../types/SellerResponse";
 import { ReviewResponse } from "../types/ReviewResponse";
 
-export default function SellerDetailComponent({ seller, navigation, editing }: { seller: SellerResponse, navigation: any, editing: boolean }) {
+export default function SellerDetailComponent({ seller, navigation, editing, onEditSuccess}: { seller: SellerResponse, navigation: any, editing: boolean, onEditSuccess?: () => void }) {
     const { subtleBorderColor, foregroundColor, borderColor, textColor, backgroundColor } = useTheme()
     const [banner, setBanner] = useState<string | null>(seller.banner)
     const [picture, setPicture] = useState<string | null>(seller.sellerPicture)
@@ -80,8 +80,16 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
         }
 
         const result = await updateData(formData)
+
         if (!result.error) {
-            setShowSuccess(true)
+            if (onEditSuccess) {
+                onEditSuccess();
+            } else {
+                setShowSuccess(true);
+            }
+        } else {
+            console.error("Error: ", result.msg);
+            Alert.alert("Update Failed: ", result.msg);
         }
         setLoading(false)
     }
@@ -92,6 +100,7 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
             quality: 1,
             aspect: [3, 1]
         })
+
         if (!result.canceled) {
             setBanner(result.assets[0].uri);
         }
@@ -103,6 +112,7 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
             quality: 1,
             aspect: [1, 1]
         })
+
         if (!result.canceled) {
             setPicture(result.assets[0].uri);
         }
@@ -138,7 +148,7 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
                     <Image style={[styles.picture, { backgroundColor: subtleBorderColor, borderColor:borderColor }]} src={picture ? picture : ""} />
 
                     {editing ?
-                        <View style={[styles.pencil, { right: -5, top: -5 }]}>
+                        <View style={[styles.pencil, { left: -5, top: -5 }]}>
                             <Pencil color={textColor} size={16} />
                         </View>
                         : <></>
@@ -147,19 +157,32 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
 
                 {editing ?
                     <View style={styles.textContainer}>
+
                         <View>
-                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 5 }}>Seller Name</Text>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 12 }}>Seller Name</Text>
                             <TextInputComponent placeholder="Seller Name" value={sellerName} onChangeText={setSellerName} />
                         </View>
+
                         <View>
-                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 5 }}>Description</Text>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 12 }}>Description</Text>
                             <TextInputComponent placeholder="Seller Description" value={sellerDescription} onChangeText={setSellerDescription} multiline style={styles.descContainer} />
                         </View>
-                        {hasChanged == true ? <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.green }} isLoading={loading} onPress={() => handleUpdateData()} /> : <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.darkBackground }} disabled />}
-                    </View> :
+
+                        {hasChanged == true ? 
+                            <View style={{ marginTop: 8 }}>
+                                <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.green }} isLoading={loading} onPress={() => handleUpdateData()} />
+                            </View>
+                            : 
+                            <View style={{ marginTop: 8 }}>
+                                <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.darkGray }} disabled />
+                            </View>
+                        }
+
+                    </View>
+                    :
                     <View>
                         <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 24, marginBottom: 2 }}>{sellerName}</Text>
-                        <Text style={{ color: Colors.darkGray, marginBottom: 8, fontSize: 12 }}>Est. {date.toLocaleDateString('en-GB')}</Text>
+                        <Text style={{ color: textColor, marginBottom: 8, fontSize: 12 }}>Est. {date.toLocaleDateString('en-GB')}</Text>
                         <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 6 }}>About</Text>
                         <View style={[styles.defaultDescriptionContainer, { backgroundColor: foregroundColor }]}>
                             <Text style={{ color: textColor }}>{sellerDescription}</Text>
@@ -170,6 +193,7 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
         </View>
     )
 }
+
 const styles = StyleSheet.create({
     info: {
         position: 'relative',

@@ -12,12 +12,14 @@ import { useTheme } from "../context/ThemeContext";
 import Colors from "../../constants/Colors";
 
 type SellerReviewsProps = NativeStackScreenProps<RootStackParamList, "SellerReviews">
+
 export default function SellerReviews({ navigation, route }: SellerReviewsProps) {
     const { sellerId } = route.params
     const { textColor } = useTheme()
     const { onGetUserToken } = useAuth()
     const [canReview, setCanReview] = useState(false)
     const [loading, setLoading] = useState(false)
+
     const checkReviewable = async () => {
         try {
             const token = await onGetUserToken!()
@@ -34,6 +36,7 @@ export default function SellerReviews({ navigation, route }: SellerReviewsProps)
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleCheck = async () => {
         setLoading(true)
         const result = await checkReviewable()
@@ -45,17 +48,20 @@ export default function SellerReviews({ navigation, route }: SellerReviewsProps)
     useEffect(() => {
         handleCheck()
     }, [])
+
     return (
-        <View style={{ flex: 1 }}>
-            <TopBar title={"Seller Reviews"} showBackButton />
+        <View style={{ flex: 1}}>
+            <TopBar title={"All Reviews"} showBackButton />
             {loading ? <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} /> :
-                <View style={{ padding: 20 }}>
+                <View style={{ paddingHorizontal: 24, paddingVertical: 12 }}>
                     {canReview ?
                         <ColoredButton title={"Create Seller Review"} onPress={() => navigation.navigate('ReviewSeller', { sellerId: sellerId })} style={{backgroundColor: Colors.green}} />
                         : <></>}
                 </View>
             }
-            <SellerReviewsList sellerId={sellerId} navigation={navigation} />
+            <View style={{ paddingHorizontal: 16 }}>
+                <SellerReviewsList sellerId={sellerId} navigation={navigation} />
+            </View>
         </View>
     )
 }

@@ -18,6 +18,7 @@ import * as SecureStore from 'expo-secure-store'
 import * as Crypto from 'expo-crypto'
 
 type DepositProps = NativeStackScreenProps<RootStackParamList, "Deposit">
+
 export default function Deposit({ navigation, route }: DepositProps) {
     const { textColor } = useTheme()
     const [snapUrl, setSnapUrl] = useState('')
@@ -29,6 +30,7 @@ export default function Deposit({ navigation, route }: DepositProps) {
     const [errMessage, setErrMessage] = useState('')
     const [hasPressedDeposit, setHasPressedDeposit] = useState(false)
     const { onGetUserToken } = useAuth()
+
     const deposit = async (amount: number, key: string) => {
         try {
             const token = await onGetUserToken!()
@@ -45,9 +47,10 @@ export default function Deposit({ navigation, route }: DepositProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleSnapPay = async () => {
         if (amount < 10000) {
-            setErrMessage("Amount must be greater than or equal to Rp10.000")
+            setErrMessage("Amount must be greater than or equal to Rp 10.000,00")
             return
         }
         setLoading(true)
@@ -73,33 +76,40 @@ export default function Deposit({ navigation, route }: DepositProps) {
         }
         setLoading(false)
     }
+
     const handleSuccessPayment = async () => {
         await SecureStore.deleteItemAsync("deposit-key")
         setShowPayment(false);
         setShowSnapPaid(true)
     }
+
     const handleFailedPayment = async () => {
         await SecureStore.deleteItemAsync("deposit-key")
         setShowPayment(false);
         setShowSnapFailed(true)
     }
+
     useEffect(() => {
         if (snapUrl != '') {
             setShowPayment(true)
         }
     }, [snapUrl])
+
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"Deposit"} showBackButton />
-            <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showSnapPaid} message={"Step has been paid with snap"} />
-            <ConfirmedModal isFail={true} onPress={() => setShowSnapFailed(false)} visible={showSnapFailed} message={"Something went wrong with the snap payment"} />
-            <View style={{ padding: 20, gap: 10 }}>
-                <View>
-                    <Text style={{
-                        color: textColor,
-                        fontWeight: 'bold',
-                        marginBottom: 10
-                    }}>Amount</Text>
+
+            <ConfirmedModal 
+                isFail={false} onPress={() => navigation.goBack()} visible={showSnapPaid} message={"Step has been paid with snap"}
+            />
+
+            <ConfirmedModal
+                isFail={true} onPress={() => setShowSnapFailed(false)} visible={showSnapFailed} message={"Something went wrong with the snap payment"}
+            />
+
+            <View style={{ padding: 24, gap: 16 }}>
+                <View style={{ gap: 8 }}>
+                    <Text style={{ color: textColor, fontWeight: 'bold'}}>Amount</Text>
                     <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
                 </View>
                 {errMessage ?
@@ -119,5 +129,3 @@ export default function Deposit({ navigation, route }: DepositProps) {
         </View>
     )
 }
-const styles = StyleSheet.create({
-});

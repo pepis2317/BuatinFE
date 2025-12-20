@@ -10,7 +10,7 @@ import { RootStackParamList } from "../../constants/RootStackParams";
 import TextInputComponent from "../../components/TextInputComponent";
 import { useSignalR } from "../context/SignalRContext";
 import colors from "../../constants/Colors";
-import Icon from "../../assets/icon.svg";
+import Icon from '../../assets/icon.svg';
 
 export default function Login() {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'Login'>>();
@@ -43,7 +43,7 @@ export default function Login() {
 
 	  		<View style={styles.formContainer}>
 
-                <Icon svg width={100} height={100} marginTop={24}/>
+                <Icon svg width={128} height={128} />
 
 				{/* Header Section */}
 				<View style={styles.headingContainer}>
@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     },
 
     headingContainer: {
-		marginTop: 24,
 		marginBottom: 8,
 		alignItems: "center",
 		gap: 8

@@ -14,6 +14,7 @@ import Colors from "../../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
 
 type ReviewSellerProps = NativeStackScreenProps<RootStackParamList, "ReviewSeller">
+
 export default function ReviewSeller({ navigation, route }: ReviewSellerProps) {
     const { sellerId } = route.params
     const { onGetUserToken } = useAuth()
@@ -39,6 +40,7 @@ export default function ReviewSeller({ navigation, route }: ReviewSellerProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleReview = async () => {
         setLoading(true)
         const result = await reviewUser(review, rating)
@@ -47,6 +49,7 @@ export default function ReviewSeller({ navigation, route }: ReviewSellerProps) {
         }
         setLoading(false)
     }
+    
     return (
         <View>
             <TopBar title="Review Seller" showBackButton />

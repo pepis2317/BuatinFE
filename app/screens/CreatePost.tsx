@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ScrollView, TouchableOpacity, View, Image, StyleSheet, Text } from "react-native";
+import { ScrollView, TouchableOpacity, View, Image, StyleSheet, Text, Platform, KeyboardAvoidingView } from "react-native";
 import { RootStackParamList } from "../../constants/RootStackParams";
 import { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
@@ -13,8 +13,10 @@ import ConfirmedModal from "../../components/ConfirmedModal";
 import { SellerResponse } from "../../types/SellerResponse";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import colors from "../../constants/Colors";
 
 type CreatePostProps = NativeStackScreenProps<RootStackParamList, "CreatePost">
+
 export default function CreatePost({ navigation, route }: CreatePostProps) {
     const { user } = useAuth()
     const { textColor } = useTheme()
@@ -40,9 +42,11 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
             setImages((prevImages) => [...prevImages, result.assets[0].uri]);
         }
     }
+
     const removeImage = (index: number) => {
         setImages((prevImages) => prevImages.filter((_, i) => i !== index));
     }
+
     const handleCreatePost = async (form: FormData) => {
         try {
             const result = await axios.post(`${API_URL}/create-post`, form, { headers: { "Content-Type": "multipart/form-data" } })
@@ -51,12 +55,14 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
         }
     }
+
     const handleUpload = async () => {
         if (user?.userId && caption && images.length > 0) {
             setLoading(true)
             const formData = new FormData();
             formData.append("authorId", user.userId)
             formData.append("caption", caption)
+
             for (const imageUri of images) {
                 const fileName = imageUri.split("/").pop() || "image.jpg";
                 const match = /\.(\w+)$/.exec(fileName);
@@ -68,6 +74,7 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
                     type: fileType,
                 } as any);
             }
+
             const result = await handleCreatePost(formData)
             if (!result.error) {
                 setShowConfirmed(true)
@@ -78,68 +85,91 @@ export default function CreatePost({ navigation, route }: CreatePostProps) {
 
     return (
         <View style={{ flex: 1 }}>
-            <TopBar title={"Create Post"} showBackButton />
-            <ConfirmedModal isFail={false} visible={showConfirmed} message={"Post Created"} onPress={() => navigation.goBack()} />
-            <View style={styles.imagesContainer}>
-                <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
-                    <View style={styles.addBorder}>
-                        <PlusSquare color={"#5CCFA3"} size={32} />
-                    </View>
-                </TouchableOpacity>
-                <ScrollView horizontal>
-                    {images.map((uri, index) => (
-                        <View key={index} >
-                            <Image
-                                source={{ uri }}
-                                style={{ width: 150, height: 150 }}
-                            />
-                            <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
-                                <X size={20} color={"white"} />
-                            </TouchableOpacity>
-                        </View>
-                    ))}
-                </ScrollView>
-            </View>
-            <ScrollView style={{ padding: 20 }}>
-                <View style={{marginBottom:10}}>
-                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Caption</Text>
-                    <TextInputComponent onChangeText={setCaption} multiline placeholder="Caption"/>
-                </View>
 
-                <ColoredButton title={"Create Post"} style={{ backgroundColor: "#5CCFA3", width: "100%" }} onPress={() => handleUpload()} isLoading={loading} />
-            </ScrollView>
+            <TopBar title={"Create Post"} showBackButton />
+
+            <ConfirmedModal isFail={false} visible={showConfirmed} message={"Post Created"} onPress={() => navigation.goBack()} />
+
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={35}>
+
+                <ScrollView>
+                    <View style={{ padding: 16, gap: 10, paddingVertical: 16}}>
+                        
+                            <Text style={{ color: textColor, fontWeight: 'bold'}}>Images </Text>
+
+                            <View style={styles.imagesContainer}>
+                                {/* Add Image Button */}
+                                <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
+                                    <View style={styles.addBorder}>
+                                        <PlusSquare color={colors.primary} size={32} />
+                                    </View>
+                                </TouchableOpacity>
+
+                                {/* Image Preview */}
+                                <ScrollView horizontal>
+                                    {images.map((uri, index) => (
+                                        <View key={index} >
+                                            <Image
+                                                source={{ uri }}
+                                                style={{ width: 150, height: 150 }}
+                                            />
+                                            <TouchableOpacity style={styles.removeImageButton} onPress={() => removeImage(index)}>
+                                                <X size={20} color={"white"} />
+                                            </TouchableOpacity>
+                                        </View>
+                                    ))}
+                                </ScrollView>
+                            </View>
+                    </View>
+
+                    <View style={{ paddingHorizontal: 16, gap: 8 }}>
+                        <View style={{marginBottom: 8}}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Caption</Text>
+                            <TextInputComponent onChangeText={setCaption} multiline placeholder="Caption"/>
+                        </View>
+
+                        <ColoredButton title={"Create Post"} style={{ backgroundColor: colors.green, width: "100%" }} onPress={() => handleUpload()} isLoading={loading} />
+                    </View>
+
+                </ScrollView>
+
+            </KeyboardAvoidingView>
+            
         </View>
     )
 }
+
 const styles = StyleSheet.create({
     imagesContainer: {
-        height: 150,
         flexDirection: 'row',
         borderStyle: 'solid',
-        borderColor: '#31363F',
+        borderColor: colors.darkBorder,
         borderBottomWidth: 1
     },
+
     addBorder: {
         width: "100%",
         height: "100%",
         justifyContent: 'center',
         borderStyle: 'dashed',
-        borderColor: '#5CCFA3',
-        borderRadius: 5,
+        borderColor: colors.darkBorder,
+        borderRadius: 10,
         borderWidth: 1,
         alignItems: 'center',
-
     },
+
     addImageButton: {
-        padding: 15,
-        height: 150,
-        width: 100,
+        padding: 16,
+        height: 160,
+        width: 120,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
         borderStyle: 'solid',
         borderColor: '#31363F',
-        borderRightWidth: 1
     },
 
     removeImageButton: {

@@ -72,18 +72,22 @@ export default function ShippableList({ navigation }: { navigation: any }) {
             reset()
         }, [])
     );
+
     if (processes.length == 0 && !loadingRef.current) {
         return (
-            <View style={{ padding: 20, alignItems: 'center' }}>
+            <View style={{ padding: 24, alignItems: 'center' }}>
                 <Text style={{ color: 'gray' }}>No Shippable Processes Yet</Text>
             </View>
         )
     }
+
     return (
         <FlatList
             data={processes}
             keyExtractor={(item) => item.processId}
-            renderItem={({ item }: { item: ProcessResponse }) => <ShippableComponent process={item} navigation={navigation} />}
+            renderItem={({ item }: { item: ProcessResponse }) =>
+                <ShippableComponent process={item} navigation={navigation} />
+            }
             keyboardShouldPersistTaps="handled"
             onEndReached={loadMore}
             onEndReachedThreshold={0.2}

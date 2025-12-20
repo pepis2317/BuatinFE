@@ -37,11 +37,11 @@ export default function SellerCard({ seller }: { seller: SellerResponse }) {
                         {/* Rating */}
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Star fill={"gold"} size={12} color={"gold"} />
-                            <Text style={theme == "dark" ? styles.darkTitle : styles.lightTitle}> {seller.rating.toPrecision(2)}</Text>
+                            <Text style={theme == "dark" ? styles.darkText : styles.lightText}> {seller.rating.toPrecision(2)}</Text>
                         </View>
                         
                         {/* Clients */}
-                        <Text style={theme == "dark" ? styles.darkText : styles.lightText}> • {seller.clients} Clients</Text>
+                        <Text style={styles.greyText}> • {seller.clients} Clients</Text>
                     </View>
 
                 </View>
@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
         borderRadius: 6,
 
     },
+
     darkTitle: {
         color: 'white',
         fontWeight: 'bold',
@@ -80,6 +81,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 12
     },
+
     lightText: {
         color: 'black'
     },
@@ -87,6 +89,11 @@ const styles = StyleSheet.create({
         color: 'black',
         fontWeight: 'bold',
     },
+
+    greyText:{
+        color: 'gray',
+    },
+
     info: {
         marginTop: 8,
         width: "100%",

@@ -20,12 +20,6 @@ const HORIZONTAL_PADDING = 16;
 
 const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - COLUMN_GAP) / 2;
 
-const COLUMN_GAP = 16;
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const HORIZONTAL_PADDING = 16;
-
-const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - COLUMN_GAP) / 2;
-
 export default function UserHome() {
     const { user } = useAuth()
     const { theme, textColor } = useTheme()
@@ -86,8 +80,9 @@ export default function UserHome() {
 
     return (
         <View style={{ flex: 1, paddingHorizontal: 16 }}>
+
             {/* Top Bar */}
-            <View style={{ elevation: 2, paddingVertical: 16 }}>
+            <View style={{ elevation: 2, paddingVertical: 16, marginTop: 16}}>
                 <View style={{ flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme == "dark" ? "#222831" : "white", }}>
 
                     <Text style={{ color: textColor, fontWeight: "bold", fontSize: 24 }}>Buatin</Text>

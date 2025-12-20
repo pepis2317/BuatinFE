@@ -13,6 +13,7 @@ import ShippableComponent from "../../components/ShippableComponent"
 import TopBar from "../../components/TopBar"
 
 type ShippableProps = NativeStackScreenProps<RootStackParamList, "Shippable">
+
 export default function Shippable({ navigation, route }: ShippableProps) {
     const [loading, setLoading] = useState(false)
     const [refresh, setRefresh] = useState(false)
@@ -21,6 +22,7 @@ export default function Shippable({ navigation, route }: ShippableProps) {
     const [processes, setProcesses] = useState<ProcessResponse[]>([])
     const { textColor } = useTheme()
     const { onGetUserToken } = useAuth()
+
     const fetchProcesses = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
@@ -35,6 +37,7 @@ export default function Shippable({ navigation, route }: ShippableProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleFetch = async (reset = false) => {
         if (loading) return; // prevent duplicate triggers
         setLoading(true);
@@ -52,33 +55,41 @@ export default function Shippable({ navigation, route }: ShippableProps) {
         setLoading(false);
         setRefresh(false);
     };
+
     const loadMore = () => {
         if (!loading && processes.length < total) {
             setPage(prev => prev + 1)
         }
     };
+
     useEffect(() => {
         if (processes.length <= total) {
             handleFetch()
         }
     }, [page])
+
     const onRefresh = useCallback(() => {
         setRefresh(true);
         setPage(1);
         handleFetch(true);
     }, []);
+
     useFocusEffect(
         useCallback(() => {
             handleFetch(true);
         }, [])
     );
+
     return (
         <>
             <TopBar title={"Shippable Processes"} showBackButton />
+
             <FlatList
                 data={processes}
                 keyExtractor={(item: ProcessResponse) => item.processId}
-                renderItem={({ item }: { item: ProcessResponse }) => <ShippableComponent process={item} navigation={navigation} />}
+                renderItem={({ item }: { item: ProcessResponse }) =>
+                    <ShippableComponent process={item} navigation={navigation}/>
+                }
                 contentContainerStyle={{ paddingBottom: 8 }}
                 keyboardShouldPersistTaps="handled"
                 onEndReached={loadMore}

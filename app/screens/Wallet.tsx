@@ -10,8 +10,11 @@ import ColoredButton from "../../components/ColoredButton";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../context/ThemeContext";
 import Colors from "../../constants/Colors";
+import { TextInput } from "react-native-gesture-handler";
+import TextInputComponent from "../../components/TextInputComponent";
 
 type WalletProps = NativeStackScreenProps<RootStackParamList, "Wallet">
+
 export default function Wallet({ navigation, route }: WalletProps) {
     const { onGetUserToken } = useAuth()
     const { textColor } = useTheme()
@@ -32,6 +35,7 @@ export default function Wallet({ navigation, route }: WalletProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleGetBalance = async () => {
         setLoading(true)
         const result = await getBalance()
@@ -40,30 +44,46 @@ export default function Wallet({ navigation, route }: WalletProps) {
         }
         setLoading(false)
     }
+
     useEffect(() => {
         handleGetBalance()
     }, [])
+
     useFocusEffect(
         useCallback(() => {
             handleGetBalance();
         }, [])
     );
+
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         setBalance(0)
         handleGetBalance()
         setRefreshing(false)
     }, [handleGetBalance]);
+
     return (
+
         <View style={{ flex: 1 }}>
+
             <TopBar title={"Wallet"} showBackButton />
+            
             <ScrollView style={{ flex: 1 }} refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-                <View style={{ padding: 20, gap: 10, alignItems: 'center' }}>
-                    <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 32 }}>Rp.{Number(balance / 100).toLocaleString("id-ID")}</Text>
-                    <ColoredButton title={"Deposit funds"} style={{ backgroundColor: Colors.green, width: '100%' }} onPress={() => navigation.navigate('Deposit')} />
-                    <ColoredButton title={"Withdraw funds"} style={{ backgroundColor: Colors.green, width: '100%' }} onPress={() => navigation.navigate('Withdraw')} />
+                <View style={{ padding: 24, gap: 16 }}>
+
+                    <View style={{ gap: 8}}>
+                        <Text style={{fontSize: 14, color: textColor}}>Current Balance:</Text>
+                        <TextInputComponent editable={false} >
+                            <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16 }}>Rp {Number(balance / 100).toLocaleString("id-ID")},00</Text>
+                        </TextInputComponent>
+                    </View>
+
+                    <View style={{flexDirection: 'row', gap: '16'}}>
+                        <ColoredButton title={"Deposit"} style={{ backgroundColor: Colors.green, flex: 1 }} onPress={() => navigation.navigate('Deposit')} />
+                        <ColoredButton title={"Withdraw"} style={{ backgroundColor: Colors.green, flex: 1}} onPress={() => navigation.navigate('Withdraw')} />
+                    </View>
                 </View>
             </ScrollView>
 

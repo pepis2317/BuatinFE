@@ -8,7 +8,6 @@ export default function ColoredButton({ title, style, isLoading, ...rest }: Butt
     return (
         <TouchableOpacity style={[styles.button, style]}{...rest} disabled={isLoading}>
             {isLoading ? <ActivityIndicator size="small" color={"white"} /> : <Text style={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>{title}</Text>}
-
         </TouchableOpacity>
     )
 }

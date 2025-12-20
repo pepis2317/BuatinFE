@@ -14,6 +14,7 @@ import Colors from "../../constants/Colors";
 import ErrorComponent from "../../components/ErrorComponent";
 
 type WithdrawProps = NativeStackScreenProps<RootStackParamList, "Withdraw">
+
 export default function Wallet({ navigation, route }: WithdrawProps) {
     const [amount, setAmount] = useState(0)
     const [loading, setLoading] = useState(false)
@@ -23,6 +24,7 @@ export default function Wallet({ navigation, route }: WithdrawProps) {
     const [errMessage, setErrMessage] = useState('')
     const { textColor } = useTheme()
     const { onGetUserToken } = useAuth()
+
     const createWithdraw = async () => {
         try {
             const token = await onGetUserToken!()
@@ -40,6 +42,7 @@ export default function Wallet({ navigation, route }: WithdrawProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleWithdraw = async () => {
         if (!amount || !bankCode || !account) {
             setErrMessage("All forms must be filled")
@@ -52,23 +55,31 @@ export default function Wallet({ navigation, route }: WithdrawProps) {
         }
         setLoading(false)
     }
+
     return (
         <View style={{ flex: 1 }}>
+
             <TopBar title={"Withdraw Funds"} showBackButton />
+
             <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showCreated} message={"Withdraw successful"} />
-            <View style={{ padding: 20, gap: 10 }}>
+
+            <View style={{ paddingHorizontal: 24, paddingVertical: 16, gap: 16 }}>
+
                 <View>
-                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Amount</Text>
+                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 12 }}>Amount</Text>
                     <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
                 </View>
+
                 <View>
-                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Bank Code</Text>
+                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 12 }}>Bank Code</Text>
                     <TextInputComponent placeholder="Bank Code" onChangeText={setBankCode} />
                 </View>
+
                 <View>
-                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Account</Text>
+                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 12 }}>Account</Text>
                     <TextInputComponent placeholder="Account" onChangeText={setAccount} inputMode="numeric" />
                 </View>
+                
                 {errMessage ?
                     <ErrorComponent errorsString={errMessage} />
                     : <></>}

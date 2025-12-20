@@ -83,7 +83,7 @@ export default function ShipmentsList({ navigation, isSeller }: { navigation: an
 
     if (shipments.length == 0 && !loadingRef.current) {
         return (
-            <View style={{ padding: 32, alignItems: 'center' }}>
+            <View style={{ padding: 24, alignItems: 'center' }}>
                 <Text style={{ color: 'gray' }}>No Incoming Shipments Yet</Text>
             </View>
         )

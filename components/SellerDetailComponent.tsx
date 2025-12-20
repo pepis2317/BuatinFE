@@ -12,7 +12,7 @@ import ConfirmedModal from "./ConfirmedModal";
 import { SellerResponse } from "../types/SellerResponse";
 import { ReviewResponse } from "../types/ReviewResponse";
 
-export default function SellerDetailComponent({ seller, navigation, editing }: { seller: SellerResponse, navigation: any, editing: boolean }) {
+export default function SellerDetailComponent({ seller, navigation, editing, onEditSuccess}: { seller: SellerResponse, navigation: any, editing: boolean, onEditSuccess?: () => void }) {
     const { subtleBorderColor, foregroundColor, borderColor, textColor, backgroundColor } = useTheme()
     const [banner, setBanner] = useState<string | null>(seller.banner)
     const [picture, setPicture] = useState<string | null>(seller.sellerPicture)
@@ -20,16 +20,19 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
     const [sellerDescription, setSellerDescription] = useState<string>('')
     const [showSuccess, setShowSuccess] = useState(false)
     const [loading, setLoading] = useState(false)
+
     useEffect(() => {
         setSellerName(seller.sellerName)
         setSellerDescription(seller.description ? seller.description : "")
     }, [])
+
     const hasChanged = useMemo(() => {
         return (banner ?? null) !== (seller.banner ?? null)
             || (picture ?? null) !== (seller.sellerPicture ?? null)
             || (sellerName ?? '') !== (seller.sellerName ?? '')
             || (sellerDescription ?? '') !== (seller.description ?? '');
     }, [banner, seller.banner, picture, seller.sellerPicture, sellerName, seller.sellerName, sellerDescription, seller.description]);
+
     const updateData = async (formData: FormData) => {
         try {
             const response = await axios.put(`${API_URL}/edit-seller`, formData, {
@@ -46,12 +49,14 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
             };
         }
     }
+
     const handleUpdateData = async () => {
         setLoading(true)
         const formData = new FormData()
         formData.append("sellerId", seller.sellerId)
         formData.append("sellerName", sellerName)
         formData.append("description", sellerDescription)
+
         if (banner != seller.banner && banner) {
             let bannerName = banner.split("/").pop();
             let match = /\.(\w+)$/.exec(bannerName || "");
@@ -62,6 +67,7 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
                 type: bannerType
             } as any)
         }
+
         if (picture != seller.sellerPicture && picture) {
             let pictureName = picture.split("/").pop();
             let match = /\.(\w+)$/.exec(pictureName || "");
@@ -72,36 +78,54 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
                 type: pictureType
             } as any)
         }
+
         const result = await updateData(formData)
+
         if (!result.error) {
-            setShowSuccess(true)
+            if (onEditSuccess) {
+                onEditSuccess();
+            } else {
+                setShowSuccess(true);
+            }
+        } else {
+            console.error("Error: ", result.msg);
+            Alert.alert("Update Failed: ", result.msg);
         }
         setLoading(false)
     }
+
     const pickBannerAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             quality: 1,
             aspect: [3, 1]
         })
+
         if (!result.canceled) {
             setBanner(result.assets[0].uri);
         }
     }
+
     const pickPictureAsync = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             quality: 1,
             aspect: [1, 1]
         })
+
         if (!result.canceled) {
             setPicture(result.assets[0].uri);
         }
     }
+    
     const date = new Date(seller.createdAt)
+
     return (
-        <View style={{ marginBottom: -40 }}>
-            <ConfirmedModal isFail={false} visible={showSuccess} message={"Seller data has been updated"} onPress={() => navigation.goBack()} />
+        <View style={{ marginBottom: -36}}>
+
+            <ConfirmedModal isFail={false} visible={showSuccess} message={"Seller data has been updated"} onPress={() => navigation.goBack()}/>
+
+            {/* Profile Banner */}
             <TouchableOpacity onPress={pickBannerAsync} style={{ position: 'relative' }} disabled={!editing}>
                 {banner ?
                     <Image src={banner} style={styles.banner} />
@@ -117,33 +141,49 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
                     : <></>
                 }
             </TouchableOpacity>
+            
+            {/* Name & About */}
             <View style={styles.info}>
                 <TouchableOpacity onPress={pickPictureAsync} disabled={!editing} style={styles.pictureContainer}>
                     <Image style={[styles.picture, { backgroundColor: subtleBorderColor, borderColor:borderColor }]} src={picture ? picture : ""} />
 
                     {editing ?
-                        <View style={[styles.pencil, { right: -5, top: -5 }]}>
+                        <View style={[styles.pencil, { left: -5, top: -5 }]}>
                             <Pencil color={textColor} size={16} />
                         </View>
                         : <></>
                     }
                 </TouchableOpacity>
+
                 {editing ?
                     <View style={styles.textContainer}>
+
                         <View>
-                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 5 }}>Seller Name</Text>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 12 }}>Seller Name</Text>
                             <TextInputComponent placeholder="Seller Name" value={sellerName} onChangeText={setSellerName} />
                         </View>
+
                         <View>
-                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 5 }}>Description</Text>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 12 }}>Description</Text>
                             <TextInputComponent placeholder="Seller Description" value={sellerDescription} onChangeText={setSellerDescription} multiline style={styles.descContainer} />
                         </View>
-                        {hasChanged == true ? <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.green }} isLoading={loading} onPress={() => handleUpdateData()} /> : <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.darkBackground }} disabled />}
-                    </View> :
+
+                        {hasChanged == true ? 
+                            <View style={{ marginTop: 8 }}>
+                                <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.green }} isLoading={loading} onPress={() => handleUpdateData()} />
+                            </View>
+                            : 
+                            <View style={{ marginTop: 8 }}>
+                                <ColoredButton title={"Save Changes"} style={{ backgroundColor: Colors.darkGray }} disabled />
+                            </View>
+                        }
+
+                    </View>
+                    :
                     <View>
-                        <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 24 }}>{sellerName}</Text>
-                        <Text style={{ color: textColor, marginBottom: 10, fontSize: 12 }}>Est. {date.toLocaleDateString('en-GB')}</Text>
-                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 5 }}>About</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 24, marginBottom: 2 }}>{sellerName}</Text>
+                        <Text style={{ color: textColor, marginBottom: 8, fontSize: 12 }}>Est. {date.toLocaleDateString('en-GB')}</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 6 }}>About</Text>
                         <View style={[styles.defaultDescriptionContainer, { backgroundColor: foregroundColor }]}>
                             <Text style={{ color: textColor }}>{sellerDescription}</Text>
                         </View>
@@ -153,12 +193,20 @@ export default function SellerDetailComponent({ seller, navigation, editing }: {
         </View>
     )
 }
+
 const styles = StyleSheet.create({
-    defaultDescriptionContainer: {
-        borderRadius: 5,
-        padding: 10,
-        paddingVertical: 5
+    info: {
+        position: 'relative',
+        top: -50,
+        paddingHorizontal: 16,
     },
+
+    defaultDescriptionContainer: {
+        borderRadius: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 12
+    },
+
     descContainer: {
         height: 100,
         textAlignVertical: 'top'
@@ -176,17 +224,25 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         position: 'absolute'
     },
+
+    banner: {
+        width: "100%",
+        aspectRatio: 3,      // width : height = 3 : 1
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden",
+    },
+
     pictureContainer: {
         position: 'relative',
-        width: 85,
     },
     picture: {
-        width: 80,
+        width: 72,
         aspectRatio: 1,
-        borderRadius: 10,
+        borderRadius: 24,
         borderWidth:1,
-        marginBottom:5
     },
+    
     seller: {
         alignItems: "center",
         width: "50%",
@@ -199,14 +255,8 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         position: 'relative',
     },
-    banner: {
-        width: "100%",
-        aspectRatio: 3,      // width : height = 3 : 1
-        justifyContent: "center",
-        alignItems: "center",
-        overflow: "hidden",
-        borderRadius: 5,
-    },
+    
+
     darkTitle: {
         color: 'white',
         fontWeight: 'bold',
@@ -222,9 +272,4 @@ const styles = StyleSheet.create({
         color: 'black',
         fontWeight: 'bold',
     },
-    info: {
-        position: 'relative',
-        top: -50,
-        paddingHorizontal: 20,
-    }
 });

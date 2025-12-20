@@ -9,6 +9,7 @@ import { Box, Truck } from "lucide-react-native"
 import { TabBar, TabView } from "react-native-tab-view"
 import { useState } from "react"
 import ShippableList from "../../components/ShippableList"
+
 const ShipmentsRoute = ({ navigation }: { navigation: any }) => {
     return (
         <View>
@@ -16,6 +17,7 @@ const ShipmentsRoute = ({ navigation }: { navigation: any }) => {
         </View>
     )
 }
+
 const ShippableRoute = ({ navigation }: { navigation: any }) => {
     return (
         <View>
@@ -23,7 +25,9 @@ const ShippableRoute = ({ navigation }: { navigation: any }) => {
         </View>
     )
 }
+
 type SellerShipmentsProps = NativeStackScreenProps<RootStackParamList, "SellerShipments">
+
 export default function SellerShipments({ navigation, route }: SellerShipmentsProps) {
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
@@ -33,13 +37,16 @@ export default function SellerShipments({ navigation, route }: SellerShipmentsPr
         { key: 'Shipments', title: 'Shipments' },
         { key: 'Shippable', title: 'Shippable Processes' },
     ];
+
     return (
         <View style={{ flex: 1 }}>
+
             <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SellerIncomingShipments')}>
                 <Truck color={"white"} />
             </TouchableOpacity>
+
             <TabView
-                style={{ flex: 1 }}
+                style={{ flex: 1, marginTop: 24 }}
                 navigationState={{ index, routes }}
                 renderScene={({ route }) => {
                     switch (route.key) {

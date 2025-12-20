@@ -18,6 +18,7 @@ export default function SellerReviewsList({ sellerId, navigation }: { sellerId: 
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
     const refreshRef = useRef(false)
+
     const fetchSellerReviews = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
@@ -32,6 +33,7 @@ export default function SellerReviewsList({ sellerId, navigation }: { sellerId: 
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleFetch = async (page = pageRef.current, replace: boolean) => {
         if (loadingRef.current) return;
         loadingRef.current = true;
@@ -46,6 +48,7 @@ export default function SellerReviewsList({ sellerId, navigation }: { sellerId: 
         }
         loadingRef.current = false;
     }
+
     const loadMore = async () => {
         if (!loadingRef.current && reviews.length < total) {
             loadingRef.current = true;
@@ -53,6 +56,7 @@ export default function SellerReviewsList({ sellerId, navigation }: { sellerId: 
             await handleFetch(pageRef.current, false);
         }
     }
+
     const handleRefresh = useCallback(async () => {
         if (refreshRef.current) return
         refreshRef.current = true
@@ -64,20 +68,24 @@ export default function SellerReviewsList({ sellerId, navigation }: { sellerId: 
             refreshRef.current = false;
         }
     }, [handleFetch])
+
     const reset = async () => {
         pageRef.current = 1
         await handleFetch(1, true)
     }
+
     useFocusEffect(
         useCallback(() => {
             reset()
         }, [])
     );
+
     return (
         <FlatList
             data={reviews}
             keyExtractor={(item) => item.reviewId}
-            renderItem={({ item }: { item: ReviewResponse }) => <ReviewComponent isSeller={true} review={item} navigation={navigation} />}
+            renderItem={({ item }: { item: ReviewResponse }) => 
+                <ReviewComponent isSeller={true} review={item} navigation={navigation} />}
             keyboardShouldPersistTaps="handled"
             onEndReached={loadMore}
             onEndReachedThreshold={0.2}

@@ -71,7 +71,7 @@ export default function SelectLocation({ navigation, route }: SelectLocationProp
                     </View>
 
                     {/* Set Location Button */}
-                    <ColoredButton title={"Set Location"} style={{ marginBottom: margin ? 64 : 0, marginTop: 16, marginHorizontal: 16, backgroundColor: Colors.green }} onPress={() => handleSelect()} />
+                    <ColoredButton title={"Set Location"} style={{ marginBottom: margin ? 64 : 16, marginTop: 16, marginHorizontal: 16, backgroundColor: Colors.green }} onPress={() => handleSelect()} />
                 </View>
 
                 :

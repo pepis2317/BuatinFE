@@ -18,7 +18,6 @@ export default function EditSeller({ navigation, route }:EditSellerProps) {
     const [loading, setLoading] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false);
 
-
     const getSeller = async (userId: string) => {
         try {
             const result = await axios.get(`${API_URL}/get-seller-by-owner-id`, {
@@ -58,7 +57,7 @@ export default function EditSeller({ navigation, route }:EditSellerProps) {
                     setShowSuccess(true);
                     navigation.goBack();
                 }}
-                message="Seller details is successfully updated!"
+                message="Seller details is updated successfully!"
             />
 
             {!loading && seller ?
@@ -67,9 +66,9 @@ export default function EditSeller({ navigation, route }:EditSellerProps) {
                         seller={seller}
                         navigation={navigation}
                         editing={true}
-                        onEditSuccess ={() => 
+                        onEditSuccess ={() => {
                             setShowSuccess(true)
-                        }
+                        }}
                     />
                 </View>
                 : <></>

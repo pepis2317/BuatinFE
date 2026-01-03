@@ -28,6 +28,8 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
     const [canOrder, setCanOrder] = useState<boolean | null>(null)
     const [topreviews, setTopReviews] = useState<ReviewResponse[]>([])
 
+    
+
     const getStats = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-seller-stats`, {
@@ -114,12 +116,6 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
     useEffect(() => {
         reset()
     }, [])
-
-    useFocusEffect(
-        useCallback(() => {
-            reset()
-        }, [])
-    );
 
     return (
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
@@ -381,15 +377,26 @@ export default function SellerDetails({ navigation, route }: SellerDetailProps) 
         }
     }
 
-    useEffect(() => {
+    const refreshSeller = useCallback(() => {
         if (!sellerId) {
-            setEditable(true)
             handleGetSellerByUserId()
         } else {
             handleGetSellerBySellerId()
         }
+    }, [sellerId, user?.userId])
 
+    useEffect(() => {
+        if (!sellerId) {
+            setEditable(true)
+        }
+        refreshSeller()
     }, [sellerId])
+
+    useFocusEffect(
+        useCallback(() => {
+            refreshSeller()
+        }, [refreshSeller])
+    )
 
     return (
         <View style={{ flex: 1 }}>

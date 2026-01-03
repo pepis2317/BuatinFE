@@ -185,7 +185,7 @@ export default function Register() {
                         <View style={theme == "dark" ? styles.DarkPickerContainer : styles.LightPickerContainer}>
                             <Picker 
                                 mode="dropdown"
-                                style={theme == "dark" ? { color: colors.darkBorder } : { color: "black" }} 
+                                style={theme == "dark" ? { color: "white" } : { color: "black" }} 
                                 dropdownIconColor={theme == "dark" ? colors.darkerOffWhite : ""} 
                                 selectedValue={role} 
                                 onValueChange={(val) => val == "none" ? setRole("User") : setRole(val)}

@@ -1,6 +1,6 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { View, Text, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity, StyleSheet, Dimensions } from "react-native"
-import { useNavigation } from "@react-navigation/native"
+import { useFocusEffect, useNavigation } from "@react-navigation/native"
 import * as SecureStore from 'expo-secure-store'
 import { useCallback, useEffect, useState } from "react"
 import axios from "axios"
@@ -69,6 +69,7 @@ export default function UserHome() {
             handleFetch();
         }
     }, [page]);
+
     const onRefresh = useCallback(() => {
         setLoading(true)
         setRefresh(true)
@@ -149,6 +150,7 @@ export default function UserHome() {
         </View>
     )
 }
+
 const styles = StyleSheet.create({
     buttonContainer: {
         position: 'absolute',

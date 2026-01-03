@@ -185,14 +185,14 @@ export default function Register() {
                         <View style={theme == "dark" ? styles.DarkPickerContainer : styles.LightPickerContainer}>
                             <Picker 
                                 mode="dropdown"
-                                style={theme == "dark" ? { color: "white" } : { color: "black" }} 
+                                style={theme == "dark" ? { color: colors.darkBorder } : { color: "black" }} 
                                 dropdownIconColor={theme == "dark" ? colors.darkerOffWhite : ""} 
                                 selectedValue={role} 
                                 onValueChange={(val) => val == "none" ? setRole("User") : setRole(val)}
                             >
                                 {role === "" && (
                                     <Picker.Item
-                                        label="Select Role"
+                                        label="Select..."
                                         value="none"
                                     />
 							    )}
@@ -245,8 +245,9 @@ export default function Register() {
                             : <></>
                         }
 
+                        {/* Ask Seller Name */}
                         {role == "Seller" ?
-                            <View style={{ gap: 8, marginTop: 8}}>
+                            <View style={{ gap: 8}}>
                                 <Text style={{ color: theme == "dark" ? "white" : "black", fontWeight: "bold" }}>Seller Name</Text>
                                 <TextInputComponent autoCapitalize="none" placeholder="Seller Name" onChangeText={setSellerName} value={sellerName} />
                             </View>
@@ -254,10 +255,12 @@ export default function Register() {
                         }
 
                         {errMessage ? <View style={{ marginVertical: 12}}><ErrorComponent errorsString={errMessage} /></View> : <></>}
+
+                        {/* Register Button */}
                         {canSubmit ?
                             <ColoredButton 
                                 title={"Register"}
-                                style={{ backgroundColor: colors.primary, marginTop: 8 }}
+                                style={{ backgroundColor: colors.green, marginTop: 8 }}
                                 onPress={register}
                                 isLoading={loading}
                             />
@@ -287,9 +290,9 @@ const styles = StyleSheet.create({
     },
 
     DarkPickerContainer: {
-        backgroundColor: "#1C1C1E",
-		borderRadius: 6,
-		paddingHorizontal: 12,
+        backgroundColor: "#222831",
+		borderRadius: 8,
+		paddingHorizontal: 8,
 		height: 45,
 		justifyContent: "center",
 		borderColor: "#636C7C",
@@ -297,8 +300,8 @@ const styles = StyleSheet.create({
     },
     LightPickerContainer: {
         backgroundColor: "Colors.white",
-		borderRadius: 6,
-		paddingHorizontal: 12,
+		borderRadius: 8,
+		paddingHorizontal: 8,
 		height: 45,
 		justifyContent: "center",
 		borderColor: "#D9D9D9",
@@ -307,20 +310,14 @@ const styles = StyleSheet.create({
 
     locationButton: {
         width: "100%",
-		height: 48,
+		height: 45,
 		borderRadius: 8,
 		borderWidth: 1,
 		borderColor: "#ccc",
 		alignItems: "center",
 		justifyContent: "center",
-        backgroundColor:"#fff"
+        backgroundColor:"#fff",
+        marginTop: 8
     },
-
-    // textInput: {
-    //     backgroundColor: "white",
-    //     height: 50,
-    //     padding: 10,
-    //     borderRadius: 5
-    // },
 
 })

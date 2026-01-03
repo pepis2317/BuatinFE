@@ -109,11 +109,17 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
         handleGetStats()
         handleGetReviews()
         handleCheck()
-    }
+    }   
 
     useEffect(() => {
         reset()
     }, [])
+
+    useFocusEffect(
+        useCallback(() => {
+            reset()
+        }, [])
+    );
 
     return (
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>

@@ -7,6 +7,7 @@ export default function PhoneInputComponent({ defaultValue, onPhoneChange }: { d
     const [selectedCountry, setSelectedCountry] = useState<null | ICountry>(null);
     const [inputValue, setInputValue] = useState('');
     const { theme } = useTheme()
+
     function handleInputValue(phoneNumber: string) {
         const callingCode = selectedCountry?.idd?.root ?? '';
         const phoneString = (callingCode + phoneNumber).replace(/\s/g, '').trim();
@@ -14,6 +15,7 @@ export default function PhoneInputComponent({ defaultValue, onPhoneChange }: { d
         onPhoneChange(phoneString);
         setInputValue(phoneNumber);
     }
+    
     function handleSelectedCountry(country: ICountry) {
         setSelectedCountry(country);
     }
@@ -27,7 +29,7 @@ export default function PhoneInputComponent({ defaultValue, onPhoneChange }: { d
                         backgroundColor: theme === "dark" ? undefined : 'white',
                         borderWidth: 1,
                         borderColor: theme === "dark" ? "#636C7C" : "#D9D9D9",
-                        borderRadius: 5,
+                        borderRadius: 8,
                         overflow: 'hidden',
                     },
                     flagContainer: {

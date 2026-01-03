@@ -59,12 +59,10 @@ export default function Login() {
 				{/* Login Button */}
 				<ColoredButton
 					title={"Log In"}
-					style={{ backgroundColor: colors.green, width: "100%", fontsize: 16, fontWeight: "bold" }}
+					style={{ backgroundColor: colors.green, width: "100%", fontsize: 16, fontWeight: "bold", height: 45}}
 					onPress={!loading ? login : () => {}}
 					isLoading={loading}
 				/>
-
-				{/* Remember Me */}
 
 				{/* Divider */}
 				<View style={styles.dividerRow}>
@@ -78,11 +76,6 @@ export default function Login() {
 					<Text style={[styles.signupButtonText, {color:textColor}]}>Sign Up</Text>
 				</TouchableOpacity>
 
-				{/* Additional Link
-				<View style={{ marginTop: 16 }}>
-					<Text style={styles.sellerLink}>Want to try and sell things?</Text>
-				</View> */}
-
 	  		</View>
 
 		</View>
@@ -91,7 +84,7 @@ export default function Login() {
 
 const styles = StyleSheet.create({
     formContainer: {
-        padding: 24,
+        padding: 16,
 		gap: 16,
 		alignItems: "center",
     },
@@ -120,7 +113,7 @@ const styles = StyleSheet.create({
 	},
 	headingText2: {
 		fontSize: 16,
-		color: "gray",
+		color: colors.darkBorder
 	},
 
     dividerRow: {
@@ -132,11 +125,11 @@ const styles = StyleSheet.create({
 	divider: {
 		flex: 1,
 		height: 1,
-		backgroundColor: "#ccc",
+		backgroundColor: colors.darkBorder
 	},
 	dividerText: {
 		marginHorizontal: 8,
-		color: "gray",
+		color: colors.darkBorder,
 	},
 
     signupButton: {

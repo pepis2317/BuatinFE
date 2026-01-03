@@ -18,6 +18,7 @@ export default function EditSeller({ navigation, route }:EditSellerProps) {
     const [loading, setLoading] = useState(false)
     const [showSuccess, setShowSuccess] = useState(false);
 
+
     const getSeller = async (userId: string) => {
         try {
             const result = await axios.get(`${API_URL}/get-seller-by-owner-id`, {
@@ -53,8 +54,9 @@ export default function EditSeller({ navigation, route }:EditSellerProps) {
             <ConfirmedModal
                 isFail={false}
                 visible={showSuccess}
-                onPress={() => {
-                    setShowSuccess(false)
+                onPress={async () => {
+                    setShowSuccess(true);
+                    navigation.goBack();
                 }}
                 message="Seller details is successfully updated!"
             />

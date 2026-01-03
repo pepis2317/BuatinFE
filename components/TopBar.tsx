@@ -29,7 +29,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: Colors.darkGray,
         backgroundColor: Colors.darkBackground,
-        paddingVertical:16,
+        paddingTop: 24,
+        paddingBottom: 16,
         gap: 16,
         elevation: 2
     },
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: Colors.offWhite,
         backgroundColor: 'white',
-        paddingTop: 32,
+        paddingTop: 24,
         paddingBottom: 16,
         elevation:2
     },
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
     },
     backButton:{
         position:'absolute',
-        paddingTop: 32,
+        paddingTop: 24,
         paddingBottom: 16,
         left:24
     }

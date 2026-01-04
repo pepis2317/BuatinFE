@@ -16,6 +16,7 @@ import ConfirmedModal from "../../components/ConfirmedModal";
 import DeclineModal from "../../components/DeclineModal";
 
 type OrderRequestDetailsProps = NativeStackScreenProps<RootStackParamList, "OrderRequestDetails">
+
 export default function OrderRequestDetails({ navigation, route }: OrderRequestDetailsProps) {
     const { orderRequest, respondable } = route.params
     const { textColor, borderColor } = useTheme()
@@ -26,6 +27,7 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
     const [showDeclineModal, setShowDeclineModal] = useState(false)
     const [declined, setShowDeclined] = useState(false)
     const [images, setImages] = useState<string[]>([])
+
     const respond = async (status: string, reason: string | null) => {
         try {
             const res = await axios.put(`${API_URL}/respond-order-request`, {
@@ -38,6 +40,7 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     var fetchImages = async () => {
         try {
             const res = await axios.get(`${API_URL}/get-images?ContentId=${orderRequest.requestId}`)
@@ -46,6 +49,7 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleDecline = async (reason: string) => {
         setLoading(true)
         const result = await respond("Declined", reason)
@@ -57,49 +61,51 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
         }
         setLoading(false)
     }
+
     const loadImages = async () => {
         var images = await fetchImages()
         if (!images.error) {
             setImages(images)
         }
     }
+
     useEffect(() => {
         loadImages()
     }, [])
+
     return (
         <ScrollView style={{ flex: 1 }}>
+
             <TopBar title="Order Request Details" showBackButton />
+
             <ConfirmationModal visible={acceptConfirmation} message={"Accept order request? You will need to input the process info first."} onAccept={() => {
                 setAcceptConfirmation(false)
                 navigation.navigate('CreateProcess', { requestId: orderRequest.requestId })
             }} onCancel={() => setAcceptConfirmation(false)} />
+
             <DeclineModal onDecline={handleDecline} showModal={showDeclineModal} onClose={() => setShowDeclineModal(false)} />
             {/* <ConfirmationModal visible={declineConfirmation} message={"Decline order request?"} onAccept={handleDecline} onCancel={() => setDeclineConfirmation(false)} /> */}
+
             <ConfirmedModal isFail={false} visible={declined} message={"Request Declined"} onPress={() => navigation.goBack()} />
-            <View style={{ padding: 20 }}>
-                <View style={[
-                    styles.container,
-                    { borderColor: borderColor }
-                ]}>
-                    <Text style={{
-                        color: textColor,
-                        fontWeight: 'bold',
-                        fontSize: 16
-                    }}>{orderRequest.title}</Text>
+
+            <View style={{ padding: 16 }}>
+                {/* Title & Status */}
+                <View style={[ styles.container, { borderColor: borderColor }]}>
+                    <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16 }}>{orderRequest.title}</Text>
                     <Text style={{ color: textColor }}>{orderRequest.status}</Text>
                 </View>
 
                 {images.map((image, index) => (
-                    <Image style={{ borderRadius: 10, marginBottom: 10 }} source={{ uri: image }} key={index} width={150} height={150} />
+                    <Image style={{ borderRadius: 8, marginBottom: 16 }} source={{ uri: image }} key={index} width={170} height={170} />
                 ))}
                 {respondable == false ?
                     <></>
                     :
                     <View>
                         {answer == 'Pending' ?
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 16}}>
+                                <ColoredButton title={"Decline"} style={[{ backgroundColor: Colors.red }, styles.button]} isLoading={loading} onPress={() => setShowDeclineModal(true)} />
                                 <ColoredButton title={"Accept"} style={[{ backgroundColor: Colors.green }, styles.button]} isLoading={loading} onPress={() => setAcceptConfirmation(true)} />
-                                <ColoredButton title={"Decline"} style={[{ backgroundColor: Colors.peach }, styles.button]} isLoading={loading} onPress={() => setShowDeclineModal(true)} />
                             </View>
                             : <></>
                         }
@@ -124,14 +130,12 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
 }
 const styles = StyleSheet.create({
     button: {
-        width: "48%",
-        height: 40,
-        padding: 10,
+        flex: 1,
     },
     container: {
-        padding: 20,
+        padding: 16,
         borderRadius: 10,
         borderWidth: 1,
-        marginBottom: 10
+        marginBottom: 16
     }
 })

@@ -18,14 +18,20 @@ export default function ConfirmationModal({visible, message, onAccept, onCancel 
             presentationStyle="overFullScreen">
             
             <BlurView intensity={50} tint="dark" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+
                 <View style={[styles.modalStyle,{backgroundColor:subtleBorderColor}]}>
+
                     <CircleQuestionMark color={Colors.green} size={100}/>
+
                     <Text style={{ color: textColor, marginBottom: 20, textAlign:'center', marginTop:20 }}>{message}</Text>
-                    <View style={{flexDirection:'row', gap:0, width:"100%", justifyContent:'space-between'}}>
-                        <ColoredButton title={"Cancel"} style={{ backgroundColor: Colors.green, width: '48%' }} onPress={onCancel} />
-                        <ColoredButton title={"Ok"} style={{ backgroundColor: Colors.green, width: '48%' }} onPress={onAccept} />
+
+                    <View style={{flexDirection:'row', gap: 16, width:"100%", justifyContent:'space-between'}}>
+                        <ColoredButton title={"Cancel"} style={{ backgroundColor: Colors.red, flex: 1 }} onPress={onCancel} />
+                        <ColoredButton title={"Ok"} style={{ backgroundColor: Colors.green, flex: 1}} onPress={onAccept} />
                     </View>
+
                 </View>
+
             </BlurView>
 
         </Modal>

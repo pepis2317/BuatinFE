@@ -23,7 +23,8 @@ export default function Deposit({ navigation, route }: DepositProps) {
     const { textColor } = useTheme()
     const [snapUrl, setSnapUrl] = useState('')
     const [loading, setLoading] = useState(false)
-    const [amount, setAmount] = useState(0)
+    const [amount, setAmount] = useState(0); // real value
+    const [displayAmount, setDisplayAmount] = useState(''); // formatted
     const [showPayment, setShowPayment] = useState(false)
     const [showSnapFailed, setShowSnapFailed] = useState(false)
     const [showSnapPaid, setShowSnapPaid] = useState(false)
@@ -89,6 +90,17 @@ export default function Deposit({ navigation, route }: DepositProps) {
         setShowSnapFailed(true)
     }
 
+    const formatRupiah = (value: string) => {
+        const numberString = value.replace(/\D/g, '');
+        const formatted = numberString.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return formatted;
+    };
+
+    const parseRupiah = (value: string) => {
+        return Number(value.replace(/\./g, ''));
+    };
+
+
     useEffect(() => {
         if (snapUrl != '') {
             setShowPayment(true)
@@ -110,7 +122,16 @@ export default function Deposit({ navigation, route }: DepositProps) {
             <View style={{ padding: 24, gap: 16 }}>
                 <View style={{ gap: 8 }}>
                     <Text style={{ color: textColor, fontWeight: 'bold'}}>Amount</Text>
-                    <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
+                    <TextInputComponent
+                        placeholder="Amount"
+                        value={displayAmount}
+                        inputMode="numeric"
+                        onChangeText={(text) => {
+                            const formatted = formatRupiah(text);
+                            setDisplayAmount(formatted);
+                            setAmount(parseRupiah(formatted));
+                        }}
+                    />
                 </View>
                 {errMessage ?
                     <ErrorComponent errorsString={errMessage} />

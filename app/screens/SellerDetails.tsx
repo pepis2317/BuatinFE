@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     stats: {
         padding: 16,
         flexDirection: 'row',
-        height: 75
+
     },
     rating: {
         fontSize: 24,
@@ -446,10 +446,11 @@ const styles = StyleSheet.create({
     },
     leftStats: {
         justifyContent: 'center',
-        width: '25%',
+        width: '30%',
+        paddingRight: 16,
     },
     rightStats: {
-        width: '75%',
+        width: '70%',
         paddingHorizontal: 16,
         borderLeftWidth: 1,
     },

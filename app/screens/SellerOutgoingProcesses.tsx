@@ -8,17 +8,21 @@ import { TabBar, TabView } from "react-native-tab-view";
 import ProcessesList from "../../components/ProcessesList";
 import OrderRequestsList from "../../components/OrderRequestsList";
 import TopBar from "../../components/TopBar";
+
 const ProcessesRoute = ({ navigation }: { navigation: any }) => {
     return (
         <ProcessesList navigation={navigation} isSeller={false}/>
     )
 }
+
 const RequestsRoute = ({ navigation }: { navigation: any }) => {
     return (
         <OrderRequestsList isSeller={false} navigation={navigation}/>
     )
 }
+
 type ProcessesProps = NativeStackScreenProps<RootStackParamList, "SellerOutgoingProcesses">;
+
 export default function SellerOutgoingProcesses({ navigation, route }: ProcessesProps) {
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)

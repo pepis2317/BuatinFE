@@ -19,11 +19,14 @@ export default function ConfirmedModal({ isFail, visible, message, onPress }: { 
             presentationStyle="overFullScreen">
 
             <BlurView intensity={50} tint="dark" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+
                 <View style={[styles.modalStyle, { backgroundColor: subtleBorderColor }]}>
                     {
                         !isFail ? <CircleCheck color={Colors.green} size={100} /> : <CircleX color={Colors.green} size={100} />
                     }
+
                     <Text style={{ color: textColor, marginBottom: 20, textAlign: 'center', marginTop: 20 }}>{message}</Text>
+                    
                     <ColoredButton title={"Ok"} style={{ backgroundColor: Colors.green, width: '100%'}} onPress={onPress} />
                 </View>
             </BlurView>

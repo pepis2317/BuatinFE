@@ -1,8 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-    View,
-    Text,
-    TextInput,
+import { View, Text, TextInput,
     TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
@@ -436,7 +433,9 @@ export default function Chat({ navigation, route }: ChatProps) {
         <KeyboardAvoidingView style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={35}>
+
             <TopBar title={"Conversations"} showBackButton />
+
             <Popover
                 popoverStyle={{
                     backgroundColor: subtleBorderColor,
@@ -474,7 +473,7 @@ export default function Chat({ navigation, route }: ChatProps) {
 
             <FlatList
                 ref={listRef}
-                style={{ paddingHorizontal: 20 }}
+                style={{ paddingHorizontal: 16 }}
                 onScroll={e => { onScroll(e); onScrollCapture(e); }}
                 scrollEventThrottle={16}
                 data={messages}
@@ -497,12 +496,7 @@ export default function Chat({ navigation, route }: ChatProps) {
             />
 
             <View>
-                <ScrollView
-                    horizontal
-                    style={[
-                        styles.attachments,
-                        { borderColor: borderColor }
-                    ]}>
+                <ScrollView horizontal style={[ styles.attachments, { borderColor: borderColor }]}>
                     {attachments.map((attachment, index) => (
                         <View key={index} >
                             <View style={{ padding: 5 }}>
@@ -520,6 +514,7 @@ export default function Chat({ navigation, route }: ChatProps) {
                         </View>
                     ))}
                 </ScrollView>
+                
                 {editMessage ?
                     <View style={{
                         flexDirection: 'row',
@@ -534,23 +529,18 @@ export default function Chat({ navigation, route }: ChatProps) {
                         }} numberOfLines={1}>Editing message {editMessage.message}</Text>
                     </View>
                     : <></>}
-                <View style={[
-                    styles.inputContainer,
-                    { borderColor: borderColor }
-                ]}>
+
+                <View style={[ styles.inputContainer, { borderColor: borderColor } ]}>
+                    
                     {!editMessage ?
                         <TouchableOpacity style={styles.attachmentsButton} onPress={() => pickFromFiles()}>
                             <PlusCircle color={textColor} />
                         </TouchableOpacity>
                         : <></>}
 
-
                     <TextInput
                         multiline
-                        style={[
-                            styles.textInput,
-                            { color: textColor, height: inputHeight }
-                        ]}
+                        style={[ styles.textInput, { color: textColor, height: inputHeight }]}
                         returnKeyType="send"
                         value={message}
                         onChangeText={setMessage}
@@ -575,6 +565,7 @@ export default function Chat({ navigation, route }: ChatProps) {
         </KeyboardAvoidingView>
     )
 }
+
 const styles = StyleSheet.create({
     attachment: {
         width: 100,
@@ -591,11 +582,12 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         borderTopWidth: StyleSheet.hairlineWidth,
-        justifyContent: 'space-evenly',
-        alignItems: 'flex-end',
-        padding: 10,
-        paddingVertical: 5,
-        gap: 10
+        // justifyContent: 'space-evenly',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        gap: 10,
+        width: "100%"
     },
     removeAttachmentButton: {
         position: 'absolute',
@@ -610,18 +602,17 @@ const styles = StyleSheet.create({
 
     },
     attachmentsButton: {
-        width: 40,
+        width: "10%",
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 5,
         aspectRatio: 1,
-        backgroundColor: Colors.green
     },
     sendButton: {
-        width: 40,
+        width: "10%",
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 40,
+        borderRadius: 100,
         aspectRatio: 1,
     },
     backgroundStyle: {
@@ -642,7 +633,7 @@ const styles = StyleSheet.create({
         borderColor: "transparent",
         borderWidth: 1,
         flex: 1,
-        height: 40,
+        width: "80%",
     },
     container: {
         flex: 1

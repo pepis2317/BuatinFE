@@ -11,7 +11,7 @@ export default function OrderRequestComponent({ request, navigation, respondable
         if (request.status == "Accepted") {
             setStatusColor(Colors.green)
         } else if (request.status == "Declined") {
-            setStatusColor(Colors.peach)
+            setStatusColor(Colors.red)
         }
     }, [request.status])
     return (

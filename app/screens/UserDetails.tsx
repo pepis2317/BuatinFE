@@ -103,58 +103,70 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
     }, [])
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1}}>
 
             <TopBar title={"Profile"} showBackButton={true} />
             
-            <ScrollView style={{ flex: 1 }}
+            <ScrollView style={{ flex: 1, padding: 16 }}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }>
+
                 {user ?
-                    <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 10 }}>
+                    <View style={{ alignItems: 'center', marginBottom: 16, gap: 8 }}>
                         <Image style={[styles.pfp, { backgroundColor: subtleBorderColor, borderColor: borderColor }]} src={user.pfp} />
                         <Text style={[styles.usernameText, { color: textColor }]}>{user.userName}</Text>
                     </View>
                     :
                     <></>
                 }
+
+                {/* Left & Right Stats */}
                 {stats ?
                     <View style={[styles.stats, { backgroundColor: foregroundColor }]}>
+
+                        {/* Rating */}
                         <View style={styles.leftStats}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                 <Text style={[{ color: textColor }, styles.rating]}>{stats.rating.toPrecision(2)}</Text>
                                 <Star color="gold" fill="gold" />
                             </View>
                             <Text style={{ color: textColor, fontSize: 12 }}>Avg. Rating</Text>
                         </View>
+
+                        {/* Reviews */}
                         <View style={[styles.rightStats, { borderLeftColor: textColor }]}>
-                            <Text style={{ color: textColor, fontWeight: 'bold' }}>{stats.reviews} {stats.reviews == 1 ? "Review" : "Reviews"}</Text>
+                            <Text style={{ color: textColor, fontStyle: 'italic', fontSize: 12 }}>{stats.reviews} {stats.reviews == 1 ? "Review" : "Reviews"}</Text>
                         </View>
                     </View>
-                    : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
+                    : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 8 }} color={textColor} />
                 }
+
                 {user ?
-                    <View style={{ height: 200 }}>
-                        <View style={{ marginHorizontal: 20, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                    <View style={{ gap: 12 }}>
+
+                        {/* Review */}
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                             <Text style={{ color: textColor, fontWeight: 'bold' }}>Latest Reviews</Text>
                             <TouchableOpacity onPress={() => navigation.navigate('UserReviews', { userId: user.userId })}>
-                                <Text style={{ color: textColor, fontWeight: 'bold', textDecorationLine: 'underline' }} >View All Reviews</Text>
+                                <Text style={{ color: textColor, fontWeight: 'bold', textDecorationLine: 'underline' }} >View All</Text>
                             </TouchableOpacity>
                         </View>
+
                         {topreviews ?
                             topreviews.length > 0 ?
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    <View style={{ width: 20 }} />
-                                    {topreviews.map((review, index) => (
-                                        <ReviewComponentShort key={index} review={review} navigation={navigation} isEnd={index == topreviews.length} />
-                                    ))}
-                                    <View style={{ width: 20 }} />
-                                </ScrollView> :
-                                <View style={{ backgroundColor: foregroundColor, marginHorizontal: 20, padding: 10, borderRadius: 10 }}>
+                                <View style={{ height: 180 }}>
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                        {topreviews.map((review, index) => (
+                                            <ReviewComponentShort key={index} review={review} navigation={navigation} isEnd={index == topreviews.length} />
+                                        ))}
+                                    </ScrollView>
+                                </View>
+                                :
+                                <View style={{ backgroundColor: foregroundColor, padding: 16, borderRadius: 10 }}>
                                     <Text style={{ color: textColor }}>No Reviews Yet</Text>
                                 </View>
-                            : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
+                            : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 10 }} color={textColor} />
                         }
                     </View>
 
@@ -167,17 +179,10 @@ export default function UserDetails({ navigation, route }: UserDetailsProps) {
     )
 }
 const styles = StyleSheet.create({
-    reviewContainer: {
-        padding: 10,
-        borderRadius: 5,
-        width: 250
-    },
     stats: {
-        marginHorizontal: 20,
-        padding: 10,
-        borderRadius: 5,
+        padding: 16,
+        borderRadius: 10,
         flexDirection: 'row',
-        gap: 10,
         marginBottom: 10,
     },
     rating: {
@@ -186,15 +191,17 @@ const styles = StyleSheet.create({
     },
     leftStats: {
         justifyContent: 'center',
-        width: '20%',
+        width: '30%',
+        paddingRight: 16
     },
     rightStats: {
-        width: '80%',
-        padding: 10,
+        width: '70%',
+        paddingLeft: 16,
+        justifyContent: 'center',
         borderLeftWidth: 1,
     },
     usernameText: {
-        fontSize: 21,
+        fontSize: 24,
         fontWeight: 'bold'
     },
     pfp: {

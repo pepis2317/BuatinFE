@@ -12,8 +12,9 @@ export default function ChatComponent({ item, handleLongPress }: { item: Message
     const { downloadingId, downloadAttachment } = useAttachmentDownload();
     const { user } = useAuth()
     const { textColor, borderColor, subtleBorderColor } = useTheme()
+
     return (
-        <View style={[styles.container, item.senderId == user?.userId ? { alignItems: 'flex-end' } : {}, item.message != "" ? { marginVertical: 5 } : {}]}>
+        <View style={[styles.container, item.senderId == user?.userId ? { alignItems: 'flex-end' } : {}, item.message != "" ? { marginBottom: 12 } : {}]}>
             {item.message != "" ?
                 <Pressable
                     disabled={item.senderId != user?.userId && !item.sent}
@@ -21,7 +22,7 @@ export default function ChatComponent({ item, handleLongPress }: { item: Message
                     onLongPress={(e) => handleLongPress(item, e)}
                     delayLongPress={300}
                 >
-                    <Text style={[{ color: item.deletedAt ? 'gray' : textColor }, item.senderId == user?.userId ? { textAlign: 'right', color: item.deletedAt ? Colors.darkGreen : textColor } : {}]}>{item.message}</Text>
+                    <Text style={[{ color: item.deletedAt ? 'gray' : textColor }, item.senderId == user?.userId ? { textAlign: 'right', color: item.deletedAt ? Colors.jetBlack : textColor } : {}]}>{item.message}</Text>
                 </Pressable>
                 : <></>}
 
@@ -47,11 +48,14 @@ export default function ChatComponent({ item, handleLongPress }: { item: Message
                 : <></>}
 
             {item.message != "" ?
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4}}>
                     <Text style={{ color: 'gray', fontSize: 10, marginHorizontal: 5, marginTop: 1 }}>
-                        {item.deletedAt != null ? "(Deleted) " + new Date(item.deletedAt).toLocaleTimeString() :
-                            item.updatedAt != null ? "(Edited) " + new Date(item.updatedAt).toLocaleTimeString() :
-                                new Date(item.createdAt).toLocaleTimeString()}
+                        {item.deletedAt != null
+                            ? "(Deleted) " + new Date(item.deletedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : item.updatedAt != null
+                            ? "(Edited) " + new Date(item.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        }
                     </Text>
                     {item.sent ? <Check color={'gray'} size={12} /> : <></>}
                 </View>
@@ -62,18 +66,19 @@ export default function ChatComponent({ item, handleLongPress }: { item: Message
 }
 const styles = StyleSheet.create({
     attachment: {
-        padding: 10,
+        padding: 12,
         maxWidth: '50%',
         borderRadius: 10,
         borderWidth: 1,
-        marginVertical: 5
+        marginTop: 8,
     },
     message: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 20
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        maxWidth: '80%',
     },
     container: {
-        alignItems: 'flex-start'
+        alignItems: 'flex-start',
     }
 })

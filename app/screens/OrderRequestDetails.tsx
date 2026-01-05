@@ -113,12 +113,8 @@ export default function OrderRequestDetails({ navigation, route }: OrderRequestD
                     </View>
                 }
                 {orderRequest.declineReason ?
-                    <View style={[styles.container, { borderColor: Colors.peach }]}>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            fontSize: 16
-                        }}>Decline Reason</Text>
+                    <View style={[styles.container, { borderColor: Colors.red }]}>
+                        <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16 }}>Decline Reason</Text>
                         <Text style={{ color: textColor }}>{orderRequest.declineReason}</Text>
                     </View>
                     : <></>}

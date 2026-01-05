@@ -55,7 +55,7 @@ export default function StepComponent({ step, navigation, editable, index }: { s
             setStatusColor(Colors.green)
             loadImages()
         } else if (step.status == "Cancelled") {
-            setStatusColor(Colors.peach)
+            setStatusColor(Colors.red)
         }
     }
     useEffect(() => {
@@ -115,7 +115,7 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                             <View style={[styles.paymentInfo, { backgroundColor: subtleBorderColor }]}>
                                 <View style={styles.buttonContainer}>
                                     <ColoredButton title={"Accept & Pay step"} style={{ backgroundColor: Colors.green, width: '48%' }} onPress={() => navigation.navigate('AcceptAndPay', { stepId: step.stepId })} />
-                                    <ColoredButton title={"Decline step"} style={{ backgroundColor: Colors.peach, width: '48%' }} onPress={() => handleDecline()} isLoading={loading} />
+                                    <ColoredButton title={"Decline step"} style={{ backgroundColor: Colors.red, width: '48%' }} onPress={() => handleDecline()} isLoading={loading} />
                                 </View>
                             </View>
                             : <></>}

@@ -12,6 +12,7 @@ import { API_URL } from "../../constants/ApiUri";
 import { useTheme } from "../context/ThemeContext";
 
 type EditParams = NativeStackScreenProps<RootStackParamList, "EditComment">
+
 export default function EditComment({ navigation, route }: EditParams) {
     const { comment } = route.params
     const { textColor } = useTheme()
@@ -19,6 +20,7 @@ export default function EditComment({ navigation, route }: EditParams) {
     const [loading, setLoading] = useState(false)
     const [showConfirmed, setShowConfirmed] = useState(false)
     const [inputHeight, setInputHeight] = useState(0)
+
     const editMessage = async () => {
         try {
             const res = await axios.put(`${API_URL}/edit-comment`, {
@@ -30,6 +32,7 @@ export default function EditComment({ navigation, route }: EditParams) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleEdit = async () => {
         setLoading(true)
         const result = await editMessage()
@@ -38,18 +41,19 @@ export default function EditComment({ navigation, route }: EditParams) {
         }
         setLoading(false)
     }
+
     useEffect(() => {
         setCommentMessage(comment.comment)
     }, [])
+
     return (
         <View>
             <ConfirmedModal isFail={false} visible={showConfirmed} message={"Comment edited"} onPress={() => navigation.goBack()} />
+
             <TopBar title={"Edit Comment"} showBackButton />
-            <ScrollView style={{ padding: 20 }}>
-                <Text style={{
-                    color: textColor,
-                    fontWeight: 'bold',
-                    marginBottom: 10
+
+            <ScrollView style={{ padding: 16 }}>
+                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8
                 }}>Comment</Text>
                 <TextInputComponent style={{ height: inputHeight }} value={commentMessage} placeholder="Review" onChangeText={setCommentMessage} multiline
                     onContentSizeChange={(e) => {
@@ -57,7 +61,7 @@ export default function EditComment({ navigation, route }: EditParams) {
                         setInputHeight(Math.min(newHeight, 120));
                     }}
                 />
-                <ColoredButton title={"Edit Comment"} style={{ backgroundColor: Colors.green, marginTop: 20 }} onPress={() => handleEdit()} isLoading={loading} />
+                <ColoredButton title={"Edit Comment"} style={{ backgroundColor: Colors.green, marginTop: 16 }} onPress={() => handleEdit()} isLoading={loading} />
             </ScrollView>
         </View>
     )

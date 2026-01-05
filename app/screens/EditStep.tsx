@@ -249,7 +249,7 @@ export default function EditStep({ navigation, route }: EditStepProps) {
                                 <ErrorComponent errorsString={errMessage} />
                                 : <></>}
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                {step.status != "Submitted" ? < ColoredButton style={[{ backgroundColor: Colors.peach }, styles.button]} title={"Cancel Step"} onPress={() => setShowCancelModal(true)} isLoading={loading} /> : <></>}
+                                {step.status != "Submitted" ? < ColoredButton style={[{ backgroundColor: Colors.red }, styles.button]} title={"Cancel Step"} onPress={() => setShowCancelModal(true)} isLoading={loading} /> : <></>}
                                 <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Save Changes"} onPress={() => handleUpdate()} isLoading={loading} />
                             </View>
                             {step.status == "Working" ?

@@ -11,25 +11,25 @@ import PfpComponent from "./PfpComponent";
 import colors from "../constants/Colors";
 
 const formatEditedDate = (date: string | number | Date) => {
-        const d = new Date(date);
+    const d = new Date(date);
 
-        const weekday = new Intl.DateTimeFormat("en-GB", {
-            weekday: "short",
-        }).format(d);
+    const weekday = new Intl.DateTimeFormat("en-GB", {
+        weekday: "short",
+    }).format(d);
 
-        const day = new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-        }).format(d);
+    const day = new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+    }).format(d);
 
-        const month = new Intl.DateTimeFormat("en-GB", {
-            month: "short",
-        }).format(d);
+    const month = new Intl.DateTimeFormat("en-GB", {
+        month: "short",
+    }).format(d);
 
-        const year = new Intl.DateTimeFormat("en-GB", {
-            year: "numeric",
-        }).format(d);
+    const year = new Intl.DateTimeFormat("en-GB", {
+        year: "numeric",
+    }).format(d);
 
-        return `${weekday}, ${day} ${month} ${year}`;
+    return `${weekday}, ${day} ${month} ${year}`;
 };
 
 export default function ReviewComponent({ review, navigation, isSeller }: { review: ReviewResponse, navigation: any, isSeller: boolean }) {
@@ -106,7 +106,7 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
                         <TouchableOpacity onPress={()=> navigation.navigate('UserDetails', {userId:review.authorId})}>
                             <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16 }}>{review.authorName}</Text>
                         </TouchableOpacity>
-                        <Text style={{ color: colors.darkGray, fontSize: 12 }}>
+                        <Text style={{ color: colors.darkBorder, fontSize: 12 }}>
                         {review.updatedAt
                             ? `Edited ${formatEditedDate(review.updatedAt)}`
                             : formatEditedDate(review.createdAt)}
@@ -164,7 +164,7 @@ export function ReviewComponentShort({ review, navigation, isEnd }: { review: Re
                     <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { userId: review.authorId })}>
                         <Text style={{ color: textColor, fontWeight: 'bold' }}>{review.authorName}</Text>
                     </TouchableOpacity>
-                    <Text style={{ color: colors.darkGray, fontSize: 12 }}>
+                    <Text style={{ color: colors.darkBorder, fontSize: 12 }}>
                         {review.updatedAt
                             ? `Edited ${formatEditedDate(review.updatedAt)}`
                             : formatEditedDate(review.createdAt)}

@@ -12,10 +12,12 @@ import Colors from "../../constants/Colors";
 import { DollarSign } from "lucide-react-native";
 import { useTheme } from "../context/ThemeContext";
 import { StepResponse } from "../../types/StepResponse";
+
 type AcceptAndPayProps = NativeStackScreenProps<RootStackParamList, "AcceptAndPay">;
+
 export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
     const { stepId } = route.params
-    const { textColor, foregroundColor } = useTheme()
+    const { textColor, foregroundColor, borderColor} = useTheme()
     const [loading, setLoading] = useState(false)
     const [stepLoading, setStepLoading] = useState(false)
     const [showPaid, setShowPaid] = useState(false)
@@ -26,6 +28,7 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
     const [showPaymentFailed, setShowPaymentFailed] = useState(false)
     const [hasPressedSnap, setHasPressedSnap] = useState(false)
     const [snapUrl, setSnapUrl] = useState('')
+
     const walletPay = async () => {
         try {
             const response = await axios.post(`${API_URL}/approve-and-pay-step`, {
@@ -37,6 +40,7 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const snapPay = async () => {
         try {
             const response = await axios.post(`${API_URL}/approve-and-pay-step`, {
@@ -48,6 +52,7 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleWalletPay = async () => {
         setLoading(true)
         const result = await walletPay()
@@ -58,6 +63,7 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
         }
         setLoading(false)
     }
+
     const handleSnapPay = async () => {
         setHasPressedSnap(true)
         const result = await snapPay()
@@ -69,11 +75,13 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
             }
         }
     }
+
     useEffect(() => {
         if (snapUrl != '') {
             setShowPayment(true)
         }
     }, [snapUrl])
+
     const fetchStep = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-step?stepId=${stepId}`)
@@ -82,6 +90,7 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleFetchStep = async () => {
         setStepLoading(true)
         const result = await fetchStep()
@@ -90,29 +99,41 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
         }
         setStepLoading(false)
     }
+
     useEffect(() => {
         handleFetchStep();
     }, [])
+
     return (
         <View>
+
             <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showPaid} message={"Step has been paid"} />
             <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showSnapPaid} message={"Step has been paid with snap"} />
             <ConfirmedModal isFail={true} onPress={() => setShowSnapFailed(false)} visible={showSnapFailed} message={"Something went wrong with the snap payment"} />
             <ConfirmedModal isFail={true} onPress={() => setShowPaymentFailed(false)} visible={showPaymentFailed} message={"Something went wrong, please check your balance"} />
+
             <TopBar title={"Accept & Pay Step"} showBackButton />
-            <View style={{ padding: 20, gap: 10 }}>
+
+            <View style={{ padding: 16, gap: 12 }}>
                 {stepLoading || !step ?
                     <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     :
-                    <View style={{ backgroundColor: foregroundColor, padding: 10, borderRadius: 5 }}>
-                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom:5 }}>{step.title}</Text>
-                        <Text style={{ color: textColor, marginBottom:5}}>{step.description}</Text>
-                        <Text style={{ color: textColor, marginBottom:5}}>{step.minCompleteEstimate} - {step.maxCompleteEstimate}</Text>
-                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Rp.{Number(step.price/100).toLocaleString("id-ID")}</Text>
+                    <View style={{ backgroundColor: foregroundColor, padding: 16, borderRadius: 8 }}>
+                        <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16,marginBottom: 2 }}>{step.title}</Text>
+                        <Text style={{ color: textColor, fontSize: 14, marginBottom: 4}}>{step.description}</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 16 }}>Rp {Number(step.price/100).toLocaleString("id-ID")},00</Text>
+
+                        <View style={[styles.estimation, { borderColor: borderColor }]}>
+                            <View style={styles.date}>
+                                <Text style={{ color: textColor }}>{step.minCompleteEstimate}</Text>
+                                <Text style={{ color: textColor }}>-</Text>
+                                <Text style={{ color: textColor }}>{step.maxCompleteEstimate}</Text>
+                            </View>
+                        </View>
                     </View>
                 }
-                {hasPressedSnap ? <></> : <ColoredButton title={"Pay using wallet"} style={{ backgroundColor: Colors.green }} onPress={() => handleWalletPay()} isLoading={loading} />}
-                <ColoredButton title={hasPressedSnap ? "Check Payment Status" : "Pay using Midtrans"} style={{ backgroundColor: Colors.green }} onPress={() => handleSnapPay()} />
+                {hasPressedSnap ? <></> : <ColoredButton title={"Pay With Wallet"} style={{ backgroundColor: Colors.green, marginTop: 4 }} onPress={() => handleWalletPay()} isLoading={loading} />}
+                <ColoredButton title={hasPressedSnap ? "Check Payment Status" : "Pay With Midtrans"} style={{ backgroundColor: Colors.green , marginTop: 4}} onPress={() => handleSnapPay()} />
             </View>
 
             <PaymentModal showPayment={showPayment} snapUrl={snapUrl}
@@ -166,5 +187,15 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(255,255,255,0.7)",
         justifyContent: "center",
         alignItems: "center",
+    },
+    date: {
+        flexDirection: 'row',
+        alignContent: 'center',
+        justifyContent: 'space-around'
+    },
+    estimation: {
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        borderTopWidth: 1
     },
 });

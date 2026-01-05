@@ -145,22 +145,12 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
                         </View> :
                         <></>}
                     {completeRequest && completeRequest.status != 'Accepted' ?
-                        <View style={[
-                            styles.pending,
-                            { backgroundColor: subtleBorderColor }
-                        ]}>
+                        <View style={[ styles.pending, { backgroundColor: subtleBorderColor }]}>
                             <Text style={{ color: 'gray', fontWeight: 'bold', textAlign: 'center' }}>Awaiting buyer to accept completion request</Text>
                         </View> : <></>}
                     {refund && refund.status == 'Pending' ?
-                        <View style={[
-                            styles.pending,
-                            { backgroundColor: subtleBorderColor }
-                        ]}>
-                            <Text style={{
-                                color: textColor,
-                                fontWeight: 'bold',
-                                textAlign: 'center'
-                            }}>This process has a pending refund request</Text>
+                        <View style={[ styles.pending, { backgroundColor: subtleBorderColor } ]}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', textAlign: 'center' }}>This process has a pending refund request</Text>
                         </View> : <></>}
                 </View>
                 : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />}
@@ -178,15 +168,17 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
                 <View style={styles.buttonContainer}>
                     {menuPressed ?
                         <View style={[styles.popupMenu, { backgroundColor: backgroundColor, borderColor: borderColor }]}>
+
                             <TouchableOpacity
-                                style={{ borderColor: borderColor, borderBottomWidth: 1, padding: 15 }}
+                                style={{ borderColor: borderColor, borderBottomWidth: 1, padding: 16 }}
                                 disabled={!canAdd}
                                 onPress={() => navigation.navigate('AddStep', { processId: processId, previousStepId: latestStep ? latestStep.stepId : null })}
                             >
                                 <Text style={{ color: textColor, fontWeight: 'bold', opacity: canAdd ? 1 : 0.2 }}>Add Step</Text>
                             </TouchableOpacity>
+                            
                             <TouchableOpacity
-                                style={{ padding: 15 }}
+                                style={{ padding: 16 }}
                                 disabled={!canComplete}
                                 onPress={() => setCompleteModal(true)}
                             >

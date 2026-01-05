@@ -18,8 +18,10 @@ import ConfirmationModal from "../../components/ConfirmationModal";
 import { useTheme } from "../context/ThemeContext";
 import { processFontWeight } from "react-native-reanimated/lib/typescript/css/native";
 import ErrorComponent from "../../components/ErrorComponent";
+import colors from "../../constants/Colors";
 
 type EditStepProps = NativeStackScreenProps<RootStackParamList, "EditStep">;
+
 export default function EditStep({ navigation, route }: EditStepProps) {
     const { stepId } = route.params
     const { textColor, borderColor } = useTheme()
@@ -35,6 +37,7 @@ export default function EditStep({ navigation, route }: EditStepProps) {
     const [showMaxDate, setShowMaxDate] = useState(false)
     const [errMessage, setErrMessage] = useState("")
     const [images, setImages] = useState<string[]>([])
+
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
@@ -51,9 +54,11 @@ export default function EditStep({ navigation, route }: EditStepProps) {
             setImages((prevImages) => [...prevImages, result.assets[0].uri]);
         }
     }
+
     const removeImage = (index: number) => {
         setImages((prevImages) => prevImages.filter((_, i) => i !== index));
     }
+
     const fetchStep = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-step?stepId=${stepId}`)
@@ -75,20 +80,24 @@ export default function EditStep({ navigation, route }: EditStepProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const parseDate = (date: string) => {
         const [day, month, year] = date.split('/').map(Number);
         return new Date(year, month - 1, day);
     }
+
     const setMinDate = (event: any, selectedDate: any) => {
         if (!selectedDate) return;
         setMinimumDate(selectedDate);
         setShowMinDate(false)
     }
+
     const setMaxDate = (event: any, selectedDate: any) => {
         if (!selectedDate) return;
         setMaximumDate(selectedDate);
         setShowMaxDate(false)
     }
+
     const handleUpdate = async () => {
         if (!step) return
         if (!step.title || !step.description || !minimumDate || !maximumDate) {
@@ -129,6 +138,7 @@ export default function EditStep({ navigation, route }: EditStepProps) {
         }
         setLoading(false)
     }
+
     const handleComplete = async () => {
         setLoading(true)
         if (step != null) {
@@ -155,6 +165,7 @@ export default function EditStep({ navigation, route }: EditStepProps) {
         }
         setLoading(false)
     }
+
     const handleCancel = async () => {
         setLoading(true)
         if (step != null) {
@@ -169,6 +180,7 @@ export default function EditStep({ navigation, route }: EditStepProps) {
         }
         setLoading(false)
     }
+
     useEffect(() => {
         const handlefetch = async () => {
             const result = await fetchStep()
@@ -180,52 +192,52 @@ export default function EditStep({ navigation, route }: EditStepProps) {
         }
         handlefetch()
     }, [])
+
     const handleChange = (key: keyof StepResponse, value: any) => {
         setStep((prev) => prev ? { ...prev, [key]: value } : prev)
     }
 
     return (
         <View style={{ flex: 1 }}>
+
             <TopBar title="Edit Step" showBackButton />
-            <ConfirmedModal isFail={false} visible={showUpdatedModal} message={"Step data has been updated"} onPress={() => navigation.goBack()} />
+            
+            <ConfirmedModal isFail={false} visible={showUpdatedModal} message={"Step has been updated"} onPress={() => navigation.goBack()} />
             <ConfirmedModal isFail={false} visible={showCancelledModal} message={"Step has been cancelled"} onPress={() => navigation.goBack()} />
-            <ConfirmedModal isFail={false} visible={showCompletedModal} message={"Step data has been completed"} onPress={() => navigation.goBack()} />
-            <ConfirmationModal visible={showCancelModal} message={"Cancel the step? funds will be refunded to the buyer"} onAccept={() => handleCancel()} onCancel={() => setShowCancelModal(false)} />
+            <ConfirmedModal isFail={false} visible={showCompletedModal} message={"Step has been completed"} onPress={() => navigation.goBack()} />
+            <ConfirmationModal visible={showCancelModal} message={"Cancel step? Funds will be refunded to user"} onAccept={() => handleCancel()} onCancel={() => setShowCancelModal(false)} />
             {step != null ?
 
                 <KeyboardAvoidingView
                     style={{ flex: 1 }}
                     behavior={Platform.OS === "ios" ? "padding" : "height"}
                     keyboardVerticalOffset={35}>
+
                     <ScrollView>
-                        <View style={{ padding: 20, gap: 10 }}>
+                        <View style={{ padding: 16, gap: 12 }}>
                             <View>
-                                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Title</Text>
+                                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8 }}>Title</Text>
                                 <TextInputComponent value={step?.title} onChangeText={(text) => handleChange("title", text)} />
                             </View>
                             <View>
-                                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Description</Text>
+                                <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8 }}>Description</Text>
                                 <TextInputComponent value={step?.description} style={{height:120}}multiline onChangeText={(text) => handleChange("description", text)} />
                             </View>
 
-                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <View style={{ width: '45%' }}>
-                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Min Estimate</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16}}>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8}}>Min. Estimate</Text>
                                     <TouchableOpacity style={[styles.date, { borderColor: borderColor }]} onPress={() => setShowMinDate(true)}>
                                         <Calendar color={textColor} />
-                                        <Text style={{ color: textColor, fontWeight: 'bold' }}>
-                                            {minimumDate?.toLocaleDateString()}
-                                        </Text>
+                                        <Text style={{ color: textColor }}>{minimumDate?.toLocaleDateString()}</Text>
                                     </TouchableOpacity>
                                 </View>
 
-                                <View style={{ width: '45%' }}>
-                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Max Estimate</Text>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8 }}>Max. Estimate</Text>
                                     <TouchableOpacity style={[styles.date, { borderColor: borderColor }]} onPress={() => setShowMaxDate(true)}>
                                         <Calendar color={textColor} />
-                                        <Text style={{ color: textColor, fontWeight: 'bold' }}>
-                                            {maximumDate?.toLocaleDateString()}
-                                        </Text>
+                                        <Text style={{ color: textColor}}>{maximumDate?.toLocaleDateString()}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -248,19 +260,23 @@ export default function EditStep({ navigation, route }: EditStepProps) {
                             {errMessage ?
                                 <ErrorComponent errorsString={errMessage} />
                                 : <></>}
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 16, marginTop: 4}}>
                                 {step.status != "Submitted" ? < ColoredButton style={[{ backgroundColor: Colors.red }, styles.button]} title={"Cancel Step"} onPress={() => setShowCancelModal(true)} isLoading={loading} /> : <></>}
                                 <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Save Changes"} onPress={() => handleUpdate()} isLoading={loading} />
                             </View>
                             {step.status == "Working" ?
                                 <View>
-                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Step Completion Proof</Text>
+                                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8}}>Step Completion Proof</Text>
+
                                     <View style={styles.imagesContainer}>
+                                        {/* Add Image Button */}
                                         <TouchableOpacity style={styles.addImageButton} onPress={() => pickImage()}>
                                             <View style={styles.addBorder}>
-                                                <PlusSquare color={"#5CCFA3"} size={32} />
+                                                <PlusSquare color={colors.primary} size={32} />
                                             </View>
                                         </TouchableOpacity>
+
+                                        {/* Image Preview */}
                                         <ScrollView horizontal>
                                             {images.map((uri, index) => (
                                                 <View key={index} >
@@ -275,11 +291,14 @@ export default function EditStep({ navigation, route }: EditStepProps) {
                                             ))}
                                         </ScrollView>
                                     </View>
-                                    {images.length > 0 ?
-                                        <ColoredButton style={{ backgroundColor: Colors.green }} title={"Complete Step"} onPress={() => handleComplete()} isLoading={loading} disabled={false} />
-                                        :
-                                        <ColoredButton style={{ backgroundColor: Colors.darkGray }} title={"Complete Step"} isLoading={loading} disabled={true} />
-                                    }
+
+                                    <View style={{ marginTop: 16 }}>
+                                        {images.length > 0 ?
+                                            <ColoredButton style={{ backgroundColor: Colors.green }} title={"Complete Step"} onPress={() => handleComplete()} isLoading={loading} disabled={false} />
+                                            :
+                                            <ColoredButton style={{ backgroundColor: Colors.darkGray }} title={"Complete Step"} isLoading={loading} disabled={true} />
+                                        }
+                                    </View>
                                 </View>
                                 : <></>}
                         </View>
@@ -297,23 +316,21 @@ export default function EditStep({ navigation, route }: EditStepProps) {
 
 const styles = StyleSheet.create({
     button: {
-        width: "48%",
-        height: 40,
-        padding: 10,
+        flex: 1,
     },
     date: {
-        padding: 15,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: 8,
         flexDirection: 'row',
-        gap: 10,
+        gap: 8,
         alignItems: 'center',
     },
     imagesContainer: {
-        height: 150,
         flexDirection: 'row',
         borderStyle: 'solid',
-        borderColor: '#31363F',
+        borderColor: colors.darkBorder,
         borderBottomWidth: 1
     },
     addBorder: {
@@ -321,22 +338,20 @@ const styles = StyleSheet.create({
         height: "100%",
         justifyContent: 'center',
         borderStyle: 'dashed',
-        borderColor: '#5CCFA3',
-        borderRadius: 5,
+        borderColor: colors.darkBorder,
+        borderRadius: 10,
         borderWidth: 1,
         alignItems: 'center',
-
     },
     addImageButton: {
-        padding: 15,
+        padding: 16,
         height: 150,
-        width: 100,
+        width: 120,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
         borderStyle: 'solid',
         borderColor: '#31363F',
-        borderRightWidth: 1
     },
 
     removeImageButton: {

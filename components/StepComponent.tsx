@@ -17,6 +17,7 @@ export default function StepComponent({ step, navigation, editable, index }: { s
     const [images, setImages] = useState<string[]>([])
     const [overdue, setOverdue] = useState(false)
     const { textColor, borderColor, subtleBorderColor } = useTheme()
+
     const decline = async () => {
         try {
             const response = await axios.put(`${API_URL}/decline-step`, {
@@ -27,6 +28,7 @@ export default function StepComponent({ step, navigation, editable, index }: { s
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     var fetchImages = async () => {
         try {
             const res = await axios.get(`${API_URL}/get-images?ContentId=${step.stepId}`)
@@ -35,6 +37,7 @@ export default function StepComponent({ step, navigation, editable, index }: { s
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleDecline = async () => {
         setLoading(true)
         const result = await decline();
@@ -44,12 +47,14 @@ export default function StepComponent({ step, navigation, editable, index }: { s
         }
         setLoading(false)
     }
+
     const loadImages = async () => {
         var images = await fetchImages()
         if (!images.error) {
             setImages(images)
         }
     }
+
     const loadData = () => {
         if (step.status == "Completed") {
             setStatusColor(Colors.green)
@@ -58,17 +63,22 @@ export default function StepComponent({ step, navigation, editable, index }: { s
             setStatusColor(Colors.red)
         }
     }
+
     useEffect(() => {
         loadData()
     }, [step])
+
     useEffect(() => {
         const [day, month, year] = step.maxCompleteEstimate.split("/");
         const date = new Date(Number(year), Number(month) - 1, Number(day));
         setOverdue(date < new Date())
     }, [])
+
     return (
         <View style={styles.container}>
+
             <ConfirmedModal isFail={false} visible={showDeclined} message={"Step has been declined"} onPress={() => setShowDeclined(false)} />
+
             <View style={styles.containerLeft}>
                 <View style={[styles.indicator, { borderColor: statusColor }]}>
                     <Text style={{ color: textColor, fontWeight: 'bold' }}>{index}</Text>
@@ -77,12 +87,12 @@ export default function StepComponent({ step, navigation, editable, index }: { s
             </View>
 
             <View style={styles.containerRight}>
-                <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                <View style={{ flexDirection: 'row' }}>
                     <View style={[styles.info, { borderColor: borderColor }]}>
-                        <View style={{ padding: 15, paddingVertical: 10 }}>
-                            <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16, marginBottom: 5 }}>{step.title}</Text>
-                            <Text style={{ color: textColor, fontSize: 12 }}>{step.description}</Text>
-                            <Text style={{ color: textColor, marginBottom: 10 }}>Rp.{Number(step.price / 100).toLocaleString("id-ID")}</Text>
+                        <View style={{ padding: 16 }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16, marginBottom: 2 }}>{step.title}</Text>
+                            <Text style={{ color: textColor, fontSize: 14, marginBottom: 4}}>{step.description}</Text>
+                            <Text style={{ color: textColor, fontWeight: 'bold' }}>Rp {Number(step.price / 100).toLocaleString("id-ID")},00</Text>
                         </View>
                         {overdue && step.status == "Working" ?
                             <View style={{ backgroundColor: subtleBorderColor, paddingVertical: 10, paddingHorizontal: 20 }}>
@@ -92,9 +102,9 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                         }
                         <View style={[styles.estimation, { borderColor: borderColor }]}>
                             <View style={styles.date}>
-                                <Text style={{ color: textColor, fontWeight: 'bold' }}>{step.minCompleteEstimate}</Text>
+                                <Text style={{ color: textColor }}>{step.minCompleteEstimate}</Text>
                                 <Text style={{ color: textColor }}>-</Text>
-                                <Text style={{ color: textColor, fontWeight: 'bold' }}>{step.maxCompleteEstimate}</Text>
+                                <Text style={{ color: textColor }}>{step.maxCompleteEstimate}</Text>
                             </View>
                         </View>
 
@@ -114,8 +124,8 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                         {editable == false && step.status == "Submitted" ?
                             <View style={[styles.paymentInfo, { backgroundColor: subtleBorderColor }]}>
                                 <View style={styles.buttonContainer}>
-                                    <ColoredButton title={"Accept & Pay step"} style={{ backgroundColor: Colors.green, width: '48%' }} onPress={() => navigation.navigate('AcceptAndPay', { stepId: step.stepId })} />
-                                    <ColoredButton title={"Decline step"} style={{ backgroundColor: Colors.red, width: '48%' }} onPress={() => handleDecline()} isLoading={loading} />
+                                    <ColoredButton title={"Decline"} style={{ backgroundColor: Colors.red, flex: 1 }} onPress={() => handleDecline()} isLoading={loading} />
+                                    <ColoredButton title={"Accept & Pay"} style={{ backgroundColor: Colors.green, flex: 1 }} onPress={() => navigation.navigate('AcceptAndPay', { stepId: step.stepId })} />
                                 </View>
                             </View>
                             : <></>}
@@ -125,7 +135,7 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                 </View>
 
                 {step.status == "Completed" ?
-                    <View style={{ gap: 10, marginBottom: 10 }}>
+                    <View style={{ gap: 16, marginTop: 12}}>
                         {images.map((uri, index) => (
                             <View key={index} >
                                 <Image
@@ -157,10 +167,12 @@ const styles = StyleSheet.create({
     },
     containerLeft: {
         width: '20%',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 16
     },
     containerRight: {
-        width: '80%'
+        width: '80%',
+        marginBottom: 16
     },
     indicator: {
         width: 50,
@@ -177,16 +189,16 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         flex: 1,
-        overflow: 'hidden'
+        overflow: 'hidden',
     },
     paymentInfo: {
-        padding: 20,
-        paddingVertical: 10,
+        padding: 16,
         paddingTop: 0
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        gap: 16
     },
     info: {
         flex: 1,

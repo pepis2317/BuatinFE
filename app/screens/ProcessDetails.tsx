@@ -152,8 +152,8 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
                                 <View style={[ styles.pending, { backgroundColor: subtleBorderColor }]}>
                                     <Text style={{ color: textColor, textAlign: 'center', marginBottom: 10, fontWeight: 'bold' }}>Seller has made a request to complete this process</Text>
                                     <View style={styles.buttonsContainer}>
-                                        <ColoredButton title={"Accept request"} style={{ backgroundColor: Colors.red, width: '50%' }} onPress={() => handleAccept()} isLoading={respondCompletionRef.current} />
-                                        <ColoredButton title={"Decline request"} style={{ backgroundColor: Colors.red, width: '50%' }} onPress={() => handleDecline()} isLoading={respondCompletionRef.current} />
+                                        <ColoredButton title={"Decline"} style={{ backgroundColor: Colors.red, flex: 1}} onPress={() => handleDecline()} isLoading={respondCompletionRef.current} />
+                                        <ColoredButton title={"Accept"} style={{ backgroundColor: Colors.green, flex: 1}} onPress={() => handleAccept()} isLoading={respondCompletionRef.current} />
                                     </View>
                                 </View>
                                 : <></>}
@@ -229,11 +229,10 @@ const styles = StyleSheet.create({
     },
     buttonsContainer: {
         flexDirection: 'row',
-        gap: 10,
+        gap: 16,
         justifyContent: 'center'
     },
     pending: {
-        padding: 20,
-        paddingVertical: 10
+        padding: 16,
     }
 })

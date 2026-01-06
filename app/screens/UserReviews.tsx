@@ -12,12 +12,14 @@ import Colors from "../../constants/Colors"
 import UserReviewsList from "../../components/UserReviewsList"
 
 type UserReviewsProps = NativeStackScreenProps<RootStackParamList, "UserReviews">
+
 export default function UserReviews({ navigation, route }: UserReviewsProps) {
     const { userId } = route.params
     const { textColor } = useTheme()
     const { onGetUserToken } = useAuth()
     const [canReview, setCanReview] = useState(false)
     const [loading, setLoading] = useState(false)
+
     const checkReviewable = async () => {
         try {
             const token = await onGetUserToken!()
@@ -34,6 +36,7 @@ export default function UserReviews({ navigation, route }: UserReviewsProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+    
     const handleCheck = async () => {
         setLoading(true)
         const result = await checkReviewable()
@@ -42,20 +45,27 @@ export default function UserReviews({ navigation, route }: UserReviewsProps) {
         }
         setLoading(false)
     }
+
     useEffect(() => {
         handleCheck()
     }, [])
+
     return (
         <View style={{ flex: 1 }}>
+
             <TopBar title={"User Reviews"} showBackButton />
+
             {loading ? <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} /> :
-                <View style={{ padding: 20 }}>
+                <View style={{ padding:16 }}>
                     {canReview ?
-                        <ColoredButton title={"Create Seller Review"} onPress={() => navigation.navigate('ReviewUser', { userId: userId })} style={{ backgroundColor: Colors.green }} />
+                        <ColoredButton title={"Create User Review"} onPress={() => navigation.navigate('ReviewUser', { userId: userId })} style={{ backgroundColor: Colors.green }} />
                         : <></>}
                 </View>
             }
-            <UserReviewsList userId={userId} navigation={navigation} />
+
+            <View style={{paddingHorizontal: 16}}>
+                <UserReviewsList userId={userId} navigation={navigation} />
+            </View>
         </View>
     )
 }

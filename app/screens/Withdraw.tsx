@@ -63,7 +63,7 @@ export default function Wallet({ navigation, route }: WithdrawProps) {
 
             <ConfirmedModal isFail={false} onPress={() => navigation.goBack()} visible={showCreated} message={"Withdraw successful"} />
 
-            <View style={{ paddingHorizontal: 24, paddingVertical: 16, gap: 16 }}>
+            <View style={{ padding: 16, gap: 12 }}>
 
                 <View>
                     <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 12 }}>Amount</Text>
@@ -75,7 +75,7 @@ export default function Wallet({ navigation, route }: WithdrawProps) {
                     <TextInputComponent placeholder="Bank Code" onChangeText={setBankCode} />
                 </View>
 
-                <View>
+                <View style={{marginBottom: 4}}>
                     <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 12 }}>Account</Text>
                     <TextInputComponent placeholder="Account" onChangeText={setAccount} inputMode="numeric" />
                 </View>

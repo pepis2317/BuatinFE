@@ -63,7 +63,7 @@ export default function SellerProcesses({ navigation, route }: SellerProcessesPr
                         activeColor={textColor}
                         inactiveColor={unselectedColor}
                         scrollEnabled={false}
-                        indicatorStyle={{ backgroundColor: Colors.green }}
+                        indicatorStyle={{ backgroundColor: Colors.primary }}
                         style={{ backgroundColor: backgroundColor }}
                     />
                 )}

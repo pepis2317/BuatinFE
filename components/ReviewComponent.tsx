@@ -117,12 +117,12 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
                     <TouchableOpacity onPress={() => handleNavigate()}>
                         <Pencil size={20} color={textColor} />
                     </TouchableOpacity> : <></>}
+            </View>
 
-                {/* Rating */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                    <Text style={{ color: textColor, fontWeight: 'bold' }}>{review.rating}</Text>
-                    <Star fill={'gold'} color={'gold'} size={16} />
-                </View>
+            {/* Rating */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4}}>
+                <Text style={{ color: textColor, fontWeight: 'bold' }}>{review.rating}</Text>
+                <Star fill={'gold'} color={'gold'} size={16} />
             </View>
             
             {/* Review */}

@@ -176,7 +176,7 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
                             >
                                 <Text style={{ color: textColor, fontWeight: 'bold', opacity: canAdd ? 1 : 0.2 }}>Add Step</Text>
                             </TouchableOpacity>
-                            
+
                             <TouchableOpacity
                                 style={{ padding: 16 }}
                                 disabled={!canComplete}

@@ -66,7 +66,7 @@ export default function SellerShipments({ navigation, route }: SellerShipmentsPr
                         activeColor={textColor}
                         inactiveColor={unselectedColor}
                         scrollEnabled={false}
-                        indicatorStyle={{ backgroundColor: Colors.green }}
+                        indicatorStyle={{ backgroundColor: Colors.primary }}
                         style={{ backgroundColor: backgroundColor }}
                     />
                 )}

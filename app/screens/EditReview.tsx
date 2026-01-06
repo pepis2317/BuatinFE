@@ -13,6 +13,7 @@ import TopBar from "../../components/TopBar";
 import { useTheme } from "../context/ThemeContext";
 
 type EditProps = NativeStackScreenProps<RootStackParamList, "EditReview">
+
 export default function EditReviewReview({ navigation, route }: EditProps) {
     const { review, isSeller } = route.params
     const [loading, setLoading] = useState(false)
@@ -21,6 +22,7 @@ export default function EditReviewReview({ navigation, route }: EditProps) {
     const [inputHeight, setInputHeight] = useState(0)
     const [showSuccess, setShowSuccess] = useState(false)
     const { textColor } = useTheme()
+
     const editReview = async (reviewMessage: string, rating: number) => {
         try {
             var url = `${API_URL}/edit-seller-review`
@@ -37,6 +39,7 @@ export default function EditReviewReview({ navigation, route }: EditProps) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleEditReview = async () => {
         setLoading(true)
         const result = await editReview(reviewMessage, rating)
@@ -45,29 +48,29 @@ export default function EditReviewReview({ navigation, route }: EditProps) {
         }
         setLoading(false)
     }
+
     useEffect(() => {
         setReviewMessage(review.review)
         setRating(review.rating)
     }, [])
+
     return (
-        <ScrollView style={{ flex: 1 }}>
+        <View>
+
             <ConfirmedModal isFail={false} visible={showSuccess} message={"Review has been edited"} onPress={() => navigation.goBack()} />
+
             <TopBar title={"Edit Review"} showBackButton />
-            <View style={{
-                alignItems: 'center',
-                padding: 20,
-                gap: 20
-            }}>
+
+            <View style={{ alignItems: 'center', padding: 20, gap: 20 }}>
                 <Stars onChange={setRating} value={rating} />
-                <Text style={{
-                    color: textColor,
-                    fontWeight: 'bold',
-                    marginBottom: 10
-                }}>Review</Text>
-                <TextInputComponent style={{ height: 120 }} value={reviewMessage} placeholder="Review" onChangeText={setReviewMessage} multiline/>
+
+                <View style={{width:"100%"}}>
+                    <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Review</Text>
+                    <TextInputComponent style={{ height: 120, width:"100%" }} value={reviewMessage} placeholder="Review" onChangeText={setReviewMessage} multiline/>
+                </View>
                 <ColoredButton onPress={() => handleEditReview()} style={{ backgroundColor: Colors.green, width: "100%" }} title={"Edit Review"} isLoading={loading} />
             </View>
 
-        </ScrollView>
+        </View>
     )
 }

@@ -28,6 +28,8 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
     const [canOrder, setCanOrder] = useState<boolean | null>(null)
     const [topreviews, setTopReviews] = useState<ReviewResponse[]>([])
 
+    
+
     const getStats = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-seller-stats`, {
@@ -109,7 +111,7 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
         handleGetStats()
         handleGetReviews()
         handleCheck()
-    }
+    }   
 
     useEffect(() => {
         reset()
@@ -375,15 +377,26 @@ export default function SellerDetails({ navigation, route }: SellerDetailProps) 
         }
     }
 
-    useEffect(() => {
+    const refreshSeller = useCallback(() => {
         if (!sellerId) {
-            setEditable(true)
             handleGetSellerByUserId()
         } else {
             handleGetSellerBySellerId()
         }
+    }, [sellerId, user?.userId])
 
+    useEffect(() => {
+        if (!sellerId) {
+            setEditable(true)
+        }
+        refreshSeller()
     }, [sellerId])
+
+    useFocusEffect(
+        useCallback(() => {
+            refreshSeller()
+        }, [refreshSeller])
+    )
 
     return (
         <View style={{ flex: 1 }}>
@@ -425,7 +438,7 @@ const styles = StyleSheet.create({
     stats: {
         padding: 16,
         flexDirection: 'row',
-        height: 75
+
     },
     rating: {
         fontSize: 24,
@@ -433,10 +446,11 @@ const styles = StyleSheet.create({
     },
     leftStats: {
         justifyContent: 'center',
-        width: '25%',
+        width: '30%',
+        paddingRight: 16,
     },
     rightStats: {
-        width: '75%',
+        width: '70%',
         paddingHorizontal: 16,
         borderLeftWidth: 1,
     },

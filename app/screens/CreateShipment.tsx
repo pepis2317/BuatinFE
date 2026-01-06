@@ -14,6 +14,7 @@ import Colors from "../../constants/Colors";
 import ErrorComponent from "../../components/ErrorComponent";
 
 type CreateShipmentProps = NativeStackScreenProps<RootStackParamList, "CreateShipment">
+
 export default function CreateShipment({ navigation, route }: CreateShipmentProps) {
     const { processId } = route.params;
     const { textColor } = useTheme()
@@ -28,6 +29,7 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
     const [weight, setWeight] = useState(0)
     const [length, setLength] = useState(0)
     const [errMessage, setErrMessage] = useState('')
+
     const postRequest = async () => {
         try {
             const response = await axios.post(`${API_URL}/create-shipment`, {
@@ -46,6 +48,7 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handlePost = async () => {
         if (!name || !description || !category || !quantity || !height || !width || !weight || !length) {
             setErrMessage("All forms must be filled")
@@ -62,85 +65,67 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
         }
         setLoading(false)
     }
+
     return (
         <View style={{ flex: 1 }}>
+
             <TopBar title={"Create Shipment"} showBackButton />
-            <ConfirmedModal
-                isFail={false}
-                visible={showCreated}
-                message={"Shipment created"}
-                onPress={() => navigation.goBack()} />
+
+            <ConfirmedModal isFail={false} visible={showCreated} message={"Shipment created"} onPress={() => navigation.goBack()} />
+
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 keyboardVerticalOffset={35}>
+
                 <ScrollView
-                    contentContainerStyle={{ padding: 20, gap: 10 }}
+                    contentContainerStyle={{ padding: 16, gap: 12 }}
                     showsVerticalScrollIndicator={false}>
+                    
                     <View>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Name</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8 }}>Name</Text>
                         <TextInputComponent placeholder="Name" onChangeText={setName} />
                     </View>
+
                     <View>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Description</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8 }}>Description</Text>
                         <TextInputComponent placeholder="Description" multiline style={{height:120}} onChangeText={setDescription} />
                     </View>
+
                     <View>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Category</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8 }}>Category</Text>
                         <TextInputComponent placeholder="Category" onChangeText={setCategory} />
                     </View>
+
                     <View>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Quantity</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8 }}>Quantity</Text>
                         <TextInputComponent placeholder="Quantity" keyboardType="numeric" onChangeText={(input) => setQuantity(Number(input))} />
                     </View>
-                    <View>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Height</Text>
-                        <TextInputComponent placeholder="Height" keyboardType="numeric" onChangeText={(input) => setHeight(Number(input))} />
+                    
+                    <View style={{ flexDirection: 'row', gap: 16}}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8}}>Height</Text>
+                            <TextInputComponent placeholder="Height" keyboardType="numeric" onChangeText={(input) => setHeight(Number(input))} />
+                        </View>
+
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8}}>Width</Text>
+                            <TextInputComponent placeholder="Width" keyboardType="numeric" onChangeText={(input) => setWidth(Number(input))} />
+                        </View>
                     </View>
-                    <View>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Width</Text>
-                        <TextInputComponent placeholder="Width" keyboardType="numeric" onChangeText={(input) => setWidth(Number(input))} />
+
+                    <View style={{ flexDirection: 'row', gap: 16, marginBottom: 4}}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8 }}>Weight</Text>
+                            <TextInputComponent placeholder="Weight" keyboardType="numeric" onChangeText={(input) => setWeight(Number(input))} />
+                        </View>
+
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 8 }}>Length</Text>
+                            <TextInputComponent placeholder="Length" keyboardType="numeric" onChangeText={(input) => setLength(Number(input))} />
+                        </View>
                     </View>
-                    <View>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Weight</Text>
-                        <TextInputComponent placeholder="Weight" keyboardType="numeric" onChangeText={(input) => setWeight(Number(input))} />
-                    </View>
-                    <View>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            marginBottom: 10
-                        }}>Length</Text>
-                        <TextInputComponent placeholder="Length" keyboardType="numeric" onChangeText={(input) => setLength(Number(input))} />
-                    </View>
+                    
                     {errMessage ?
                         <ErrorComponent errorsString={errMessage} />
                         : <></>}

@@ -51,7 +51,9 @@ export default function ReviewUser({ navigation, route }: ReviewUserProps) {
     return (
         <View>
             <TopBar title="Review User" showBackButton />
+
             <ConfirmedModal isFail={false} visible={showCompleted} message={"Review created"} onPress={() => navigation.goBack()} />
+
             <View style={{ alignItems: 'center', padding: 20, gap: 20 }}>
                 <Stars onChange={setRating} />
                 <View style={{ width: "100%" }}>

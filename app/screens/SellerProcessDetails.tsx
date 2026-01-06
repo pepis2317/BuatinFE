@@ -20,6 +20,7 @@ import ConfirmationModal from "../../components/ConfirmationModal";
 import { useFocusEffect } from "@react-navigation/native";
 
 type SellerProcessDetailsProps = NativeStackScreenProps<RootStackParamList, "SellerProcessDetails">;
+
 export default function SellerProcessDetails({ navigation, route }: SellerProcessDetailsProps) {
     const { processId } = route.params
     const [showRequestCreated, setRequestCreated] = useState(false)
@@ -32,6 +33,7 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
     const [process, setProcess] = useState<ProcessResponse>()
     const [latestStep, setLatestStep] = useState<StepResponse>()
     const { theme, borderColor, backgroundColor, textColor, subtleBorderColor } = useTheme()
+
     const fetchRefund = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-refund-by-process-id?processId=${processId}`)
@@ -40,6 +42,7 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const fetchProcess = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-process?processId=${processId}`)
@@ -48,6 +51,7 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const createCompleteRequest = async () => {
         try {
             const response = await axios.post(`${API_URL}/create-complete-request`, {
@@ -58,6 +62,7 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const fetchCompleteRequest = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-complete-request?processId=${processId}`)
@@ -66,12 +71,14 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleGetRefund = async () => {
         const result = await fetchRefund()
         if (!result.error) {
             setRefund(result)
         }
     }
+
     const handleCreateCompleteRequest = async () => {
         if (completeRequest) {
             return
@@ -84,6 +91,7 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
             setCanComplete(false)
         }
     }
+
     const handleFetchProcess = async () => {
 
         const result = await fetchProcess()
@@ -100,11 +108,13 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
         handleFetchProcess()
         handleGetRefund()
     }
+
     useFocusEffect(
         useCallback(() => {
             reset()
         }, [])
     );
+
     useEffect(() => {
         if (!latestStep || latestStep.status == "Completed" || latestStep.status == "Cancelled" || latestStep.status == "Declined") {
             setCanAdd(true)
@@ -117,51 +127,30 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
             setCanComplete(false)
         }
     }, [latestStep, completeRequest, refund])
+
     const renderHeader = () => (
-        <View>
+        <View style={{ padding: 16 }}>
             {process ?
                 <View style={[styles.headerContainer, { borderColor: borderColor }]}>
-                    <View style={{ padding: 20, paddingVertical: 10 }}>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            fontSize: 16,
-                            marginBottom: 10
-                        }}>{process.title}</Text>
-                        <Text style={{
-                            color: textColor,
-                            marginBottom: 10
-                        }}>{process.description}</Text>
+                    <View style={{ padding: 16}}>
+                        <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>{process.title}</Text>
+                        <Text style={{  color: textColor }}>{process.description}</Text>
                     </View>
+
                     {process.status == "Completed" || process.status == "Cancelled" ?
-                        <View style={[
-                            styles.pending,
-                            { backgroundColor: subtleBorderColor }
-                        ]}>
-                            {process.status == "Completed" ? <Text style={{ color: Colors.green, fontWeight: 'bold', textAlign: 'center' }}>Process has been completed</Text> : <Text style={{ color: Colors.peach, fontWeight: 'bold', textAlign: 'center' }}>Process has been cancelled</Text>}
+                        <View style={[ styles.pending, { backgroundColor: subtleBorderColor }]}>
+                            {process.status == "Completed" ? 
+                                <Text style={{ color: Colors.green, fontWeight: 'bold', textAlign: 'center' }}>Process has been completed</Text> : 
+                                <Text style={{ color: Colors.red, fontWeight: 'bold', textAlign: 'center' }}>Process has been cancelled</Text>}
                         </View> :
                         <></>}
                     {completeRequest && completeRequest.status != 'Accepted' ?
-                        <View style={[
-                            styles.pending,
-                            { backgroundColor: subtleBorderColor }
-                        ]}>
-                            <Text style={{
-                                color: 'gray',
-                                fontWeight: 'bold',
-                                textAlign: 'center'
-                            }}>Awaiting buyer to accept completion request</Text>
+                        <View style={[ styles.pending, { backgroundColor: subtleBorderColor }]}>
+                            <Text style={{ color: 'gray', fontWeight: 'bold', textAlign: 'center' }}>Awaiting buyer to accept completion request</Text>
                         </View> : <></>}
                     {refund && refund.status == 'Pending' ?
-                        <View style={[
-                            styles.pending,
-                            { backgroundColor: subtleBorderColor }
-                        ]}>
-                            <Text style={{
-                                color: textColor,
-                                fontWeight: 'bold',
-                                textAlign: 'center'
-                            }}>This process has a pending refund request</Text>
+                        <View style={[ styles.pending, { backgroundColor: subtleBorderColor } ]}>
+                            <Text style={{ color: textColor, fontWeight: 'bold', textAlign: 'center' }}>This process has a pending refund request</Text>
                         </View> : <></>}
                 </View>
                 : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={theme == "dark" ? "white" : "black"} />}
@@ -169,22 +158,27 @@ export default function SellerProcessDetails({ navigation, route }: SellerProces
     )
     return (
         <View style={{ flex: 1 }}>
+
             <TopBar title="Process Details" showBackButton />
+
             <ConfirmedModal isFail={false} visible={showRequestCreated} message={"Completion request has been created"} onPress={() => setRequestCreated(false)} />
             <ConfirmationModal visible={showCompleteModal} message={"Create completion request?"} onAccept={() => handleCreateCompleteRequest()} onCancel={() => setCompleteModal(false)} />
+
             {process?.status != "Completed" && process?.status != "Cancelled" ?
                 <View style={styles.buttonContainer}>
                     {menuPressed ?
                         <View style={[styles.popupMenu, { backgroundColor: backgroundColor, borderColor: borderColor }]}>
+
                             <TouchableOpacity
-                                style={{ borderColor: borderColor, borderBottomWidth: 1, padding: 15 }}
+                                style={{ borderColor: borderColor, borderBottomWidth: 1, padding: 16 }}
                                 disabled={!canAdd}
                                 onPress={() => navigation.navigate('AddStep', { processId: processId, previousStepId: latestStep ? latestStep.stepId : null })}
                             >
                                 <Text style={{ color: textColor, fontWeight: 'bold', opacity: canAdd ? 1 : 0.2 }}>Add Step</Text>
                             </TouchableOpacity>
+
                             <TouchableOpacity
-                                style={{ padding: 15 }}
+                                style={{ padding: 16 }}
                                 disabled={!canComplete}
                                 onPress={() => setCompleteModal(true)}
                             >
@@ -220,8 +214,6 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         borderWidth: 1,
-        margin: 20,
-        marginVertical: 10,
         borderRadius: 10,
         overflow: 'hidden'
     },

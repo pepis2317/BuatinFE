@@ -53,10 +53,11 @@ export default function EditSeller({ navigation, route }:EditSellerProps) {
             <ConfirmedModal
                 isFail={false}
                 visible={showSuccess}
-                onPress={() => {
-                    setShowSuccess(false)
+                onPress={async () => {
+                    setShowSuccess(true);
+                    navigation.goBack();
                 }}
-                message="Seller details is successfully updated!"
+                message="Seller details is updated successfully!"
             />
 
             {!loading && seller ?
@@ -65,9 +66,9 @@ export default function EditSeller({ navigation, route }:EditSellerProps) {
                         seller={seller}
                         navigation={navigation}
                         editing={true}
-                        onEditSuccess ={() => 
+                        onEditSuccess ={() => {
                             setShowSuccess(true)
-                        }
+                        }}
                     />
                 </View>
                 : <></>

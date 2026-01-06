@@ -22,7 +22,7 @@ export default function ProcessComponent({ process, navigation, isSeller}: { pro
         if (process.status == "Completed") {
             setStatusColor(Colors.green)
         } else if (process.status == "Cancelled") {
-            setStatusColor(Colors.peach)
+            setStatusColor(Colors.red)
         }
     }, [process.status])
     return (

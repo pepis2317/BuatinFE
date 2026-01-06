@@ -103,7 +103,7 @@ export type RootStackParamList = {
   }
   EditSeller: undefined
   SellerDetails: {
-    sellerId: string | null
+    sellerId: string | null,
   };
   PostDetails: {
     seller: SellerResponse,
@@ -124,4 +124,5 @@ export type RootStackParamList = {
     orderRequest: OrderRequestResponse,
     respondable: boolean,
   }
+
 };

@@ -52,8 +52,10 @@ export default function SelectLocation({ navigation, route }: SelectLocationProp
             {location ?
                 <View style={{ flex: 1 }}>
                     <View style={{ flex: 1, position: 'relative' }}>
+
+                        {/* Map Pin */}
                         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', zIndex: 10, pointerEvents: 'none' }}>
-                            <MapPin color={Colors.secondary} size={32} />
+                            <MapPin color={Colors.green} size={32} />
                         </View>
 
                         <GoogleMaps.View cameraPosition={{
@@ -67,7 +69,9 @@ export default function SelectLocation({ navigation, route }: SelectLocationProp
                             onCameraMove={(e) => handleSetLocation(e)}
                         />
                     </View>
-                    <ColoredButton title={"Set Location"} style={{ marginBottom: margin ? 60 : 0, marginHorizontal: 20, marginTop: 10, backgroundColor: Colors.primary }} onPress={() => handleSelect()} />
+
+                    {/* Set Location Button */}
+                    <ColoredButton title={"Set Location"} style={{ marginBottom: margin ? 64 : 16, marginTop: 16, marginHorizontal: 16, backgroundColor: Colors.green }} onPress={() => handleSelect()} />
                 </View>
 
                 :
@@ -76,7 +80,6 @@ export default function SelectLocation({ navigation, route }: SelectLocationProp
                 </View>
 
             }
-
 
         </View>
     )

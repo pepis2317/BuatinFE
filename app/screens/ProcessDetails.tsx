@@ -20,6 +20,7 @@ import { Menu } from "lucide-react-native";
 import { RefundResponse } from "../../types/RefundResponse";
 
 type ProcessDetailsProps = NativeStackScreenProps<RootStackParamList, "ProcessDetails">;
+
 export default function ProcessDetails({ navigation, route }: ProcessDetailsProps) {
     const { processId } = route.params
     const { textColor, borderColor, foregroundColor, subtleBorderColor} = useTheme()
@@ -32,7 +33,7 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
     const [showProcessDeclined, setShowProcessDeclined] = useState(false)
     const [menuPressed, setMenuPressed] = useState(false)
     const respondCompletionRef = useRef(false)
-    // const bg = theme == "dark" ? Colors.darkGray : Colors.offWhite
+
     const fetchRefund = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-refund-by-process-id?processId=${processId}`)
@@ -41,6 +42,7 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const fetchProcess = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-process?processId=${processId}`)
@@ -49,6 +51,7 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const fetchCompleteRequest = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-complete-request?processId=${processId}`)
@@ -57,6 +60,7 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const respondCompletion = async (completionResponse: string) => {
         try {
             const response = await axios.put(`${API_URL}/respond-complete-request`, {
@@ -68,14 +72,15 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleGetRefund = async () => {
         const result = await fetchRefund()
         if (!result.error) {
             setRefund(result)
         }
     }
-    const handleFetchProcess = async () => {
 
+    const handleFetchProcess = async () => {
         const result = await fetchProcess()
         if (!result.error) {
             setProcess(result)
@@ -85,6 +90,7 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
             }
         }
     }
+
     const handleAccept = async () => {
         respondCompletionRef.current = true
         const response = await respondCompletion("Accepted")
@@ -95,6 +101,7 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
         }
         respondCompletionRef.current = false
     }
+
     const handleDecline = async () => {
         respondCompletionRef.current = true
         const response = await respondCompletion("Declined")
@@ -104,15 +111,18 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
         }
         respondCompletionRef.current = false
     }
+
     const reset = async () =>{
         handleFetchProcess()
         handleGetRefund()
     }
+
     useFocusEffect(
         useCallback(() => {
             reset()
         }, [])
     );
+
     useEffect(() => {
         if (process && process.status == "In Progress" && !(refund && refund.status == "Pending")) {
             setCanRefund(true)
@@ -120,46 +130,30 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
             setCanRefund(false)
         }
     }, [process, refund])
+
     const renderHeader = () => (
-        <View>
+        <View style={{ padding: 16 }}>
             {process ?
                 <View style={[styles.headerContainer, { borderColor: borderColor }]}>
-                    <View style={{ padding: 20, paddingVertical: 10 }}>
-                        <Text style={{
-                            color: textColor,
-                            fontWeight: 'bold',
-                            fontSize: 16,
-                            marginBottom: 10
-                        }}>{process.title}</Text>
-                        <Text style={{
-                            color: textColor,
-                            marginBottom: 10
-                        }}>{process.description}</Text>
+                    <View style={{ padding: 16 }}>
+                        <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>{process.title}</Text>
+                        <Text style={{ color: textColor }}>{process.description}</Text>
                     </View>
+
                     {process.status == "Completed" || process.status == "Cancelled" ?
                         <View style={[styles.pending, { backgroundColor: subtleBorderColor }]}>
                             {process.status == "Completed" ?
-                                <Text style={{
-                                    color: Colors.green,
-                                    fontWeight: 'bold',
-                                    textAlign: 'center'
-                                }}>Process has been completed</Text> :
-                                <Text style={{
-                                    color: Colors.peach,
-                                    fontWeight: 'bold',
-                                    textAlign: 'center'
-                                }}>Process has been cancelled</Text>}
-                        </View> :
+                                <Text style={{ color: Colors.green, fontWeight: 'bold', textAlign: 'center' }}>Process has been completed</Text> :
+                                <Text style={{ color: Colors.red, fontWeight: 'bold', textAlign: 'center' }}>Process has been cancelled</Text>}
+                        </View>
+                        :
                         <View>
                             {completeRequest && completeRequest.status == 'Pending' ?
-                                <View style={[
-                                    styles.pending,
-                                    { backgroundColor: subtleBorderColor }
-                                ]}>
+                                <View style={[ styles.pending, { backgroundColor: subtleBorderColor }]}>
                                     <Text style={{ color: textColor, textAlign: 'center', marginBottom: 10, fontWeight: 'bold' }}>Seller has made a request to complete this process</Text>
                                     <View style={styles.buttonsContainer}>
-                                        <ColoredButton title={"Accept request"} style={{ backgroundColor: Colors.green, width: '50%' }} onPress={() => handleAccept()} isLoading={respondCompletionRef.current} />
-                                        <ColoredButton title={"Decline request"} style={{ backgroundColor: Colors.peach, width: '50%' }} onPress={() => handleDecline()} isLoading={respondCompletionRef.current} />
+                                        <ColoredButton title={"Decline"} style={{ backgroundColor: Colors.red, flex: 1}} onPress={() => handleDecline()} isLoading={respondCompletionRef.current} />
+                                        <ColoredButton title={"Accept"} style={{ backgroundColor: Colors.green, flex: 1}} onPress={() => handleAccept()} isLoading={respondCompletionRef.current} />
                                     </View>
                                 </View>
                                 : <></>}
@@ -176,15 +170,18 @@ export default function ProcessDetails({ navigation, route }: ProcessDetailsProp
     )
     return (
         <View style={{ flex: 1 }}>
+
             <TopBar title="Process Details" showBackButton />
+
             <ConfirmedModal isFail={false} onPress={() => setShowProcessCompleted(false)} visible={showProcessCompleted} message={"Process has been completed"} />
             <ConfirmedModal isFail={false} onPress={() => setShowProcessDeclined(false)} visible={showProcessDeclined} message={"Process completion has been declined"} />
+
             {process?.status != "Completed" && process?.status != "Cancelled" ?
                 <View style={styles.buttonContainer}>
                     {menuPressed ?
                         <View style={[styles.popupMenu, { backgroundColor: foregroundColor, borderColor: borderColor }]}>
                             <TouchableOpacity
-                                style={{ padding: 15 }}
+                                style={{ padding: 16 }}
                                 disabled={!canRefund}
                                 onPress={() => navigation.navigate('CreateRefundRequest', { processId: processId })}
                             >
@@ -219,8 +216,6 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         borderWidth: 1,
-        margin: 20,
-        marginVertical: 10,
         borderRadius: 10,
         overflow: 'hidden'
     },
@@ -234,11 +229,10 @@ const styles = StyleSheet.create({
     },
     buttonsContainer: {
         flexDirection: 'row',
-        gap: 10,
+        gap: 16,
         justifyContent: 'center'
     },
     pending: {
-        padding: 20,
-        paddingVertical: 10
+        padding: 16,
     }
 })

@@ -29,6 +29,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
     const heartOpacity = useSharedValue(0);
     const heartScale = useSharedValue(0.5);
     dayjs.extend(relativeTime)
+
     var fetchImages = async () => {
         try {
             const res = await axios.get(`${API_URL}/get-images?ContentId=${post.postId}`)
@@ -37,6 +38,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
+
     var likePost = async () => {
         try {
             const token = await onGetUserToken!()
@@ -52,6 +54,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
+    
     var unlikePost = async () => {
         try {
             const token = await onGetUserToken!()
@@ -68,6 +71,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
             return { error: true, msg: e?.response?.data?.detail || "An error occurred" };
         }
     }
+
     var likeHandler = async () => {
         if (!liked) {
             triggerAnimation()
@@ -84,6 +88,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
             }
         }
     }
+
     useEffect(() => {
         const loadImages = async () => {
             var images = await fetchImages()
@@ -93,12 +98,14 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
         }
         loadImages()
     }, [])
+    
     const animatedStyle = useAnimatedStyle(() => {
         return {
             opacity: heartOpacity.value,
             transform: [{ scale: heartScale.value }],
         };
     });
+
     const triggerAnimation = () => {
         heartOpacity.value = withSequence(
             withTiming(1, { duration: 200 }),
@@ -113,6 +120,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
 
     return (
         <View style={styles.postContainer}>
+
             <View style={styles.authorContainer}>
                 <View style={{flexDirection:'row', alignItems:'center', gap:10}}>
                     <Image style={[styles.authorImage, { backgroundColor: subtleBorderColor }]} src={seller.sellerPicture}></Image>
@@ -125,6 +133,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
                     </TouchableOpacity>
                     : <></>}
             </View>
+
             <View style={styles.carouselContainer}>
                 <PagerView style={[styles.carousel, { backgroundColor: subtleBorderColor }]} onPageSelected={(e) => setSlideIndex(e.nativeEvent.position)}>
                     {images.map((image, index) => (
@@ -139,6 +148,7 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
                     <Heart size={100} color="white" fill={"white"} />
                 </Animated.View>
             </View>
+
             <View style={{ gap: 10, padding: 10, paddingHorizontal:20 }}>
                 <View style={styles.reactionContainer}>
                     <TouchableOpacity style={styles.reaction} onPress={() => likeHandler()}>
@@ -150,16 +160,11 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
                         <Text style={[styles.text, { color: textColor }]}>{post.comments}</Text>
                     </TouchableOpacity>
                 </View>
+                
+                {/* Name, Caption */}
                 <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                    <Text style={[{ fontWeight: "bold", color: textColor }]}>
-                        {seller.sellerName}{" "}
-                    </Text>
-                    <Text
-                        style={{ color: textColor, flexShrink: 1 }}
-                        numberOfLines={expanded ? undefined : 2}
-                    >
-                        {post.caption}
-                    </Text>
+                    <Text style={[{ fontWeight: "bold", color: textColor }]}>{seller.sellerName}{" "}</Text>
+                    <Text style={{ color: textColor, flexShrink: 1 }} numberOfLines={expanded ? undefined : 2}>{post.caption}</Text>
                     {post.caption.length > 50 && (
                         <TouchableOpacity onPress={() => setExpanded(!expanded)}>
                             <Text style={{ color: "gray" }}>
@@ -168,6 +173,8 @@ export default function PostDetail({ post, seller, onCommentPressed, navigation 
                         </TouchableOpacity>
                     )}
                 </View>
+                
+                {/* Date */}
                 <Text style={{ color: "gray" }}>{post.updatedAt ? "(Edited) " + new Date(post.updatedAt).toDateString() : new Date(post.createdAt).toDateString()}</Text>
             </View>
         </View>

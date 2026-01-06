@@ -12,9 +12,11 @@ export default function ConversationComponent({ navigation, conversation }: { na
             <View style={styles.left}>
                 <PfpComponent width={50} pfp={conversation.picture} userId={""} navigation={undefined}/>
                 <View style={styles.leftContent}>
-                    <Text style={{ color: textColor, fontWeight: "bold" }}>
-                        {conversation.name} {conversation.sellerName?`(Owner of ${conversation.sellerName})`:""}
-                    </Text>
+                    <View style={styles.nameRow}>
+                        <Text style={{ color: textColor, fontWeight: "bold" }}>{conversation.name}</Text>
+                        <Text style={{ color: textColor, fontStyle: "italic" }}>{conversation.sellerName?`(${conversation.sellerName})`:""}</Text>
+                    </View>
+
                     <Text numberOfLines={1} style={{ color: 'gray' }}>
                         {conversation.latestMessage}
                     </Text>

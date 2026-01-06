@@ -14,6 +14,7 @@ export default function StepsList({ processId, navigation, editable, renderHeade
     const [total, setTotal] = useState(0)
     const [refresh, setRefresh] = useState(false)
     const [refreshTick, setRefreshTick] = useState(0);
+
     const fetchSteps = async (pageNumber: number) => {
         try {
             const response = await axios.get(`${API_URL}/get-steps?processId=${processId}&pageSize=3&pageNumber=${pageNumber}`)
@@ -22,6 +23,7 @@ export default function StepsList({ processId, navigation, editable, renderHeade
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
     const handleFetch = async (page = pageRef.current, replace: boolean) => {
         if (loadingRef.current) return;
         loadingRef.current = true;
@@ -42,6 +44,7 @@ export default function StepsList({ processId, navigation, editable, renderHeade
         }
         loadingRef.current = false;
     };
+
     const handleRefresh = useCallback(async () => {
         reset()
     }, [handleFetch])
@@ -53,16 +56,19 @@ export default function StepsList({ processId, navigation, editable, renderHeade
             await handleFetch(pageRef.current, false);
         }
     };
+
     const reset = async () => {
         pageRef.current = 1
         setRefreshTick(0)
         await handleFetch(1, true)
     }
+
     useFocusEffect(
         useCallback(() => {
             reset()
         }, [])
     );
+    
     return (
         <FlatList
             ListHeaderComponent={renderHeader}

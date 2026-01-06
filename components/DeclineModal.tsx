@@ -5,12 +5,14 @@ import Colors from "../constants/Colors";
 import { useTheme } from "../app/context/ThemeContext";
 import { useState } from "react";
 import ErrorComponent from "./ErrorComponent";
+import { BlurView } from "expo-blur";
 
 export default function DeclineModal({ onDecline, showModal, onClose }: { onDecline: (reason:string) => void, showModal: boolean, onClose: () => void }) {
     const { textColor, subtleBorderColor } = useTheme()
     const [reason, setReason] = useState('')
     const [loading, setLoading] = useState(false)
     const [errMessage, setErrMessage] = useState('')
+
     const handleDecline = ()=>{
         if(!reason){
             setErrMessage("Please provide reason")
@@ -19,6 +21,7 @@ export default function DeclineModal({ onDecline, showModal, onClose }: { onDecl
         setLoading(true)
         onDecline(reason)
     }
+
     return (
         <Modal
             visible={showModal}
@@ -26,34 +29,35 @@ export default function DeclineModal({ onDecline, showModal, onClose }: { onDecl
             transparent={true}
             statusBarTranslucent={true}
             onRequestClose={onClose}
+            presentationStyle="overFullScreen"
         >
-            <View style={[styles.modalStyle, { backgroundColor: subtleBorderColor }]}>
-                <Text style={{ color: textColor, marginBottom: 10, fontWeight:'bold' }}>Please provide decline reason</Text>
-                <TextInputComponent onChangeText={setReason} multiline style={{height:120}} placeholder="Reason"/>
-                {errMessage!=""?<ErrorComponent errorsString={errMessage}/>:<></>}
-                <View style={{ flexDirection: 'row', gap: 0, width: "100%", justifyContent: 'space-between', marginTop:10}}>
-                    <ColoredButton title={"Cancel"} style={{ backgroundColor: Colors.green, width: '48%' }} onPress={onClose} disabled={loading} />
-                    <ColoredButton title={"Decline"} style={{ backgroundColor: Colors.peach, width: '48%' }} onPress={()=>handleDecline()} isLoading={loading}/>
+            <BlurView intensity={50} tint="dark" style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+
+                <View style={[styles.modalStyle, { backgroundColor: subtleBorderColor }]}>
+
+                    <Text style={{ color: textColor, marginBottom: 16, fontWeight:'bold' }}>Please provide decline reason</Text>
+
+                    <TextInputComponent onChangeText={setReason} multiline style={{height:120}} placeholder="Reason"/>
+
+                    {errMessage!=""?<ErrorComponent errorsString={errMessage}/>:<></>}
+                    <View style={{ flexDirection: 'row', gap: 16, width: "100%", justifyContent: 'space-between', marginTop:16}}>
+                        <ColoredButton title={"Cancel"} style={{ backgroundColor: Colors.green, flex: 1 }} onPress={onClose} disabled={loading} />
+                        <ColoredButton title={"Decline"} style={{ backgroundColor: Colors.red, flex: 1}} onPress={()=>handleDecline()} isLoading={loading}/>
+                    </View>
+
                 </View>
-            </View>
+
+            </BlurView>
         </Modal>
     )
 }
 
 const styles = StyleSheet.create({
     modalStyle: {
-        position: 'absolute',
-        justifyContent: 'flex-start',
-        
+        justifyContent: 'center',
+        alignItems: 'center',
         borderRadius: 10,
-
         width: '80%',
-        left: '50%',
-        top: '50%',
-        padding:20,
-        transform: [
-            { translateX: -0.4 * Dimensions.get('window').width },   // half of 80%
-            { translateY: -0.25 * Dimensions.get('window').height }  // half of 50%
-        ]
+        padding: 24,
     }
 })

@@ -291,7 +291,7 @@ export default function Profile() {
                                 : <></>}
 
                             <View style={{ flexDirection: 'row', gap: 16, justifyContent: 'space-between' }}>
-                                < ColoredButton style={[{ backgroundColor: Colors.red }, styles.button]} title={"Log Out"} onPress={() => handleLogOut()} isLoading={loading} />
+                                <ColoredButton style={[{ backgroundColor: Colors.red }, styles.button]} title={"Log Out"} onPress={() => handleLogOut()} isLoading={loading} />
                                 <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Save"} onPress={() => handleUpload()} isLoading={loading} />
                             </View>
                         </View>
@@ -306,7 +306,6 @@ const styles = StyleSheet.create({
     button: {
         height: 45,
         flex: 1,
-        padding: 12,
     },
     pencil: {
         backgroundColor: '#31363F',

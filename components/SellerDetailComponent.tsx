@@ -235,6 +235,7 @@ const styles = StyleSheet.create({
 
     pictureContainer: {
         position: 'relative',
+        width: 72,
     },
     picture: {
         width: 72,

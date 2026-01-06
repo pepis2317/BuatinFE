@@ -12,6 +12,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuth } from "../context/AuthContext";
 
 type PostDetailProps = NativeStackScreenProps<RootStackParamList, "PostDetails">;
+
 export default function PostDetails({ navigation, route }: PostDetailProps) {
     const { textColor } = useTheme()
     const { onGetUserToken } = useAuth()
@@ -25,6 +26,7 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
     });
     const listRef = useRef<FlatList<PostResponse>>(null);
     const ITEM_HEIGHT = 600;
+
     const fetchPosts = async (lastPostId: string, lastCreatedAt: string) => {
         try {
             const token = await onGetUserToken!()
@@ -65,9 +67,12 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
             handleFetch(cursor.lastId, cursor.lastCreatedAt);
         }
     }, [loadingOlder, hasMore, cursor, handleFetch]);
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
+
             <TopBar title="Posts" showBackButton />
+
             <FlatList
                 ref={listRef}
                 data={loadedPosts}
@@ -108,6 +113,7 @@ export default function PostDetails({ navigation, route }: PostDetailProps) {
         </GestureHandlerRootView>
     );
 }
+
 const styles = StyleSheet.create({
     backgroundStyle: {
         borderTopLeftRadius: 10,

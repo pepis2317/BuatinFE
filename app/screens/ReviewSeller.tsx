@@ -52,8 +52,11 @@ export default function ReviewSeller({ navigation, route }: ReviewSellerProps) {
     
     return (
         <View>
+
             <TopBar title="Review Seller" showBackButton />
+
             <ConfirmedModal isFail={false} visible={showCompleted} message={"Review created"} onPress={() => navigation.goBack()} />
+                
             <View style={{ alignItems: 'center', padding: 20, gap: 20 }}>
                 <Stars onChange={setRating} />
                 <View style={{width:"100%"}}>

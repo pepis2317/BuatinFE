@@ -79,7 +79,7 @@ export default function EditPost({ navigation, route }: EditProps) {
                     }}
                 />
                 <ColoredButton onPress={() => handleEditPost()} style={{ backgroundColor: Colors.green, width: "100%", marginTop: 20 }} title={"Edit Post"} isLoading={loading} />
-                <ColoredButton onPress={() => handleDeletePost()} style={{ backgroundColor: Colors.peach, width: "100%", marginTop: 20 }} title={"Delete Post"} isLoading={loading} />
+                <ColoredButton onPress={() => handleDeletePost()} style={{ backgroundColor: Colors.red, width: "100%", marginTop: 20 }} title={"Delete Post"} isLoading={loading} />
             </ScrollView>
         </View>
     )

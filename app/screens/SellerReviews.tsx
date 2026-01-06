@@ -51,17 +51,21 @@ export default function SellerReviews({ navigation, route }: SellerReviewsProps)
 
     return (
         <View style={{ flex: 1}}>
+
             <TopBar title={"All Reviews"} showBackButton />
+
             {loading ? <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} /> :
-                <View style={{ paddingHorizontal: 24, paddingVertical: 12 }}>
+                <View style={{ padding: 16 }}>
                     {canReview ?
                         <ColoredButton title={"Create Seller Review"} onPress={() => navigation.navigate('ReviewSeller', { sellerId: sellerId })} style={{backgroundColor: Colors.green}} />
                         : <></>}
                 </View>
             }
-            <View style={{ paddingHorizontal: 16 }}>
+
+            <View style={{ paddingHorizontal: 16}}>
                 <SellerReviewsList sellerId={sellerId} navigation={navigation} />
             </View>
         </View>
+
     )
 }

@@ -60,7 +60,6 @@ export default function Deposit({ navigation, route }: DepositProps) {
 
         if (!idempotencyKey) {
             idempotencyKey = Crypto.randomUUID()
-            console.log(idempotencyKey)
             await SecureStore.setItemAsync("deposit-key", idempotencyKey)
         }
 

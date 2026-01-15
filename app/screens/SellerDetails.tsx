@@ -20,19 +20,74 @@ import { ReviewResponse } from "../../types/ReviewResponse";
 import { ReviewComponentShort } from "../../components/ReviewComponent";
 import { useFocusEffect } from "@react-navigation/native";
 
-const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse, navigation: any, editable: boolean }) => {
+const DetailsRoute = ({ sellerId, navigation }: { sellerId: string|null, navigation: any }) => {
     const { onGetUserToken } = useAuth()
+    const { user } = useAuth()
     const { textColor, foregroundColor } = useTheme()
     const [stats, setStats] = useState<SellerStats>()
     const [refreshing, setRefreshing] = useState(false)
+    const [editable, setEditable] = useState(false)
     const [canOrder, setCanOrder] = useState<boolean | null>(null)
     const [topreviews, setTopReviews] = useState<ReviewResponse[]>([])
+    const [seller, setSeller] = useState<SellerResponse>()
 
+    const getSellerByOwnerId = async (userId: string) => {
+        try {
+            const result = await axios.get(`${API_URL}/get-seller-by-owner-id`, {
+                params: {
+                    ownerId: userId
+                }
+            })
+            return result.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+
+    const getSellerById = async () => {
+        try {
+            const result = await axios.get(`${API_URL}/get-seller`, {
+                params: {
+                    sellerId: sellerId
+                }
+            })
+            return result.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+
+    const handleGetSellerBySellerId = async () => {
+        const result = await getSellerById()
+        if (!result.error) {
+            setSeller(result)
+        }
+    }
+
+    const handleGetSellerByUserId = async () => {
+        if (user?.userId) {
+            const result = await getSellerByOwnerId(user.userId)
+            if (!result.error) {
+                setSeller(result)
+            }
+        }
+    }
+    const handleGetSeller = () => {
+        if (!sellerId) {
+            setEditable(true)
+            handleGetSellerByUserId()
+        } else {
+            handleGetSellerBySellerId()
+        }
+    }
+    useEffect(() => {
+        handleGetSeller()
+    }, [])
     const getStats = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-seller-stats`, {
                 params: {
-                    sellerId: seller.sellerId
+                    sellerId: sellerId
                 }
             });
             return response.data;
@@ -50,7 +105,7 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
                     Authorization: `Bearer ${token}`
                 },
                 params: {
-                    sellerId: seller.sellerId
+                    sellerId: sellerId
                 }
             })
             return response.data
@@ -62,7 +117,7 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
     const getTopReviews = async () => {
         try {
             const token = await onGetUserToken!()
-            var url = `${API_URL}/get-seller-reviews?pageSize=5&pageNumber=1&sellerId=${seller.sellerId}`
+            var url = `${API_URL}/get-seller-reviews?pageSize=5&pageNumber=1&sellerId=${sellerId}`
             const response = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -100,8 +155,8 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
         setStats(undefined)
         setTopReviews([])
         setCanOrder(null)
+        setSeller(undefined)
         setRefreshing(false);
-
         reset()
     }, []);
 
@@ -109,6 +164,7 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
         handleGetStats()
         handleGetReviews()
         handleCheck()
+        handleGetSeller()
     }
 
     useEffect(() => {
@@ -117,11 +173,14 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
 
     return (
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-            
             {/* Banner & Picture */}
-            <SellerDetailComponent seller={seller} navigation={navigation} editing={false} />
+            {seller ?
+                <SellerDetailComponent seller={seller} navigation={navigation} editing={false} />
+                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 10 }} color={textColor} />
+            }
 
-            <View style={{ paddingHorizontal: 16, gap: 12}}>
+
+            <View style={{ paddingHorizontal: 16, gap: 12 }}>
 
                 {/* Left & Right Stats */}
                 {stats ?
@@ -148,39 +207,39 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
                                 color: textColor, fontStyle: 'italic', fontSize: 12
                             }}>{(stats.completionRate * 100).toFixed(1)}% Completion Rate</Text>
                         </View>
-                        
+
                     </View>
                     : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 10 }} color={textColor} />
                 }
 
                 {/* Review */}
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: textColor, fontWeight: 'bold' }}>Latest Reviews</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('SellerReviews', { sellerId: seller.sellerId })}>
+                    <TouchableOpacity onPress={() => navigation.navigate('SellerReviews', { sellerId: sellerId })}>
                         <Text style={{ color: textColor, textDecorationLine: 'underline' }} >View All</Text>
                     </TouchableOpacity>
                 </View>
 
                 {topreviews ?
-                    topreviews.length > 0?
-                    <View style={{ height: 180 }}>
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                            {topreviews.map((review, index) => (
-                                <ReviewComponentShort key={index} review={review} navigation={navigation} isEnd={index == topreviews.length} />
-                            ))}
-                        </ScrollView>
-                    </View>
+                    topreviews.length > 0 ?
+                        <View style={{ height: 180 }}>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                {topreviews.map((review, index) => (
+                                    <ReviewComponentShort key={index} review={review} navigation={navigation} isEnd={index == topreviews.length} />
+                                ))}
+                            </ScrollView>
+                        </View>
 
-                    :<View style={{backgroundColor: foregroundColor, padding:16, borderRadius: 10 }}>
-                        <Text style={{color:textColor}}>No Reviews Yet</Text>
-                    </View>
+                        : <View style={{ backgroundColor: foregroundColor, padding: 16, borderRadius: 10 }}>
+                            <Text style={{ color: textColor }}>No Reviews Yet</Text>
+                        </View>
                     : <ActivityIndicator size="small" style={{ height: 64, margin: 10, borderRadius: 8 }} color={textColor} />
                 }
             </View>
 
-            <View style={{ padding: 16}}>
+            <View style={{ padding: 16 }}>
                 {editable ?
-                    <View style={{gap:10}}>
+                    <View style={{ gap: 10 }}>
                         <ColoredButton title={"Edit Seller"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('EditSeller')} />
                         <ColoredButton title={"Create Post"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate("CreatePost")} />
                     </View>
@@ -190,7 +249,7 @@ const DetailsRoute = ({ seller, navigation, editable }: { seller: SellerResponse
                         :
                         <View>
                             {canOrder ?
-                                <ColoredButton title={"Create Order Request"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('OrderRequest', { sellerId: seller.sellerId })} /> :
+                                <ColoredButton title={"Create Order Request"} style={{ backgroundColor: Colors.green }} onPress={() => navigation.navigate('OrderRequest', { sellerId: sellerId })} /> :
                                 <Text style={{ textAlign: 'center', color: textColor, fontWeight: 'bold' }}>Currently unable to make order request</Text>}
 
                         </View>
@@ -206,19 +265,72 @@ type Cursor = {
     lastCreatedAt: string | null
 }
 
-const PostsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation: any }) => {
+const PostsRoute = ({ sellerId, navigation }: { sellerId: string|null, navigation: any }) => {
+    const { user } = useAuth()
     const { onGetUserToken } = useAuth()
     const [posts, setPosts] = useState<PostResponse[]>([])
+    const [seller, setSeller] = useState<SellerResponse>()
     const [cursor, setCursor] = useState<Cursor>({ lastId: null, lastCreatedAt: null, });
     const [hasMore, setHasMore] = useState(false)
     const [loading, setLoading] = useState(false)
     const [refresh, setRefresh] = useState(false)
     const { theme } = useTheme()
 
-    const handleFetch = useCallback(async (lastId: string | null, lastCreatedAt: string | null) => {
+    const getSellerByOwnerId = async (userId: string) => {
+        try {
+            const result = await axios.get(`${API_URL}/get-seller-by-owner-id`, {
+                params: {
+                    ownerId: userId
+                }
+            })
+            return result.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+
+    const getSellerById = async () => {
+        try {
+            const result = await axios.get(`${API_URL}/get-seller`, {
+                params: {
+                    sellerId: sellerId
+                }
+            })
+            return result.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+
+    const handleGetSellerBySellerId = async () => {
+        const result = await getSellerById()
+        if (!result.error) {
+            setSeller(result)
+        }
+    }
+
+    const handleGetSellerByUserId = async () => {
+        if (user?.userId) {
+            const result = await getSellerByOwnerId(user.userId)
+            if (!result.error) {
+                setSeller(result)
+            }
+        }
+    }
+    const handleGetSeller = () => {
+        if (!sellerId) {
+            handleGetSellerByUserId()
+        } else {
+            handleGetSellerBySellerId()
+        }
+    }
+    useEffect(() => {
+        handleGetSeller()
+    }, [])
+    const handleFetch = useCallback(async (ownerId: string, lastId: string | null, lastCreatedAt: string | null) => {
         if (loading) return;
         setLoading(true);
-        const result = await fetchPosts(lastId, lastCreatedAt);
+        const result = await fetchPosts(ownerId, lastId, lastCreatedAt);
         if (result.error) {
             alert(result.msg)
         } else {
@@ -235,29 +347,33 @@ const PostsRoute = ({ seller, navigation }: { seller: SellerResponse, navigation
         setLoading(false);
         setRefresh(false);
     }, [loading]);
-    
+
     useEffect(() => {
-        handleFetch(null, null);
-    }, []);
+        if (seller) {
+            handleFetch(seller.owner.userId, null, null);
+        }
+    }, [seller]);
 
     const loadMore = useCallback(() => {
-        if (!loading && hasMore) handleFetch(cursor.lastId, cursor.lastCreatedAt);
-    }, [loading, hasMore, cursor, handleFetch]);
+        if (!loading && hasMore && seller) handleFetch(seller.owner.userId, cursor.lastId, cursor.lastCreatedAt);
+    }, [seller, loading, hasMore, cursor, handleFetch]);
 
     const onRefresh = useCallback(() => {
         reset()
     }, [handleFetch]);
 
-    const reset = async ()=>{
-        setRefresh(true);
-        setPosts([]);
-        await handleFetch(null, null);
+    const reset = async () => {
+        if (seller) {
+            setRefresh(true);
+            setPosts([]);
+            await handleFetch(seller.owner.userId, null, null);
+        }
     }
 
-    const fetchPosts = async (lastPostId: string | null, lastCreatedAt: string | null) => {
+    const fetchPosts = async (ownerId: string, lastPostId: string | null, lastCreatedAt: string | null) => {
         try {
             const token = await onGetUserToken!()
-            let queryString = `/get-posts?AuthorId=${seller.owner.userId}&pageSize=3`;
+            let queryString = `/get-posts?AuthorId=${ownerId}&pageSize=3`;
             if (lastPostId != null && lastCreatedAt != null) {
                 queryString = queryString + `&LastPostId=${lastPostId}&LastCreatedAt=${encodeURIComponent(lastCreatedAt)}`
             }
@@ -319,104 +435,44 @@ const routes = [
 type SellerDetailProps = NativeStackScreenProps<RootStackParamList, "SellerDetails">;
 
 export default function SellerDetails({ navigation, route }: SellerDetailProps) {
-    const { user } = useAuth()
     const { sellerId } = route.params
-    const [seller, setSeller] = useState<SellerResponse>()
-    const [editable, setEditable] = useState(false)
     const [loading, setLoading] = useState(false)
     const layout = useWindowDimensions()
     const [index, setIndex] = useState(0)
     const { theme, backgroundColor, textColor } = useTheme()
     const unselectedColor = theme == "dark" ? Colors.offWhite : Colors.darkGray
 
-    const getSellerByOwnerId = async (userId: string) => {
-        try {
-            const result = await axios.get(`${API_URL}/get-seller-by-owner-id`, {
-                params: {
-                    ownerId: userId
-                }
-            })
-            return result.data
-        } catch (e) {
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
-        }
-    }
-
-    const getSellerById = async () => {
-        try {
-            const result = await axios.get(`${API_URL}/get-seller`, {
-                params: {
-                    sellerId: sellerId
-                }
-            })
-            return result.data
-        } catch (e) {
-            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
-        }
-    }
-
-    const handleGetSellerBySellerId = async () => {
-        setLoading(true)
-        const result = await getSellerById()
-        if (!result.error) {
-            setSeller(result)
-        }
-        setLoading(false)
-    }
-
-    const handleGetSellerByUserId = async () => {
-        if (user?.userId) {
-            setLoading(true)
-            const result = await getSellerByOwnerId(user.userId)
-            if (!result.error) {
-                setSeller(result)
-            }
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        if (!sellerId) {
-            setEditable(true)
-            handleGetSellerByUserId()
-        } else {
-            handleGetSellerBySellerId()
-        }
-
-    }, [sellerId])
 
     return (
         <View style={{ flex: 1 }}>
             <TopBar title={"Seller Details"} showBackButton />
 
-            {seller ?
-                <TabView
-                    style={{ flex: 1 }}
-                    navigationState={{ index, routes }}
-                    renderScene={({ route }) => {
-                        switch (route.key) {
-                            case 'Details':
-                                return <DetailsRoute navigation={navigation} seller={seller} editable={editable} />;
-                            case 'Posts':
-                                return <PostsRoute navigation={navigation} seller={seller} />;
-                            default:
-                                return null;
-                        }
-                    }}
-                    onIndexChange={setIndex}
-                    initialLayout={{ width: layout.width }}
-                    renderTabBar={(props) => (
-                        <TabBar
-                            {...props}
-                            activeColor={textColor}
-                            inactiveColor={unselectedColor}
-                            scrollEnabled={false}
-                            indicatorStyle={{ backgroundColor: Colors.primary }}
-                            style={{ backgroundColor: backgroundColor }}
-                        />
-                    )}
-                />
-                : <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 6 }} color={textColor} />}
+            <TabView
+                style={{ flex: 1 }}
+                navigationState={{ index, routes }}
+                renderScene={({ route }) => {
+                    switch (route.key) {
+                        case 'Details':
+                            return <DetailsRoute sellerId={sellerId} navigation={navigation} />;
+                        case 'Posts':
+                            return <PostsRoute navigation={navigation} sellerId={sellerId} />;
+                        default:
+                            return null;
+                    }
+                }}
+                onIndexChange={setIndex}
+                initialLayout={{ width: layout.width }}
+                renderTabBar={(props) => (
+                    <TabBar
+                        {...props}
+                        activeColor={textColor}
+                        inactiveColor={unselectedColor}
+                        scrollEnabled={false}
+                        indicatorStyle={{ backgroundColor: Colors.primary }}
+                        style={{ backgroundColor: backgroundColor }}
+                    />
+                )}
+            />
         </View>
     );
 }

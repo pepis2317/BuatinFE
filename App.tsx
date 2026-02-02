@@ -9,98 +9,103 @@ import { SellerTabs, UserTabs } from './components/BottomTabNavigator';
 import { RootStackParamList } from './constants/RootStackParams';
 import Register from './app/screens/Register';
 import { useEffect } from 'react';
-import * as SystemUI from 'expo-system-ui';
 import * as NavigationBar from 'expo-navigation-bar';
+import * as ScreenCapture from 'expo-screen-capture'
 import { SignalRProvider } from './app/context/SignalRContext';
 import SelectLocation from './app/screens/SelectLocation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>()
 function SignalRWithAuth() {
-  const { onGetUserToken } = useAuth();
+    const { onGetUserToken } = useAuth();
 
-  return (
-    <SignalRProvider
-      getUserToken={onGetUserToken!}
-      onReconnected={async (conn) => {
-        // Example: tell server to rejoin user’s conversation groups
-        // await conn.invoke("JoinAllMyConversations");
-      }}
-    >
-      <ThemeProvider>
-        <Layout />
-      </ThemeProvider>
-    </SignalRProvider>
-  );
+    return (
+        <SignalRProvider
+            getUserToken={onGetUserToken!}
+            onReconnected={async (conn) => {
+                // Example: tell server to rejoin user’s conversation groups
+                // await conn.invoke("JoinAllMyConversations");
+            }}
+        >
+            <ThemeProvider>
+                <Layout />
+            </ThemeProvider>
+        </SignalRProvider>
+    );
 }
 export default function App() {
-  return (
-    <AuthProvider>
-      <SignalRWithAuth />
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <SignalRWithAuth />
+        </AuthProvider>
+    );
 }
 export function Layout() {
-  const { authState, user } = useAuth()
-  const { theme, toggleTheme } = useTheme()
-  const scheme = useColorScheme();
+    const { authState, user } = useAuth()
+    const { theme, toggleTheme } = useTheme()
+    const scheme = useColorScheme();
 
-  const customDarkTheme = {
-    ...DarkTheme,
-    colors: {
-      ...DarkTheme.colors,
-      background: '#222831',
-      text: '#ffffff',
-    },
+    const customDarkTheme = {
+        ...DarkTheme,
+        colors: {
+            ...DarkTheme.colors,
+            background: '#222831',
+            text: '#ffffff',
+        },
 
-  };
-  const customLightTheme = {
-    ...DefaultTheme,
-    colors: {
-      ...DefaultTheme.colors,
-      background: 'white',
-    },
-  }
-  useEffect(() => {
-    const rootBg = theme === 'dark' ? '#121212' : '#ffffff';
-    if (Platform.OS === 'android') {
-      const buttons = theme === 'dark' ? 'light' : 'dark';
-      NavigationBar.setBackgroundColorAsync(rootBg);
-      NavigationBar.setButtonStyleAsync(buttons);
+    };
+    const customLightTheme = {
+        ...DefaultTheme,
+        colors: {
+            ...DefaultTheme.colors,
+            background: 'white',
+        },
     }
-  }, [theme]);
-  const navigationTheme = theme === "dark" ? customDarkTheme : customLightTheme;
-  return (
-    <View style={{flex:1}}>
-      <NavigationContainer theme={navigationTheme}>
-        <View style={{ height: 32, backgroundColor: navigationTheme.colors.background }} />
-        <StatusBar style={theme == "dark" ? "light" : "dark"} />
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: { backgroundColor: navigationTheme.colors.card },
-            headerTintColor: navigationTheme.colors.text,
-            contentStyle: { backgroundColor: navigationTheme.colors.background },
-            animation: 'none'
-          }}
-        >
-          {authState?.authenticated && user ? (
+    useEffect(() => {
+        if (__DEV__) {
+            ScreenCapture.allowScreenCaptureAsync();
+        }
+    }, []);
+    useEffect(() => {
+        const rootBg = theme === 'dark' ? '#121212' : '#ffffff';
+        if (Platform.OS === 'android') {
+            const buttons = theme === 'dark' ? 'light' : 'dark';
+            NavigationBar.setBackgroundColorAsync(rootBg);
+            NavigationBar.setButtonStyleAsync(buttons);
+        }
+    }, [theme]);
+    const navigationTheme = theme === "dark" ? customDarkTheme : customLightTheme;
+    return (
+        <View style={{ flex: 1 }}>
+            <NavigationContainer theme={navigationTheme}>
+                <View style={{ height: 32, backgroundColor: navigationTheme.colors.background }} />
+                <StatusBar style={theme == "dark" ? "light" : "dark"} />
+                <Stack.Navigator
+                    screenOptions={{
+                        headerStyle: { backgroundColor: navigationTheme.colors.card },
+                        headerTintColor: navigationTheme.colors.text,
+                        contentStyle: { backgroundColor: navigationTheme.colors.background },
+                        animation: 'none'
+                    }}
+                >
+                    {authState?.authenticated && user ? (
 
-            user.role === "User" ? (
-              <Stack.Screen name="UserTabs" component={UserTabs} options={{ headerShown: false }} />
-            ) : (
-              <Stack.Screen name="SellerTabs" component={SellerTabs} options={{ headerShown: false }} />
-            )
+                        user.role === "User" ? (
+                            <Stack.Screen name="UserTabs" component={UserTabs} options={{ headerShown: false }} />
+                        ) : (
+                            <Stack.Screen name="SellerTabs" component={SellerTabs} options={{ headerShown: false }} />
+                        )
 
-          ) : (
-            <>
-              <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-              <Stack.Screen name="Register" component={Register} options={{ headerShown: false }} />
-              <Stack.Screen name ="SelectLocation" component={SelectLocation} options={{ headerShown: false }} />
-            </>
+                    ) : (
+                        <>
+                            <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+                            <Stack.Screen name="Register" component={Register} options={{ headerShown: false }} />
+                            <Stack.Screen name="SelectLocation" component={SelectLocation} options={{ headerShown: false }} />
+                        </>
 
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </View>
+                    )}
+                </Stack.Navigator>
+            </NavigationContainer>
+        </View>
 
-  )
+    )
 }

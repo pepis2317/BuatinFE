@@ -15,6 +15,13 @@ import { useTheme } from "../context/ThemeContext";
 import { Calendar } from "lucide-react-native";
 import ErrorComponent from "../../components/ErrorComponent";
 
+interface MaterialModel {
+    name: string,
+    cost: number,
+    quantity: number,
+    unitOfMeasurement: string,
+    supplier: string
+}
 type AddStepProps = NativeStackScreenProps<RootStackParamList, "AddStep">;
 export default function AddStep({ navigation, route }: AddStepProps) {
     const { processId, previousStepId } = route.params
@@ -28,6 +35,15 @@ export default function AddStep({ navigation, route }: AddStepProps) {
     const [maxDate, setMaxDate] = useState<Date | null>(null)
     const [showMaxDate, setShowMaxDate] = useState(false)
     const [amount, setAmount] = useState<number>(0)
+    const [materials, setMaterials] = useState<MaterialModel[]>([
+        {
+            name: "",
+            quantity: 1,
+            unitOfMeasurement: "",
+            supplier: "",
+            cost: 0
+        }
+    ])
     const [errMessage, setErrMessage] = useState("")
     const { user } = useAuth()
     const addStep = async () => {
@@ -40,23 +56,66 @@ export default function AddStep({ navigation, route }: AddStepProps) {
                 minCompleteEstimate: minDate,
                 maxCompleteEstimate: maxDate,
                 amount: amount * 100,
-                previousStepId: previousStepId
+                previousStepId: previousStepId,
+                materials: materials.map(m => ({
+                    name: m.name,
+                    quantity: m.quantity,
+                    unitOfMeasurement: m.unitOfMeasurement,
+                    supplier: m.supplier,
+                    cost: m.cost * 100
+                }))
             })
             return response.data
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
         }
     }
+
+    const addMaterial = () => {
+        setMaterials(prev => [
+            ...prev,
+            {
+                name: "",
+                quantity: 1,
+                unitOfMeasurement: "",
+                supplier: "",
+                cost: 0
+            }
+        ])
+    }
+    const removeMaterial = (index: number) => {
+        if (materials.length === 1) return;
+
+        setMaterials(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const updateMaterial = (
+        index: number,
+        field: keyof MaterialModel,
+        value: string | number
+    ) => {
+        const updated = [...materials];
+        updated[index] = {
+            ...updated[index],
+            [field]: value
+        };
+        setMaterials(updated);
+    };
+
     const setMinimumDate = (event: any, selectedDate: Date | undefined) => {
         if (!selectedDate) return;
         setMinDate(selectedDate);
         setShowMinDate(false);
     };
+
     const setMaximumDate = (event: any, selectedDate: any) => {
         if (!selectedDate) return;
         setMaxDate(selectedDate);
         setShowMaxDate(false);
     }
+
+    const totalMaterialCost = materials.reduce((sum, m) => sum + m.cost, 0)
+
     const handleUpload = async () => {
         if (!title || !description || !minDate || !maxDate) {
             setErrMessage("All forms must be filled")
@@ -85,6 +144,23 @@ export default function AddStep({ navigation, route }: AddStepProps) {
             setErrMessage("Date must be somewhere in the future");
             return;
         }
+
+        const hasEmptyMaterial = materials.some(m =>
+            !m.name ||
+            !m.unitOfMeasurement ||
+            !m.supplier ||
+            m.quantity <= 0
+        );
+
+        if (hasEmptyMaterial) {
+            setErrMessage("Please complete all material fields");
+            return;
+        }
+
+        if (totalMaterialCost > amount) {
+            setErrMessage("Total material cost cannot exceed step amount");
+        }
+
         setLoading(true)
         const result = await addStep()
         if (!result.error) {
@@ -171,11 +247,125 @@ export default function AddStep({ navigation, route }: AddStepProps) {
                                 onChange={setMaximumDate}
                             />
                             : <></>}
-                        <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
+                        {materials.map((material, index) => (
+                            <View key={index} style={[styles.material, { borderColor: borderColor }]}>
+                                <View>
+                                    <Text style={{
+                                        color: textColor,
+                                        fontWeight: 'bold',
+                                        marginBottom: 10
+                                    }}>Material Name</Text>
+                                    <TextInputComponent
+                                        placeholder="Material Name"
+                                        onChangeText={(text) => updateMaterial(index, "name", text)}
+                                        value={material.name}
+                                    />
+                                </View>
+
+                                <View>
+                                    <Text style={{
+                                        color: textColor,
+                                        fontWeight: 'bold',
+                                        marginBottom: 10
+                                    }}>Quantity</Text>
+                                    <TextInputComponent
+                                        placeholder="Quantity"
+                                        keyboardType="numeric"
+                                        onChangeText={(text) => updateMaterial(index, "quantity", Number(text))}
+                                        value={material.quantity.toString()}
+                                    />
+                                </View>
+
+                                <View>
+                                    <Text style={{
+                                        color: textColor,
+                                        fontWeight: 'bold',
+                                        marginBottom: 10
+                                    }}>Unit</Text>
+                                    <TextInputComponent
+                                        placeholder="Unit"
+                                        onChangeText={(text) => updateMaterial(index, "unitOfMeasurement", text)}
+                                        value={material.unitOfMeasurement}
+                                    />
+                                </View>
+
+                                <View>
+                                    <Text style={{
+                                        color: textColor,
+                                        fontWeight: 'bold',
+                                        marginBottom: 10
+                                    }}>Supplier</Text>
+                                    <TextInputComponent
+                                        placeholder="Supplier"
+                                        onChangeText={(text) => updateMaterial(index, "supplier", text)}
+                                        value={material.supplier}
+                                    />
+                                </View>
+
+                                <View>
+                                    <Text style={{
+                                        color: textColor,
+                                        fontWeight: 'bold',
+                                        marginBottom: 10
+                                    }}>Total Cost</Text>
+                                    <TextInputComponent
+                                        placeholder="Total Cost"
+                                        keyboardType="numeric"
+                                        onChangeText={(text) => updateMaterial(index, "cost", Number(text))}
+                                        value={material.cost.toString()}
+                                    />
+                                </View>
+                                {materials.length > 1 && (
+                                    <ColoredButton style={[{ backgroundColor: Colors.peach }, styles.button]} title={"Remove Material"} onPress={() => removeMaterial(index)} />
+                                )}
+                            </View>
+
+                        ))}
+
+                        <ColoredButton
+                            style={[{ backgroundColor: Colors.green }, styles.button]}
+                            title={"Add Material"} onPress={() => addMaterial()} />
+
+                        <View>
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: 'bold',
+                            }}>Total Material Cost</Text>
+                            <Text style={{
+                                color: textColor,
+                            }}>Rp.{Number(totalMaterialCost).toLocaleString("id-ID")}</Text>
+                        </View>
+
+                        <View>
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: 'bold',
+                            }}>Estimated Labor Cost</Text>
+                            <Text style={{
+                                color: textColor,
+                            }}>Rp.{Number(amount - totalMaterialCost).toLocaleString("id-ID")}</Text>
+                        </View>
+
+                        {totalMaterialCost > amount && (
+                            <Text style={{ color: Colors.peach }}>
+                                Material cost exceeds step amount!
+                            </Text>
+                        )}
+                        <View>
+                            <Text style={{
+                                color: textColor,
+                                fontWeight: 'bold',
+                                marginBottom: 10
+                            }}>Amount</Text>
+                            <TextInputComponent placeholder="Amount" onChangeText={(text) => setAmount(Number(text))} inputMode="numeric" />
+                        </View>
                         {errMessage ?
                             <ErrorComponent errorsString={errMessage} />
                             : <></>}
                         <ColoredButton style={[{ backgroundColor: Colors.green }, styles.button]} title={"Add step"} onPress={() => handleUpload()} isLoading={loading} />
+                        <Text style={{ color: textColor, textAlign: 'center' }}>
+                            Step price and material information can't be altered after creation.
+                        </Text>
                     </View>
                 </ScrollView>
 
@@ -198,4 +388,10 @@ const styles = StyleSheet.create({
         gap: 10,
         alignItems: 'center',
     },
+    material: {
+        borderWidth: 1,
+        borderRadius: 10,
+        padding: 10,
+        gap: 10
+    }
 })

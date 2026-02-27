@@ -5,14 +5,12 @@ import StepComponent from "./StepComponent";
 import axios from "axios";
 import { API_URL } from "../constants/ApiUri";
 import { useFocusEffect } from "@react-navigation/native";
-import { useTheme } from "../app/context/ThemeContext";
 
 export default function StepsList({ processId, navigation, editable, renderHeader, setLatestStep }: { processId: string, navigation: any, editable: boolean, renderHeader: () => any, setLatestStep: (step: StepResponse) => void }) {
     const loadingRef = useRef(false)
     const pageRef = useRef(1)
     const [steps, setSteps] = useState<StepResponse[]>([])
     const [total, setTotal] = useState(0)
-    const [refresh, setRefresh] = useState(false)
     const [refreshTick, setRefreshTick] = useState(0);
     const fetchSteps = async (pageNumber: number) => {
         try {
@@ -73,7 +71,7 @@ export default function StepsList({ processId, navigation, editable, renderHeade
             onEndReached={loadMore}
             onEndReachedThreshold={0.2}
             refreshControl={
-                <RefreshControl refreshing={refresh} onRefresh={handleRefresh} />
+                <RefreshControl refreshing={false} onRefresh={handleRefresh} />
             }
             ListFooterComponent={
                 <View style={{ marginTop: 64 }} />

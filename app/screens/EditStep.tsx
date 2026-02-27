@@ -10,15 +10,20 @@ import TextInputComponent from "../../components/TextInputComponent";
 import ColoredButton from "../../components/ColoredButton";
 import Colors from "../../constants/Colors";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import dayjs from "dayjs";
 import ConfirmedModal from "../../components/ConfirmedModal";
 import * as ImagePicker from "expo-image-picker";
-import { Calendar, PanelTopDashedIcon, PlusSquare, X } from "lucide-react-native";
+import { Calendar, PlusSquare, X } from "lucide-react-native";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import { useTheme } from "../context/ThemeContext";
-import { processFontWeight } from "react-native-reanimated/lib/typescript/css/native";
 import ErrorComponent from "../../components/ErrorComponent";
 
+interface MaterialModel {
+    name: string,
+    cost: number,
+    quantity: number,
+    unitOfMeasurement: string,
+    supplier: string
+}
 type EditStepProps = NativeStackScreenProps<RootStackParamList, "EditStep">;
 export default function EditStep({ navigation, route }: EditStepProps) {
     const { stepId } = route.params
@@ -183,7 +188,6 @@ export default function EditStep({ navigation, route }: EditStepProps) {
     const handleChange = (key: keyof StepResponse, value: any) => {
         setStep((prev) => prev ? { ...prev, [key]: value } : prev)
     }
-
     return (
         <View style={{ flex: 1 }}>
             <TopBar title="Edit Step" showBackButton />
@@ -205,7 +209,7 @@ export default function EditStep({ navigation, route }: EditStepProps) {
                             </View>
                             <View>
                                 <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 10 }}>Description</Text>
-                                <TextInputComponent value={step?.description} style={{height:120}}multiline onChangeText={(text) => handleChange("description", text)} />
+                                <TextInputComponent value={step?.description} style={{ height: 120 }} multiline onChangeText={(text) => handleChange("description", text)} />
                             </View>
 
                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -280,6 +284,9 @@ export default function EditStep({ navigation, route }: EditStepProps) {
                                         :
                                         <ColoredButton style={{ backgroundColor: Colors.darkGray }} title={"Complete Step"} isLoading={loading} disabled={true} />
                                     }
+                                    <Text style={{ color: textColor, textAlign: 'center' }}>
+                                        Completion proof images must be given to complete the step
+                                    </Text>
                                 </View>
                                 : <></>}
                         </View>
@@ -350,5 +357,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
 
+    },
+    material: {
+        borderWidth: 1,
+        borderRadius: 10,
+        padding: 10,
+        gap: 10
     }
+
 })

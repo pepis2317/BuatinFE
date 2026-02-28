@@ -22,7 +22,7 @@ export default function NotificationsList() {
         try {
             const token = await onGetUserToken!()
             // adjust pageSize or remove it if you want default server page size
-            const url = `${API_URL}/notifications?pageSize=3&pageNumber=${pageNumber}`
+            const url = `${API_URL}/notifications?pageSize=10&pageNumber=${pageNumber}`
             const response = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -37,7 +37,6 @@ export default function NotificationsList() {
     // default replace = false
     const handleFetch = async (page = pageRef.current, replace = false) => {
         if (loadingRef.current) return;
-        loadingRef.current = true;
         try {
             const result = await fetchNotifications(page);
             if (!result.error) {

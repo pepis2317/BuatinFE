@@ -27,7 +27,7 @@ export default function ConversationsList({ navigation }: { navigation: any }) {
     const fetchConvos = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            const response = await axios.get(`${API_URL}/chat/get-conversations?pageSize=3&pageNumber=${pageNumber}`, {
+            const response = await axios.get(`${API_URL}/chat/get-conversations?pageSize=10&pageNumber=${pageNumber}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -53,7 +53,6 @@ export default function ConversationsList({ navigation }: { navigation: any }) {
     }
     const loadMore = async () => {
         if (!loadingRef.current && conversations.length < total) {
-            loadingRef.current = true;
             pageRef.current += 1;
             await handleFetch(pageRef.current, false);
         }

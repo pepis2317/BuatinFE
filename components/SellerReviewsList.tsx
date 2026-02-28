@@ -22,7 +22,7 @@ export default function SellerReviewsList({ sellerId, navigation }: { sellerId: 
     const fetchSellerReviews = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            var url = `${API_URL}/get-seller-reviews?pageSize=3&pageNumber=${pageNumber}&sellerId=${sellerId}`
+            var url = `${API_URL}/get-seller-reviews?pageSize=10&pageNumber=${pageNumber}&sellerId=${sellerId}`
             const response = await axios.get(url,{
                 headers:{
                     Authorization: `Bearer ${token}`
@@ -51,7 +51,6 @@ export default function SellerReviewsList({ sellerId, navigation }: { sellerId: 
 
     const loadMore = async () => {
         if (!loadingRef.current && reviews.length < total) {
-            loadingRef.current = true;
             pageRef.current += 1;
             await handleFetch(pageRef.current, false);
         }

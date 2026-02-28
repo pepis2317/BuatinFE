@@ -14,7 +14,7 @@ export default function StepsList({ processId, navigation, editable, renderHeade
     const [refreshTick, setRefreshTick] = useState(0);
     const fetchSteps = async (pageNumber: number) => {
         try {
-            const response = await axios.get(`${API_URL}/get-steps?processId=${processId}&pageSize=3&pageNumber=${pageNumber}`)
+            const response = await axios.get(`${API_URL}/get-steps?processId=${processId}&pageSize=10&pageNumber=${pageNumber}`)
             return response.data
         } catch (e) {
             return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" };
@@ -46,7 +46,6 @@ export default function StepsList({ processId, navigation, editable, renderHeade
     
     const loadMore = async () => {
         if (!loadingRef.current && steps.length < total) {
-            loadingRef.current = true;
             pageRef.current += 1;
             await handleFetch(pageRef.current, false);
         }

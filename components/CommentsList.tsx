@@ -29,7 +29,7 @@ export default function CommentsList({
     const fetchComments = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            var url = `${API_URL}/get-comments?pageSize=3&pageNumber=${pageNumber}`
+            var url = `${API_URL}/get-comments?pageSize=10&pageNumber=${pageNumber}`
             const response = await axios.get(url, {
                 params: {
                     contentId: contentId
@@ -59,7 +59,6 @@ export default function CommentsList({
     }
     const loadMore = async () => {
         if (!loadingRef.current && comments.length < total) {
-            loadingRef.current = true;
             pageRef.current += 1;
             await handleFetch(pageRef.current, false);
         }

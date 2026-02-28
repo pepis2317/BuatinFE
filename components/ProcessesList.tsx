@@ -19,9 +19,9 @@ export default function ProcessesList({ navigation, isSeller }: { navigation: an
     const fetchProcesses = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            var url = `${API_URL}/get-processes?pageSize=3&pageNumber=${pageNumber}`
+            var url = `${API_URL}/get-processes?pageSize=10&pageNumber=${pageNumber}`
             if (isSeller) {
-                url = `${API_URL}/get-seller-processes?pageSize=3&pageNumber=${pageNumber}`
+                url = `${API_URL}/get-seller-processes?pageSize=10&pageNumber=${pageNumber}`
             }
             const response = await axios.get(url, {
                 headers: {
@@ -49,7 +49,6 @@ export default function ProcessesList({ navigation, isSeller }: { navigation: an
     }
     const loadMore = async () => {
         if (!loadingRef.current && processes.length < total) {
-            loadingRef.current = true;
             pageRef.current += 1;
             await handleFetch(pageRef.current, false);
         }

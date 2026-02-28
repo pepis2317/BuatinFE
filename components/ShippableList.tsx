@@ -20,7 +20,7 @@ export default function ShippableList({ navigation }: { navigation: any }) {
     const fetchProcesses = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            const response = await axios.get(`${API_URL}/get-shippable?pageSize=3&pageNumber=${pageNumber}`, {
+            const response = await axios.get(`${API_URL}/get-shippable?pageSize=10&pageNumber=${pageNumber}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -47,7 +47,6 @@ export default function ShippableList({ navigation }: { navigation: any }) {
     }
     const loadMore = async () => {
         if (!loadingRef.current && processes.length < total) {
-            loadingRef.current = true;
             pageRef.current += 1;
             await handleFetch(pageRef.current, false);
         }

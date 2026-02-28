@@ -114,7 +114,7 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
                             color: textColor,
                             fontWeight: 'bold',
                             marginBottom: 10
-                        }}>Height</Text>
+                        }}>Height (cm)</Text>
                         <TextInputComponent placeholder="Height" keyboardType="numeric" onChangeText={(input) => setHeight(Number(input))} />
                     </View>
                     <View>
@@ -122,7 +122,7 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
                             color: textColor,
                             fontWeight: 'bold',
                             marginBottom: 10
-                        }}>Width</Text>
+                        }}>Width (cm)</Text>
                         <TextInputComponent placeholder="Width" keyboardType="numeric" onChangeText={(input) => setWidth(Number(input))} />
                     </View>
                     <View>
@@ -130,16 +130,16 @@ export default function CreateShipment({ navigation, route }: CreateShipmentProp
                             color: textColor,
                             fontWeight: 'bold',
                             marginBottom: 10
-                        }}>Weight</Text>
-                        <TextInputComponent placeholder="Weight" keyboardType="numeric" onChangeText={(input) => setWeight(Number(input))} />
+                        }}>Length (cm)</Text>
+                        <TextInputComponent placeholder="Length" keyboardType="numeric" onChangeText={(input) => setLength(Number(input))} />
                     </View>
                     <View>
                         <Text style={{
                             color: textColor,
                             fontWeight: 'bold',
                             marginBottom: 10
-                        }}>Length</Text>
-                        <TextInputComponent placeholder="Length" keyboardType="numeric" onChangeText={(input) => setLength(Number(input))} />
+                        }}>Weight (g)</Text>
+                        <TextInputComponent placeholder="Weight" keyboardType="numeric" onChangeText={(input) => setWeight(Number(input))} />
                     </View>
                     {errMessage ?
                         <ErrorComponent errorsString={errMessage} />

@@ -262,7 +262,7 @@ export default function ShipmentDetails({ navigation, route }: ShipmentDetailsPr
                                             <ErrorComponent errorsString={errMessage} />
                                             : <></>}
                                         {rates ?
-                                            <View>
+                                            <View style={{gap:10}}>
                                                 <ColoredButton title={hasPressedSnap ? "Check Payment Status" : "Pay with Snap"} onPress={() => handleSnapPay()} style={{ backgroundColor: Colors.green }} />
                                                 {hasPressedSnap ? <></> : <ColoredButton title={"Pay with Wallet"} onPress={() => handleWalletPay()} style={{ backgroundColor: Colors.green }} isLoading={loading} />}
                                             </View> : <></>}

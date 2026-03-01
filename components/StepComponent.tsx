@@ -81,7 +81,15 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                     <View style={[styles.info, { borderColor: borderColor }]}>
                         <View style={{ padding: 15, paddingVertical: 10 }}>
                             <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16, marginBottom: 5 }}>{step.title}</Text>
-                            <Text style={{ color: textColor, fontSize: 12 }}>{step.description}</Text>
+                            <Text style={{ color: textColor, fontSize: 12, marginBottom:15 }}>{step.description}</Text>
+                            <Text style={{ color: textColor, marginBottom: 5, fontSize:12 }}>
+                                Created at {step.createdAt}
+                            </Text>
+                            {step.updatedAt ?
+                                <Text style={{ color: textColor, marginBottom: 5, fontSize:12}}>
+                                    Last updated at {step.updatedAt}
+                                </Text>
+                                : <></>}
                             <View style={{ gap: 10, marginVertical: 10 }}>
                                 {step.materials.map((material, index) => (
                                     <View key={index} style={[styles.material, { borderColor: borderColor }]}>
@@ -155,8 +163,9 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                             : <></>}
                     </View>
 
-
                 </View>
+
+
 
                 {step.status == "Completed" ?
                     <View style={{ gap: 10, marginBottom: 10 }}>

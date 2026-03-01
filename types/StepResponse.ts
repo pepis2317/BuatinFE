@@ -8,6 +8,8 @@ export type StepResponse={
     status:string
     price:number
     materials: MaterialResponse[]
+    createdAt: string,
+    updatedAt: string | null
 }
 type MaterialResponse = {
     materialId:string
@@ -16,6 +18,4 @@ type MaterialResponse = {
     unitOfMeasurement:string
     supplier:string
     cost:number
-    createdAt:Date
-    updatedAt:Date
 }

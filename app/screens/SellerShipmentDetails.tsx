@@ -123,8 +123,17 @@ export default function SellerShipmentDetails({ navigation, route }: SellerShipm
                         {tracking ?
                             <View style={{ marginTop: 20 }}>
                                 <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 5 }}>Tracking History</Text>
+
+                                <View style={{ marginBottom: 5, flexDirection: 'row' }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold' }}>Courier:</Text>
+                                    <Text style={{ color: textColor }}> {tracking.courier.name ?? "-"}</Text>
+                                </View>
                                 {tracking.courier.history.map((item, index) => (
                                     <View key={index} style={[styles.history, { backgroundColor: subtleBorderColor }]}>
+                                        <View style={{ marginBottom: 5, flexDirection: 'row' }}>
+                                            <Text style={{ color: textColor, fontWeight: 'bold' }}>Last updated at:</Text>
+                                            <Text style={{ color: textColor }}> {item.updatedAt ?? "-"}</Text>
+                                        </View>
                                         <View style={{ marginBottom: 5, flexDirection: 'row' }}>
                                             <Text style={{ color: textColor, fontWeight: 'bold' }}>Status:</Text>
                                             <Text style={{ color: textColor }}> {item.status}</Text>

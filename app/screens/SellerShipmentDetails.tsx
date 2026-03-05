@@ -19,7 +19,7 @@ export default function SellerShipmentDetails({ navigation, route }: SellerShipm
     const [tracking, setTracking] = useState<BiteshipTrackResponse>()
     const [loading, setLoading] = useState(false)
     const [showSent, setShowSent] = useState(false)
-    const { textColor, subtleBorderColor } = useTheme()
+    const { textColor, subtleBorderColor, borderColor } = useTheme()
     const fetchShipment = async () => {
         try {
             const response = await axios.get(`${API_URL}/get-shipment?shipmentId=${shipmentId}`)
@@ -102,22 +102,27 @@ export default function SellerShipmentDetails({ navigation, route }: SellerShipm
                                 <Text style={{ color: textColor, fontWeight: 'bold' }}>Category:</Text>
                                 <Text style={{ color: textColor }}>{shipment.category}</Text>
                             </View>
-                            <View style={{ marginBottom: 10 }}>
-                                <Text style={{ color: textColor, fontWeight: 'bold' }}>Quantity:</Text>
-                                <Text style={{ color: textColor }}>{shipment.quantity}</Text>
+                            <View style={{ flex: 1, flexDirection: "row" }}>
+                                <View style={{ marginBottom: 10, width: "50%" }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold' }}>Quantity:</Text>
+                                    <Text style={{ color: textColor }}>{shipment.quantity}</Text>
+                                </View>
+
+                                <View style={{ marginBottom: 10, width: "50%" }}>
+                                    <Text style={{ color: textColor, fontWeight: 'bold' }}>Weight:</Text>
+                                    <Text style={{ color: textColor }}>{shipment.weight}</Text>
+                                </View>
                             </View>
                             <View style={{ marginBottom: 10 }}>
                                 <Text style={{ color: textColor, fontWeight: 'bold' }}>Dimensions (Height x Width x Length):</Text>
                                 <Text style={{ color: textColor }}>{shipment.height} x {shipment.width} x {shipment.length}</Text>
                             </View>
-                            <View style={{ marginBottom: 10 }}>
-                                <Text style={{ color: textColor, fontWeight: 'bold' }}>Weight:</Text>
-                                <Text style={{ color: textColor }}>{shipment.weight}</Text>
+                            <View style={{ height: 1, backgroundColor: borderColor }} />
+                            <View style={{paddingTop:10, flex:1, justifyContent:'center', alignItems:'center'}}>
+                                {shipment.status == "Pending" ? <Text style={{ color: textColor, fontWeight: "bold" }}>Awaiting buyer to pay for shipping fee</Text> : <></>}
+                                {shipment.status == "Paid" ? <Text style={{ color: textColor, fontWeight: "bold" }}>Buyer has paid the shipping fee</Text> : <></>}
+                                {shipment.status == "Sent" ? <Text style={{ color: textColor, fontWeight: "bold" }}>Item is being sent to buyer</Text> : <></>}
                             </View>
-
-                            {shipment.status == "Pending" ? <Text style={{ color: textColor }}>Awaiting buyer to pay for shipping fee</Text> : <></>}
-                            {shipment.status == "Paid" ? <Text style={{ color: textColor }}>Buyer has paid the shipping fee</Text> : <></>}
-                            {shipment.status == "Sent" ? <Text style={{ color: textColor }}>Item is being sent to buyer</Text> : <></>}
                         </View>
                         {shipment.status == "Paid" ? <ColoredButton title={"Send Shipment to Buyer"} style={{ backgroundColor: Colors.green }} onPress={() => handleSend()} isLoading={loading} /> : <></>}
                         {tracking ?

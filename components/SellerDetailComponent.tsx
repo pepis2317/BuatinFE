@@ -10,7 +10,13 @@ import axios from "axios";
 import { API_URL } from "../constants/ApiUri";
 import ConfirmedModal from "./ConfirmedModal";
 import { SellerResponse } from "../types/SellerResponse";
-import { ReviewResponse } from "../types/ReviewResponse";
+
+type Coord = { latitude: number; longitude: number };
+type AddressComponent = {
+    long_name: string;
+    short_name: string;
+    types: string[];
+};
 
 export default function SellerDetailComponent({ seller, navigation, editing, onEditSuccess}: { seller: SellerResponse, navigation: any, editing: boolean, onEditSuccess?: () => void }) {
     const { subtleBorderColor, foregroundColor, borderColor, textColor, backgroundColor } = useTheme()
@@ -20,11 +26,55 @@ export default function SellerDetailComponent({ seller, navigation, editing, onE
     const [sellerDescription, setSellerDescription] = useState<string>('')
     const [showSuccess, setShowSuccess] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [geoAddress, setGeoAddress] = useState("")
+    const [address, setAddress] = useState("")
+
+    const reverseGeocode = async (latitude: number, longitude: number) => {
+        try {
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyDg7Bxr3Z2iaOWilJGAPR3xrhgoFJinl9E`)
+            return response.data
+        } catch (e) {
+            return { error: true, msg: (e as any).response?.data?.detail || "An error occurred" }
+        }
+    }
+
+    const get = (comp: AddressComponent[], type: string) => comp.find(c => c.types.includes(type))?.long_name;
+
+    const handleReverseGeocode = async (latitude: number, longitude: number) => {
+        const result = await reverseGeocode(latitude, longitude);
+
+        if (!result.error) {
+            const comp: AddressComponent[] = result.results[0].address_components;
+
+            const street = `${get(comp, "route") || ""} ${get(comp, "street_number") || ""}`.trim();
+            const sublocality = get(comp, "sublocality");
+            const district = get(comp, "administrative_area_level_3");
+            const city = get(comp, "administrative_area_level_2");
+            const province = get(comp, "administrative_area_level_1");
+            const postal = get(comp, "postal_code");
+            const country = get(comp, "country");
+
+            const parts = [
+                street,
+                sublocality,
+                district,
+                city,
+                province ? `${province} ${postal || ""}`.trim() : null,
+                country
+            ];
+
+            const finalAddress = parts.filter(Boolean).join(", ");
+            setAddress(finalAddress);
+            setGeoAddress(finalAddress);
+        }
+    };
 
     useEffect(() => {
         setSellerName(seller.sellerName)
         setSellerDescription(seller.description ? seller.description : "")
+        handleReverseGeocode(seller.owner.latitude, seller.owner.longitude)
     }, [])
+
 
     const hasChanged = useMemo(() => {
         return (banner ?? null) !== (seller.banner ?? null)
@@ -187,6 +237,10 @@ export default function SellerDetailComponent({ seller, navigation, editing, onE
                         <View style={[styles.defaultDescriptionContainer, { backgroundColor: foregroundColor }]}>
                             <Text style={{ color: textColor }}>{sellerDescription}</Text>
                         </View>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 6 }}>Address</Text>
+                        <View style={[styles.defaultDescriptionContainer, { backgroundColor: foregroundColor }]}>
+                            <Text style={{ color: textColor }}>{geoAddress}</Text>
+                        </View>
                     </View>
                 }
             </View>
@@ -204,7 +258,8 @@ const styles = StyleSheet.create({
     defaultDescriptionContainer: {
         borderRadius: 10,
         paddingHorizontal: 16,
-        paddingVertical: 12
+        paddingVertical: 12,
+        marginBottom: 10
     },
 
     descContainer: {

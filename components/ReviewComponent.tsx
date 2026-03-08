@@ -11,29 +11,29 @@ import PfpComponent from "./PfpComponent";
 import colors from "../constants/Colors";
 
 const formatEditedDate = (date: string | number | Date) => {
-        const d = new Date(date);
+    const d = new Date(date);
 
-        const weekday = new Intl.DateTimeFormat("en-GB", {
-            weekday: "short",
-        }).format(d);
+    const weekday = new Intl.DateTimeFormat("en-GB", {
+        weekday: "short",
+    }).format(d);
 
-        const day = new Intl.DateTimeFormat("en-GB", {
-            day: "2-digit",
-        }).format(d);
+    const day = new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+    }).format(d);
 
-        const month = new Intl.DateTimeFormat("en-GB", {
-            month: "short",
-        }).format(d);
+    const month = new Intl.DateTimeFormat("en-GB", {
+        month: "short",
+    }).format(d);
 
-        const year = new Intl.DateTimeFormat("en-GB", {
-            year: "numeric",
-        }).format(d);
+    const year = new Intl.DateTimeFormat("en-GB", {
+        year: "numeric",
+    }).format(d);
 
-        return `${weekday}, ${day} ${month} ${year}`;
+    return `${weekday}, ${day} ${month} ${year}`;
 };
 
 export default function ReviewComponent({ review, navigation, isSeller }: { review: ReviewResponse, navigation: any, isSeller: boolean }) {
-    const { foregroundColor , textColor } = useTheme()
+    const { foregroundColor, textColor } = useTheme()
     const { onGetUserToken, user } = useAuth()
     const [likes, setLikes] = useState(review.likes)
     const [liked, setLiked] = useState(review.liked)
@@ -94,7 +94,7 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
             navigation.navigate('EditReview', { review: review, isSeller: false })
         }
     }
-    
+
     return (
         <View style={[styles.container, { backgroundColor: foregroundColor, marginBottom: 16 }]}>
 
@@ -103,28 +103,31 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <PfpComponent width={32} pfp={review.authorPfp} userId={review.authorId} navigation={navigation} />
                     <View>
-                        <TouchableOpacity onPress={()=> navigation.navigate('UserDetails', {userId:review.authorId})}>
+                        <TouchableOpacity onPress={() => navigation.navigate('UserDetails', { userId: review.authorId })}>
                             <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16 }}>{review.authorName}</Text>
                         </TouchableOpacity>
                         <Text style={{ color: colors.darkGray, fontSize: 12 }}>
-                        {review.updatedAt
-                            ? `Edited ${formatEditedDate(review.updatedAt)}`
-                            : formatEditedDate(review.createdAt)}
+                            {review.updatedAt
+                                ? `Edited ${formatEditedDate(review.updatedAt)}`
+                                : formatEditedDate(review.createdAt)}
                         </Text>
                     </View>
                 </View>
-                {review.authorId == user?.userId ?
-                    <TouchableOpacity onPress={() => handleNavigate()}>
-                        <Pencil size={20} color={textColor} />
-                    </TouchableOpacity> : <></>}
+                <View>
+                    {/* Rating */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                        <Text style={{ color: textColor, fontWeight: 'bold' }}>{review.rating}</Text>
+                        <Star fill={'gold'} color={'gold'} size={16} />
+                    </View>
 
-                {/* Rating */}
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4}}>
-                    <Text style={{ color: textColor, fontWeight: 'bold' }}>{review.rating}</Text>
-                    <Star fill={'gold'} color={'gold'} size={16} />
+                    {review.authorId == user?.userId ?
+                        <TouchableOpacity onPress={() => handleNavigate()}>
+                            <Pencil size={20} color={textColor} />
+                        </TouchableOpacity> : <></>}
                 </View>
+
             </View>
-            
+
             {/* Review */}
             <Text style={{ color: textColor }}>{review.review}</Text>
 
@@ -152,11 +155,11 @@ export default function ReviewComponent({ review, navigation, isSeller }: { revi
 }
 
 export function ReviewComponentShort({ review, navigation, isEnd }: { review: ReviewResponse, navigation: any, isEnd: boolean }) {
-    const { foregroundColor, textColor} = useTheme()
+    const { foregroundColor, textColor } = useTheme()
 
     return (
-        <View style={[styles.container, {maxWidth: 240, marginRight: isEnd ? 0 : 16, backgroundColor: foregroundColor, borderRadius: 10}]}>
-            
+        <View style={[styles.container, { maxWidth: 240, marginRight: isEnd ? 0 : 16, backgroundColor: foregroundColor, borderRadius: 10 }]}>
+
             {/* Profile, Name, Last Edited */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <PfpComponent width={32} pfp={review.authorPfp} userId={""} navigation={navigation} />
@@ -168,18 +171,18 @@ export function ReviewComponentShort({ review, navigation, isEnd }: { review: Re
                         {review.updatedAt
                             ? `Edited ${formatEditedDate(review.updatedAt)}`
                             : formatEditedDate(review.createdAt)}
-                        </Text>
+                    </Text>
                 </View>
             </View>
 
             {/* Rating */}
             <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                <Text style={{ color: textColor, fontWeight: 'bold', marginRight: 4}}>{review.rating}</Text>
+                <Text style={{ color: textColor, fontWeight: 'bold', marginRight: 4 }}>{review.rating}</Text>
                 <Star fill={'gold'} color={'gold'} size={16} />
             </View>
 
             {/* Review */}
-            <View style={{ flex: 1, justifyContent: 'space-between'}}>
+            <View style={{ flex: 1, justifyContent: 'space-between' }}>
                 <Text numberOfLines={3}
                     ellipsizeMode="tail"
                     style={{ color: textColor, }}>{review.review}</Text>

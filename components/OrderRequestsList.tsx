@@ -21,7 +21,7 @@ export default function OrderRequestsList({ isSeller, navigation }: { isSeller: 
     const fetchRequests = async (pageNumber: number) => {
         try {
             const token = await onGetUserToken!()
-            const response = await axios.get(`${API_URL}/get-order-requests?pageSize=3&pageNumber=${pageNumber}&isSeller=${isSeller}`, {
+            const response = await axios.get(`${API_URL}/get-order-requests?pageSize=10&pageNumber=${pageNumber}&isSeller=${isSeller}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -47,7 +47,6 @@ export default function OrderRequestsList({ isSeller, navigation }: { isSeller: 
     }
     const loadMore = async () => {
         if (!loadingRef.current && orderRequests.length < total) {
-            loadingRef.current = true;
             pageRef.current += 1;
             await handleFetch(pageRef.current, false);
         }

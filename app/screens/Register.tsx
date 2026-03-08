@@ -151,7 +151,6 @@ export default function Register() {
             setCanSubmit(false)
         }
     }, [role, email, password, userName, phone, postalCode, address, sellerName, location])
-    useEffect(()=>{console.log(sellerName)},[sellerName])
     return (
 
         <View style={{ flex: 1 }}>

@@ -15,7 +15,7 @@ import { StepResponse } from "../../types/StepResponse";
 type AcceptAndPayProps = NativeStackScreenProps<RootStackParamList, "AcceptAndPay">;
 export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
     const { stepId } = route.params
-    const { textColor, foregroundColor } = useTheme()
+    const { textColor, foregroundColor, borderColor } = useTheme()
     const [loading, setLoading] = useState(false)
     const [stepLoading, setStepLoading] = useState(false)
     const [showPaid, setShowPaid] = useState(false)
@@ -88,6 +88,7 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
         if (!result.error) {
             setStep(result)
         }
+        console.log("RESULT", result)
         setStepLoading(false)
     }
     useEffect(() => {
@@ -105,10 +106,13 @@ export default function AcceptAndPay({ navigation, route }: AcceptAndPayProps) {
                     <ActivityIndicator size="large" style={{ height: 64, margin: 10, borderRadius: 5 }} color={textColor} />
                     :
                     <View style={{ backgroundColor: foregroundColor, padding: 10, borderRadius: 5 }}>
-                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom:5 }}>{step.title}</Text>
-                        <Text style={{ color: textColor, marginBottom:5}}>{step.description}</Text>
-                        <Text style={{ color: textColor, marginBottom:5}}>{step.minCompleteEstimate} - {step.maxCompleteEstimate}</Text>
-                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Rp.{Number(step.price/100).toLocaleString("id-ID")}</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold', marginBottom: 5 }}>{step.title}</Text>
+                        <Text style={{ color: textColor, marginBottom: 5 }}>{step.description}</Text>
+                        <Text style={{ color: textColor, fontWeight: 'bold' }}>Rp.{Number(step.price / 100).toLocaleString("id-ID")}</Text>
+                        <View style={{ height: 1, marginTop:10,  backgroundColor: borderColor }} />
+                        <View style={{ paddingTop: 10, justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={{ color: textColor, marginBottom: 5 }}>{step.minCompleteEstimate} - {step.maxCompleteEstimate}</Text>
+                        </View>
                     </View>
                 }
                 {hasPressedSnap ? <></> : <ColoredButton title={"Pay using wallet"} style={{ backgroundColor: Colors.green }} onPress={() => handleWalletPay()} isLoading={loading} />}

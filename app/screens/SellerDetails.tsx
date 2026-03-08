@@ -20,7 +20,7 @@ import { ReviewResponse } from "../../types/ReviewResponse";
 import { ReviewComponentShort } from "../../components/ReviewComponent";
 import { useFocusEffect } from "@react-navigation/native";
 
-const DetailsRoute = ({ sellerId, navigation }: { sellerId: string|null, navigation: any }) => {
+const DetailsRoute = ({ sellerId, navigation }: { sellerId: string | null, navigation: any }) => {
     const { onGetUserToken } = useAuth()
     const { user } = useAuth()
     const { textColor, foregroundColor } = useTheme()
@@ -83,11 +83,11 @@ const DetailsRoute = ({ sellerId, navigation }: { sellerId: string|null, navigat
     useEffect(() => {
         handleGetSeller()
     }, [])
-    const getStats = async () => {
+    const getStats = async (id: string | null) => {
         try {
             const response = await axios.get(`${API_URL}/get-seller-stats`, {
                 params: {
-                    sellerId: sellerId
+                    sellerId: id
                 }
             });
             return response.data;
@@ -114,10 +114,10 @@ const DetailsRoute = ({ sellerId, navigation }: { sellerId: string|null, navigat
         }
     }
 
-    const getTopReviews = async () => {
+    const getTopReviews = async (id:string | null) => {
         try {
             const token = await onGetUserToken!()
-            var url = `${API_URL}/get-seller-reviews?pageSize=5&pageNumber=1&sellerId=${sellerId}`
+            var url = `${API_URL}/get-seller-reviews?pageSize=5&pageNumber=1&sellerId=${id}`
             const response = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -130,9 +130,16 @@ const DetailsRoute = ({ sellerId, navigation }: { sellerId: string|null, navigat
     }
 
     const handleGetStats = async () => {
-        const result = await getStats()
-        if (!result.error) {
-            setStats(result)
+        if (sellerId) {
+            const result = await getStats(sellerId)
+            if (!result.error) {
+                setStats(result)
+            }
+        } else if (seller) {
+            const result = await getStats(seller.sellerId)
+            if (!result.error) {
+                setStats(result)
+            }
         }
     }
 
@@ -144,9 +151,16 @@ const DetailsRoute = ({ sellerId, navigation }: { sellerId: string|null, navigat
     }
 
     const handleGetReviews = async () => {
-        const result = await getTopReviews()
-        if (!result.error) {
-            setTopReviews(result.reviews)
+        if (sellerId) {
+            const result = await getTopReviews(sellerId)
+            if (!result.error) {
+                setTopReviews(result.reviews)
+            }
+        } else if (seller){
+            const result = await getTopReviews(seller.sellerId)
+            if (!result.error) {
+                setTopReviews(result.reviews)
+            }
         }
     }
 
@@ -170,6 +184,11 @@ const DetailsRoute = ({ sellerId, navigation }: { sellerId: string|null, navigat
     useEffect(() => {
         reset()
     }, [])
+
+    useEffect(() => {
+        handleGetStats()
+        handleGetReviews()
+    }, [seller])
 
     return (
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
@@ -265,7 +284,7 @@ type Cursor = {
     lastCreatedAt: string | null
 }
 
-const PostsRoute = ({ sellerId, navigation }: { sellerId: string|null, navigation: any }) => {
+const PostsRoute = ({ sellerId, navigation }: { sellerId: string | null, navigation: any }) => {
     const { user } = useAuth()
     const { onGetUserToken } = useAuth()
     const [posts, setPosts] = useState<PostResponse[]>([])

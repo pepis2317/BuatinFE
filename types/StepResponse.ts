@@ -7,4 +7,15 @@ export type StepResponse={
     maxCompleteEstimate:string
     status:string
     price:number
+    materials: MaterialResponse[]
+    createdAt: string,
+    updatedAt: string | null
+}
+type MaterialResponse = {
+    materialId:string
+    name:string
+    quantity:number
+    unitOfMeasurement:string
+    supplier:string
+    cost:number
 }

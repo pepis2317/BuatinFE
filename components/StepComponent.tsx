@@ -1,14 +1,13 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { StepResponse } from "../types/StepResponse";
 import ColoredButton from "./ColoredButton";
 import axios from "axios";
 import { API_URL } from "../constants/ApiUri";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ConfirmedModal from "./ConfirmedModal";
 import Colors from "../constants/Colors";
 import { useTheme } from "../app/context/ThemeContext";
 import { Pencil } from "lucide-react-native";
-import { useFocusEffect } from "@react-navigation/native";
 
 export default function StepComponent({ step, navigation, editable, index }: { step: StepResponse, navigation: any, editable: boolean, index: number }) {
     const [loading, setLoading] = useState(false)
@@ -66,6 +65,7 @@ export default function StepComponent({ step, navigation, editable, index }: { s
         const date = new Date(Number(year), Number(month) - 1, Number(day));
         setOverdue(date < new Date())
     }, [])
+    const totalMaterialCost = step.materials.reduce((sum, m) => sum + m.cost, 0)
     return (
         <View style={styles.container}>
             <ConfirmedModal isFail={false} visible={showDeclined} message={"Step has been declined"} onPress={() => setShowDeclined(false)} />
@@ -81,8 +81,50 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                     <View style={[styles.info, { borderColor: borderColor }]}>
                         <View style={{ padding: 15, paddingVertical: 10 }}>
                             <Text style={{ color: textColor, fontWeight: 'bold', fontSize: 16, marginBottom: 5 }}>{step.title}</Text>
-                            <Text style={{ color: textColor, fontSize: 12 }}>{step.description}</Text>
-                            <Text style={{ color: textColor, marginBottom: 10 }}>Rp.{Number(step.price / 100).toLocaleString("id-ID")}</Text>
+                            <Text style={{ color: textColor, fontSize: 12, marginBottom:15 }}>{step.description}</Text>
+                            <Text style={{ color: textColor, marginBottom: 5, fontSize:12 }}>
+                                Created at {step.createdAt}
+                            </Text>
+                            {step.updatedAt ?
+                                <Text style={{ color: textColor, marginBottom: 5, fontSize:12}}>
+                                    Last updated at {step.updatedAt}
+                                </Text>
+                                : <></>}
+                            <View style={{ gap: 10, marginVertical: 10 }}>
+                                {step.materials.map((material, index) => (
+                                    <View key={index} style={[styles.material, { borderColor: borderColor }]}>
+                                        <Text style={{ color: textColor, fontSize: 12, fontWeight: 'bold', padding: 10 }}>{material.name}</Text>
+                                        <View style={{ height: 1, backgroundColor: borderColor }} />
+                                        <View style={{ gap: 10, padding: 10 }}>
+                                            <View>
+                                                <Text style={{ color: textColor, fontSize: 12, fontWeight: 'bold' }}>Quantity</Text>
+                                                <Text style={{ color: textColor, fontSize: 12 }}>{material.quantity}</Text>
+                                            </View>
+                                            <View>
+                                                <Text style={{ color: textColor, fontSize: 12, fontWeight: 'bold' }}>Unit of Measurement</Text>
+                                                <Text style={{ color: textColor, fontSize: 12 }}>{material.unitOfMeasurement}</Text>
+                                            </View>
+                                            <View>
+                                                <Text style={{ color: textColor, fontSize: 12, fontWeight: 'bold' }}>Supplier</Text>
+                                                <Text style={{ color: textColor, fontSize: 12 }}>{material.supplier}</Text>
+                                            </View>
+                                            <View>
+                                                <Text style={{ color: textColor, fontSize: 12, fontWeight: 'bold' }}>Material Total Cost</Text>
+                                                <Text style={{ color: textColor, fontSize: 12 }}>Rp.{Number(material.cost / 100).toLocaleString("id-ID")}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                ))}
+                            </View>
+                            <View>
+                                <Text style={{ color: textColor, fontSize: 12, fontWeight: 'bold' }}>Estimated Labor Cost</Text>
+                                <Text style={{ color: textColor, marginBottom: 10 }}> Rp.{Number((step.price - totalMaterialCost) / 100).toLocaleString("id-ID")}</Text>
+                            </View>
+                            <View>
+                                <Text style={{ color: textColor, fontSize: 12, fontWeight: 'bold' }}>Step Price</Text>
+                                <Text style={{ color: textColor, marginBottom: 10 }}>Rp.{Number(step.price / 100).toLocaleString("id-ID")}</Text>
+                            </View>
+
                         </View>
                         {overdue && step.status == "Working" ?
                             <View style={{ backgroundColor: subtleBorderColor, paddingVertical: 10, paddingHorizontal: 20 }}>
@@ -121,8 +163,9 @@ export default function StepComponent({ step, navigation, editable, index }: { s
                             : <></>}
                     </View>
 
-
                 </View>
+
+
 
                 {step.status == "Completed" ?
                     <View style={{ gap: 10, marginBottom: 10 }}>
@@ -200,4 +243,8 @@ const styles = StyleSheet.create({
         right: 20,
         top: 20
     },
+    material: {
+        borderWidth: 1,
+        borderRadius: 10
+    }
 })

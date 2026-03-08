@@ -4,10 +4,12 @@ interface ButtonProps extends TouchableOpacityProps {
     style?: any;
     isLoading?: boolean;
 }
-export default function ColoredButton({ title, style, isLoading, ...rest }: ButtonProps) {
+export default function ColoredButton({ title, style, isLoading, disabled, ...rest }: ButtonProps) {
     return (
-        <TouchableOpacity style={[styles.button, style]}{...rest} disabled={isLoading}>
-            {isLoading ? <ActivityIndicator size="small" color={"white"} /> : <Text style={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>{title}</Text>}
+        <TouchableOpacity style={[styles.button, style]}{...rest} disabled={isLoading || disabled}>
+            {isLoading ? <ActivityIndicator size="small" color={"white"} /> : 
+                <Text style={{ color: disabled?'gray':'white', fontWeight: 'bold', textAlign: 'center' }}>{title}</Text>
+            }
         </TouchableOpacity>
     )
 }

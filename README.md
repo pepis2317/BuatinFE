@@ -9,7 +9,7 @@ covers production, delivery, communication, and seller discovery
 | Admin UI | [Buatin-Admin](https://github.com/vindall/Buatin-Admin) |
 | Backend | [pepis2317/BuatinBE](https://github.com/pepis2317/BuatinBE) |
 
-//yt demo
+[![Watch the demo](https://img.youtube.com/vi/1-ItnrRIo3Q/0.jpg)](https://www.youtube.com/watch?v=1-ItnrRIo3Q)
 //images from figma
 
 ## What it does

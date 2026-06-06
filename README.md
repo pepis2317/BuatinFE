@@ -2,6 +2,13 @@
 Mobile frontend of Buatin, a milestone based physical products commissioning app that 
 covers production, delivery, communication, and seller discovery
 
+### Related Repos
+
+| Part | Repo |
+|---|---|
+| Admin UI | [Buatin-Admin](https://github.com/vindall/Buatin-Admin) |
+| Backend | [pepis2317/BuatinBE](https://github.com/pepis2317/BuatinBE) |
+
 //yt demo
 //images from figma
 
@@ -36,11 +43,15 @@ handles refunds and cancellations so neither party is left hanging.
 note: this repo does not work with expo go, an internal build is required
 ### Installation
 ```bash
-git clone ---
-cd ---
+git clone https://github.com/pepis2317/BuatinFE.git
+cd BuatinFE
 npm i
 npm i -g expo-cli
 eas login
 eas build --platform android
 npx expo start
 ```
+## What I'd Improve
+- [ ] Clean up frontend architecture
+- [ ] Improve UI design
+- [ ] Add more real-time updates on certain pages with WebSockets
